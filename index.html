@@ -1059,6 +1059,17 @@
                     <input id="shieldManualSpAttack" type="number" value="0" step="0.1">
                   </label>
                   <label>
+                    最大HP +/-
+                    <input id="shieldManualHp" type="number" value="0" step="1">
+                  </label>
+                  <label>
+                    シールド対象
+                    <select id="shieldTargetType">
+                      <option value="self">自分</option>
+                      <option value="ally">味方</option>
+                    </select>
+                  </label>
+                  <label>
                     シールド +%
                     <input id="manualShieldPercent" type="number" value="0" step="0.1">
                   </label>
@@ -1095,6 +1106,10 @@
                     <div class="stat-tile">
                       <span class="total-label">特攻</span>
                       <strong id="shieldSpAttackStat">0</strong>
+                    </div>
+                    <div class="stat-tile">
+                      <span class="total-label">最大HP</span>
+                      <strong id="shieldHpStat">0</strong>
                     </div>
                   </div>
                 </div>
@@ -1152,6 +1167,11 @@
                   <label>回復技</label>
                   <div id="healingMoveChoices" class="move-choice-grid" role="radiogroup" aria-label="回復技"></div>
                 </div>
+
+                <label id="healingEffectRow" hidden>
+                  回復効果
+                  <select id="healingEffectSelect"></select>
+                </label>
 
                 <div class="button-row">
                   <button id="healingApplyBuildButton" type="button">推奨持ち物</button>
@@ -1530,6 +1550,7 @@
       selectedMoveSlot: "basic",
       selectedShieldMoveSlot: "",
       selectedHealingMoveSlot: "",
+      selectedHealingEffectKey: "all",
       activeTab: "damage",
       suppressTargetAutoFill: false
     };
@@ -1607,12 +1628,12 @@
         "shieldConditionWeaknessPolicy", "shieldWeaknessPolicyStacks",
         "shieldConditionAccelBracer", "shieldAccelBracerStacks",
         "shieldConditionDriveLens", "shieldDriveLensStacks",
-        "shieldManualAttack", "shieldManualSpAttack", "manualShieldPercent",
+        "shieldManualAttack", "shieldManualSpAttack", "shieldManualHp", "shieldTargetType", "manualShieldPercent",
         "manualShieldFlat", "shieldCount", "shieldAmount", "shieldAmountSub",
-        "shieldAttackStat", "shieldSpAttackStat", "shieldFormulaText",
+        "shieldAttackStat", "shieldSpAttackStat", "shieldHpStat", "shieldFormulaText",
         "shieldBreakdownBody", "shieldItemEffects", "shieldLearnChipRow",
         "healingPokemonSelect", "healingPokemonImage", "healingPokemonImageName",
-        "healingLevelRange", "healingLevelValue", "healingMoveChoices",
+        "healingLevelRange", "healingLevelValue", "healingMoveChoices", "healingEffectRow", "healingEffectSelect",
         "healingApplyBuildButton", "healingClearItemsButton",
         "healingConditionAttackWeight", "healingAttackWeightStacks",
         "healingConditionSpAtkSpecs", "healingSpAtkSpecsStacks",
@@ -1823,9 +1844,16 @@
     function selectedHealingParts(choice = selectedHealingMoveChoice()) {
       if (!choice || !choice.entries.length) return [];
       const level = number(el.healingLevelRange.value, 15);
-      const available = choice.entries.filter((entry) => level >= number(entry.minLevel, 1) && isHealingEntry(entry));
-      const enhanced = available.filter((entry) => entry.enhanced);
-      return enhanced.length ? enhanced : available.filter((entry) => !entry.enhanced);
+      const groups = choice.effectGroups || [{ key: "all", entries: choice.entries }];
+      const selectedGroups = state.selectedHealingEffectKey === "all"
+        ? groups
+        : groups.filter((group) => group.key === state.selectedHealingEffectKey);
+
+      return selectedGroups.flatMap((group) => {
+        const available = group.entries.filter((entry) => level >= number(entry.minLevel, 1) && isHealingEntry(entry));
+        const enhanced = available.filter((entry) => entry.enhanced);
+        return enhanced.length ? enhanced : available.filter((entry) => !entry.enhanced);
+      });
     }
 
     function normalizeHealingLabel(label) {
@@ -1835,6 +1863,42 @@
         .replace(/\s*-\s*/g, "-")
         .replace(/\s+/g, " ")
         .trim();
+    }
+
+    function defaultHealingEffectKey(choice) {
+      const groups = choice ? choice.effectGroups || [] : [];
+      if (groups.length <= 1) return groups[0] ? groups[0].key : "all";
+      const labels = groups.map((group) => group.label).join(" ");
+      const hasExclusiveConditions = /(basic|empowered|against wild|against player|queenly|gooey center|revenge|torrent|gluttonous)/i.test(labels);
+      return hasExclusiveConditions ? groups[0].key : "all";
+    }
+
+    function updateHealingEffectOptions() {
+      const choice = selectedHealingMoveChoice();
+      const groups = choice ? choice.effectGroups || [] : [];
+      el.healingEffectSelect.innerHTML = "";
+      el.healingEffectRow.hidden = groups.length <= 1;
+      if (!groups.length) return;
+
+      if (groups.length > 1) {
+        const allOption = document.createElement("option");
+        allOption.value = "all";
+        allOption.textContent = `すべて合算（${groups.length}項目）`;
+        el.healingEffectSelect.appendChild(allOption);
+      }
+
+      groups.forEach((group) => {
+        const option = document.createElement("option");
+        option.value = group.key;
+        option.textContent = jpMoveLabel(group.label);
+        el.healingEffectSelect.appendChild(option);
+      });
+
+      const values = [...el.healingEffectSelect.options].map((option) => option.value);
+      if (!values.includes(state.selectedHealingEffectKey)) {
+        state.selectedHealingEffectKey = defaultHealingEffectKey(choice);
+      }
+      el.healingEffectSelect.value = state.selectedHealingEffectKey;
     }
 
     function selectedItems() {
@@ -1991,7 +2055,7 @@
         "なし"
       );
 
-      const shieldPokemonRows = pokemonRows.filter(pokemonHasShieldFormula);
+      const shieldPokemonRows = pokemonRows;
       fillOptions(
         el.shieldPokemonSelect,
         shieldPokemonRows,
@@ -2491,6 +2555,49 @@
           enhancedMinLevel: node.level2 || minLevel || node.level1 || node.level || 1
         });
         const shieldEntries = entries.filter(isShieldEntry);
+        const damageEntries = entries.filter(isAutoIncludedDamageEntry);
+        const itemShieldEntries = [];
+        const choiceMinLevel = number(minLevel || node.level1 || node.level || 1, 1);
+
+        if (hasShieldItem("Resonant Guard") && damageEntries.length) {
+          itemShieldEntries.push({
+            id: `shield-${slotKey}-resonant-guard`,
+            ownerName: displayName,
+            groupName: groupName || node.ability || "",
+            label: "Shield - きょうめいガード",
+            ratio: shieldEffectTierFor("Resonant Guard"),
+            slider: 0,
+            base: shieldItemBaseFor("Resonant Guard"),
+            dmgType: "MaxHP",
+            sourceType: "maxHp",
+            itemSource: "Resonant Guard",
+            minLevel: choiceMinLevel,
+            enhanced: false,
+            partKey: "resonant-guard",
+            basePartKey: "resonant-guard"
+          });
+        }
+
+        if (hasShieldItem("Buddy Barrier") && (groupName || node.ability) === "Unite Move") {
+          itemShieldEntries.push({
+            id: `shield-${slotKey}-buddy-barrier`,
+            ownerName: displayName,
+            groupName: "Unite Move",
+            label: "Shield - おたすけバリア",
+            ratio: shieldEffectTierFor("Buddy Barrier"),
+            slider: 0,
+            base: 0,
+            dmgType: "MaxHP",
+            sourceType: "maxHp",
+            itemSource: "Buddy Barrier",
+            minLevel: choiceMinLevel,
+            enhanced: false,
+            partKey: "buddy-barrier",
+            basePartKey: "buddy-barrier"
+          });
+        }
+
+        shieldEntries.push(...itemShieldEntries);
         if (!shieldEntries.length) return;
 
         shieldEntries.forEach((entry, index) => {
@@ -2671,30 +2778,34 @@
           groups.get(key).push(entry);
         });
 
-        [...groups.values()].forEach((groupEntries, variantIndex) => {
-          const variantSlotKey = `${slotKey}-${variantIndex}`;
-          groupEntries.forEach((entry, index) => {
-            entry.id = `healing-${variantSlotKey}-${index}`;
-            entry.slotKey = variantSlotKey;
-            entry.slotLabel = slotLabel;
-            entry.displayName = displayName;
-            entry.iconUrl = iconUrl;
-            entry.contextText = [node.description, rsb.true_desc, rsb.notes, rsb.rsb_info].filter(Boolean).join(" ");
-          });
-          const learnLevel = Math.min(...groupEntries.map((entry) => number(entry.minLevel, 1)));
-          const choice = {
-            slotKey: variantSlotKey,
-            slotLabel,
-            displayName,
-            iconUrl,
-            minLevel: learnLevel,
-            entries: groupEntries,
-            variantLabel: groupEntries[0].label,
-            disabled: !groupEntries.some((entry) => level >= number(entry.minLevel, 1))
-          };
-          state.healingMoveChoices.push(choice);
-          state.healingMoveEntries.push(...groupEntries);
+        healingEntries.forEach((entry, index) => {
+          entry.id = `healing-${slotKey}-${index}`;
+          entry.slotKey = slotKey;
+          entry.slotLabel = slotLabel;
+          entry.displayName = displayName;
+          entry.iconUrl = iconUrl;
+          entry.contextText = [node.description, rsb.true_desc, rsb.notes, rsb.rsb_info].filter(Boolean).join(" ");
         });
+
+        const effectGroups = [...groups.entries()].map(([key, groupEntries]) => ({
+          key,
+          label: groupEntries[0].label,
+          entries: groupEntries
+        }));
+        const learnLevel = Math.min(...healingEntries.map((entry) => number(entry.minLevel, 1)));
+        const choice = {
+          slotKey,
+          slotLabel,
+          displayName,
+          iconUrl,
+          minLevel: learnLevel,
+          entries: healingEntries,
+          effectGroups,
+          variantLabel: effectGroups.length > 1 ? `${effectGroups.length}種類の回復効果` : effectGroups[0].label,
+          disabled: !healingEntries.some((entry) => level >= number(entry.minLevel, 1))
+        };
+        state.healingMoveChoices.push(choice);
+        state.healingMoveEntries.push(...healingEntries);
       };
 
       createChoices({ slotKey: "passive", slotLabel: "特性", node: passive, rsb: passive && passive.rsb, groupName: "Passive", minLevel: 1 });
@@ -2711,8 +2822,10 @@
 
       if (!state.healingMoveChoices.some((choice) => choice.slotKey === state.selectedHealingMoveSlot && !choice.disabled)) {
         state.selectedHealingMoveSlot = (state.healingMoveChoices.find((choice) => !choice.disabled) || {}).slotKey || "";
+        state.selectedHealingEffectKey = defaultHealingEffectKey(selectedHealingMoveChoice());
       }
       renderHealingMoveChoices();
+      updateHealingEffectOptions();
     }
 
     function renderHealingMoveChoices() {
@@ -2752,13 +2865,15 @@
         name.textContent = jpMoveName(choice.displayName);
         const note = document.createElement("span");
         note.className = "move-choice-note";
-        note.textContent = choice.disabled ? `Lv${choice.minLevel}以降` : jpMoveLabel(choice.variantLabel);
+        note.textContent = choice.disabled ? `Lv${choice.minLevel}以降` : choice.effectGroups.length > 1 ? `${choice.effectGroups.length}種類の回復効果` : jpMoveLabel(choice.variantLabel);
 
         text.append(slot, name, note);
         button.append(img, text);
         button.addEventListener("click", () => {
           state.selectedHealingMoveSlot = choice.slotKey;
+          state.selectedHealingEffectKey = defaultHealingEffectKey(choice);
           renderHealingMoveChoices();
+          updateHealingEffectOptions();
           updateHealingAll();
         });
         el.healingMoveChoices.appendChild(button);
@@ -2792,6 +2907,7 @@
         el[`shieldItemSelect${i}`].value = items[i] || "";
         el[`shieldItemLevel${i}`].value = 40;
       }
+      updateShieldMoveOptions();
       updateShieldAll();
     }
 
@@ -2800,6 +2916,7 @@
         el[`shieldItemSelect${i}`].value = "";
         el[`shieldItemLevel${i}`].value = 40;
       }
+      updateShieldMoveOptions();
       updateShieldAll();
     }
 
@@ -2892,6 +3009,15 @@
       return number(String(raw || "").replace("%", ""), 0);
     }
 
+    function shieldItemBaseFor(itemName) {
+      const row = selectedShieldItems().find((entry) => entry.item.name === itemName);
+      if (!row) return 0;
+      if (itemName === "Resonant Guard") {
+        return row.level < 10 ? 60 : row.level < 20 ? 80 : 100;
+      }
+      return 0;
+    }
+
     function healingEffectTierFor(itemName) {
       const row = selectedHealingItems().find((entry) => entry.item.name === itemName);
       if (!row) return 0;
@@ -2979,9 +3105,11 @@
       const level = number(el.shieldLevelRange.value, 15);
       const pokemon = selectedShieldPokemon();
       const baseStats = pokemon ? pokemonStats(pokemon.name, level) : null;
+      const baseHp = number(baseStats && baseStats.hp, 0);
       const baseAttack = number(baseStats && baseStats.attack, 0);
       const baseSpAttack = number(baseStats && baseStats.sp_attack, 0);
       const bonuses = {
+        hpFlat: 0,
         attackFlat: 0,
         spAttackFlat: 0,
         itemLines: []
@@ -2991,6 +3119,7 @@
         (item.stats || []).forEach((stat) => {
           const value = itemLevelValue(itemLevel, stat);
           const label = stat.label;
+          if (label === "HP") bonuses.hpFlat += value;
           if (label === "Attack") bonuses.attackFlat += value;
           if (label === "Sp. Attack") bonuses.spAttackFlat += value;
           if (value) {
@@ -3000,6 +3129,7 @@
         });
       });
 
+      const hpFlat = bonuses.hpFlat + number(el.shieldManualHp.value, 0);
       let attackFlat = bonuses.attackFlat + number(el.shieldManualAttack.value, 0);
       let spAttackFlat = bonuses.spAttackFlat + number(el.shieldManualSpAttack.value, 0);
       let attackPercent = 0;
@@ -3026,10 +3156,14 @@
 
       const attack = (baseAttack + attackFlat) * (1 + attackPercent / 100);
       const spAttack = (baseSpAttack + spAttackFlat) * (1 + spAttackPercent / 100);
+      const maxHp = Math.max(0, baseHp + hpFlat);
 
       return {
+        baseHp,
         baseAttack,
         baseSpAttack,
+        maxHp,
+        hpFlat,
         attack,
         spAttack,
         attackFlat,
@@ -3208,11 +3342,17 @@
       const level = number(el.shieldLevelRange.value, 15);
       const stats = computeShieldStats();
       const count = clamp(number(el.shieldCount.value, 1), 1, 20);
-      const shieldMultiplier = Math.max(0, 1 + number(el.manualShieldPercent.value, 0) / 100);
+      const targetType = el.shieldTargetType.value === "ally" ? "ally" : "self";
+      const rescueHoodPercent = targetType === "ally" && hasShieldItem("Rescue Hood")
+        ? shieldEffectTierFor("Rescue Hood")
+        : 0;
+      const manualShieldPercent = number(el.manualShieldPercent.value, 0);
+      const shieldMultiplier = Math.max(0, 1 + (rescueHoodPercent + manualShieldPercent) / 100);
       const shieldFlat = number(el.manualShieldFlat.value, 0);
 
       el.shieldAttackStat.textContent = formatNumber(stats.attack, 1);
       el.shieldSpAttackStat.textContent = formatNumber(stats.spAttack, 1);
+      el.shieldHpStat.textContent = formatNumber(stats.maxHp, 0);
 
       if (!choice || !parts.length) {
         el.shieldAmount.textContent = "0";
@@ -3225,8 +3365,9 @@
       }
 
       const results = parts.map((part) => {
-        const typeLabel = jpDamageType(part.dmgType);
-        const moveStat = String(part.dmgType).trim() === "Atk" ? stats.attack : stats.spAttack;
+        const maxHpBased = part.sourceType === "maxHp" || String(part.dmgType).trim() === "MaxHP";
+        const typeLabel = maxHpBased ? "最大HP" : jpDamageType(part.dmgType);
+        const moveStat = maxHpBased ? stats.maxHp : String(part.dmgType).trim() === "Atk" ? stats.attack : stats.spAttack;
         const statComponent = Math.floor(part.ratio * moveStat / 100);
         const levelComponent = part.slider * (level - 1);
         const baseComponent = part.base;
@@ -3246,11 +3387,12 @@
       const perApplication = Math.max(0, Math.floor(baseShield * shieldMultiplier + shieldFlat));
       const totalShield = perApplication * count;
       const moveTitle = `${choice.slotLabel}${choice.displayName ? ` - ${jpMoveName(choice.displayName)}` : ""}`;
+      const targetLabel = targetType === "ally" ? "味方" : "自分";
 
       el.shieldAmount.textContent = totalShield;
       el.shieldAmountSub.textContent = count > 1
         ? `1回あたり ${perApplication} × ${formatNumber(count, 0)}回/対象`
-        : `基礎 ${baseShield} / 補正後 ${perApplication}`;
+        : `${targetLabel}へのシールド / 基礎 ${baseShield} / 補正後 ${perApplication}`;
 
       if (results.length === 1) {
         const result = results[0];
@@ -3267,7 +3409,7 @@
       const typeChip = document.createElement("span");
       typeChip.className = "chip";
       typeChip.style.marginLeft = "8px";
-      typeChip.textContent = `${moveTitle} / シールド`;
+      typeChip.textContent = `${moveTitle} / ${targetLabel}へシールド`;
       el.shieldLearnChipRow.appendChild(typeChip);
 
       const partRows = results.map((result, index) => {
@@ -3280,6 +3422,8 @@
       const rows = [
         ["計算対象", `${moveTitle} / ${results.length > 1 ? "複数項目を合算" : jpMoveLabel(results[0].part.label)}`],
         ...partRows,
+        ["シールド対象", targetLabel],
+        ["レスキューフード補正", rescueHoodPercent ? `+${formatNumber(rescueHoodPercent, 1)}%` : "なし"],
         ["基礎シールド", formatNumber(baseShield, 0)],
         ["シールド補正", `×${formatNumber(shieldMultiplier, 3)} / 固定 ${formatNumber(shieldFlat, 1)}`],
         ["1回あたり", formatNumber(perApplication, 0)],
@@ -3287,8 +3431,8 @@
         ["合計シールド", formatNumber(totalShield, 0)]
       ];
 
-      if (stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
-        rows.splice(1, 0, ["能力補正", `攻撃 +${formatNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 +${formatNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
+      if (stats.hpFlat || stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
+        rows.splice(1, 0, ["能力補正", `最大HP +${formatNumber(stats.hpFlat, 0)} / 攻撃 +${formatNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 +${formatNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
       }
 
       el.shieldBreakdownBody.innerHTML = rows.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(value)}</td></tr>`).join("");
@@ -3593,9 +3737,13 @@
           event.target.value = clamp(number(event.target.value, 40), 1, 40);
           updateAll();
         });
-        el[`shieldItemSelect${i}`].addEventListener("change", updateShieldAll);
+        el[`shieldItemSelect${i}`].addEventListener("change", () => {
+          updateShieldMoveOptions();
+          updateShieldAll();
+        });
         el[`shieldItemLevel${i}`].addEventListener("input", (event) => {
           event.target.value = clamp(number(event.target.value, 40), 1, 40);
+          updateShieldMoveOptions();
           updateShieldAll();
         });
         el[`healingItemSelect${i}`].addEventListener("change", updateHealingAll);
@@ -3633,7 +3781,7 @@
       });
 
       [
-        "shieldManualAttack", "shieldManualSpAttack", "manualShieldPercent",
+        "shieldManualAttack", "shieldManualSpAttack", "shieldManualHp", "shieldTargetType", "manualShieldPercent",
         "manualShieldFlat", "shieldCount", "shieldAttackWeightStacks",
         "shieldSpAtkSpecsStacks", "shieldWeaknessPolicyStacks",
         "shieldAccelBracerStacks", "shieldDriveLensStacks"
@@ -3651,6 +3799,11 @@
       ].forEach((id) => {
         el[id].addEventListener("input", updateHealingAll);
         el[id].addEventListener("change", updateHealingAll);
+      });
+
+      el.healingEffectSelect.addEventListener("change", () => {
+        state.selectedHealingEffectKey = el.healingEffectSelect.value;
+        updateHealingAll();
       });
 
       el.retryLoadButton.addEventListener("click", () => {
