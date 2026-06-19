@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ポケモンユナイト 技ダメージ計算</title>
+  <title>ポケモンユナイト 計算ツール</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2064%2064%22%3E%3Crect%20width=%2264%22%20height=%2264%22%20rx=%2214%22%20fill=%22%230d1016%22/%3E%3Ccircle%20cx=%2232%22%20cy=%2232%22%20r=%2222%22%20fill=%22%23f2b33d%22/%3E%3Cpath%20d=%22M14%2032h36%22%20stroke=%22%230d1016%22%20stroke-width=%226%22/%3E%3Ccircle%20cx=%2232%22%20cy=%2232%22%20r=%228%22%20fill=%22%23eef3f8%22%20stroke=%22%230d1016%22%20stroke-width=%225%22/%3E%3C/svg%3E">
   <style>
     :root {
@@ -77,6 +77,34 @@
       grid-template-columns: minmax(320px, 460px) 1fr;
       gap: 18px;
       align-items: start;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tab-button {
+      min-height: 42px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 10px 14px;
+      font-weight: 900;
+    }
+
+    .tab-button.active {
+      border-bottom-color: var(--accent);
+      color: var(--ink);
+      background: rgba(242, 179, 61, 0.08);
+    }
+
+    .tab-panel {
+      width: 100%;
     }
 
     .panel {
@@ -615,8 +643,13 @@
       .item-row,
       .pokemon-picker,
       .condition-row,
+      .tab-bar,
       .button-row {
         grid-template-columns: 1fr;
+      }
+
+      .tab-bar {
+        display: grid;
       }
 
       .check-row {
@@ -633,11 +666,11 @@
   <main>
     <header>
       <div>
-        <h1>ポケモンユナイト 技ダメージ計算</h1>
+        <h1>ポケモンユナイト 計算ツール</h1>
       </div>
       <div class="source">
         データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">unite-db.com</a><br>
-        式: 基礎ダメージ = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
+        式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
       </div>
     </header>
 
@@ -651,7 +684,13 @@
     </div>
     <div id="errorBox" class="error" hidden></div>
 
-    <section id="calculator" class="app-shell" hidden>
+    <section id="calculator" hidden>
+      <div class="tab-bar" role="tablist" aria-label="計算種別">
+        <button id="damageTabButton" class="tab-button active" type="button" role="tab" aria-selected="true" aria-controls="damagePanel">ダメージ計算</button>
+        <button id="shieldTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="shieldPanel">シールド量計算</button>
+      </div>
+
+      <section id="damagePanel" class="tab-panel app-shell" role="tabpanel" aria-labelledby="damageTabButton">
       <div class="stack">
         <section class="panel">
           <div class="panel-head">
@@ -897,6 +936,189 @@
           ポケモン、能力値、技のRSB、持ち物データは同梱JSONから読み込みます。条件付きの持ち物効果は、チェックを入れた場合または回数を入力した場合だけ反映します。
         </p>
       </div>
+      </section>
+
+      <section id="shieldPanel" class="tab-panel" role="tabpanel" aria-labelledby="shieldTabButton" hidden>
+        <div class="app-shell">
+          <div class="stack">
+            <section class="panel">
+              <div class="panel-head">
+                <h2>シールド側</h2>
+              </div>
+              <div class="panel-body stack">
+                <div class="pokemon-picker">
+                  <label>
+                    ポケモン
+                    <select id="shieldPokemonSelect"></select>
+                  </label>
+                  <div class="pokemon-preview" aria-live="polite">
+                    <img id="shieldPokemonImage" alt="" width="72" height="66">
+                    <span id="shieldPokemonImageName">未選択</span>
+                  </div>
+                </div>
+
+                <label>
+                  レベル
+                  <div class="range-row">
+                    <input id="shieldLevelRange" type="range" min="1" max="15" value="15">
+                    <span id="shieldLevelValue" class="range-value">15</span>
+                  </div>
+                </label>
+
+                <div>
+                  <label>シールド技</label>
+                  <div id="shieldMoveChoices" class="move-choice-grid" role="radiogroup" aria-label="シールド技"></div>
+                </div>
+
+                <div class="button-row">
+                  <button id="shieldApplyBuildButton" type="button">推奨持ち物</button>
+                  <button id="shieldClearItemsButton" class="secondary" type="button">持ち物クリア</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>持ち物</h2>
+              </div>
+              <div class="panel-body held-items">
+                <div class="item-row">
+                  <label>
+                    持ち物 1
+                    <select id="shieldItemSelect0" data-shield-item-index="0"></select>
+                  </label>
+                  <label class="mini">
+                    <span>持ち物Lv</span>
+                    <input id="shieldItemLevel0" data-shield-item-level-index="0" type="number" min="1" max="40" value="40">
+                  </label>
+                </div>
+                <div class="item-row">
+                  <label>
+                    持ち物 2
+                    <select id="shieldItemSelect1" data-shield-item-index="1"></select>
+                  </label>
+                  <label class="mini">
+                    <span>持ち物Lv</span>
+                    <input id="shieldItemLevel1" data-shield-item-level-index="1" type="number" min="1" max="40" value="40">
+                  </label>
+                </div>
+                <div class="item-row">
+                  <label>
+                    持ち物 3
+                    <select id="shieldItemSelect2" data-shield-item-index="2"></select>
+                  </label>
+                  <label class="mini">
+                    <span>持ち物Lv</span>
+                    <input id="shieldItemLevel2" data-shield-item-level-index="2" type="number" min="1" max="40" value="40">
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>条件付き効果</h2>
+              </div>
+              <div class="panel-body condition-grid">
+                <div id="shieldConditionAttackWeight" class="condition-row" hidden>
+                  <span>もうこうダンベルの回数</span>
+                  <input id="shieldAttackWeightStacks" type="number" min="0" max="6" value="0">
+                </div>
+                <div id="shieldConditionSpAtkSpecs" class="condition-row" hidden>
+                  <span>しんげきメガネの回数</span>
+                  <input id="shieldSpAtkSpecsStacks" type="number" min="0" max="6" value="0">
+                </div>
+                <div id="shieldConditionWeaknessPolicy" class="condition-row" hidden>
+                  <span>じゃくてんほけんの段階</span>
+                  <input id="shieldWeaknessPolicyStacks" type="number" min="0" max="4" value="0">
+                </div>
+                <div id="shieldConditionAccelBracer" class="condition-row" hidden>
+                  <span>アクセルブレーサーの段階</span>
+                  <input id="shieldAccelBracerStacks" type="number" min="0" max="20" value="0">
+                </div>
+                <div id="shieldConditionDriveLens" class="condition-row" hidden>
+                  <span>ドライブレンズの段階</span>
+                  <input id="shieldDriveLensStacks" type="number" min="0" max="20" value="0">
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-head">
+                <h2>手動補正</h2>
+              </div>
+              <div class="panel-body stack">
+                <div class="grid-2">
+                  <label>
+                    攻撃 +/-
+                    <input id="shieldManualAttack" type="number" value="0" step="0.1">
+                  </label>
+                  <label>
+                    特攻 +/-
+                    <input id="shieldManualSpAttack" type="number" value="0" step="0.1">
+                  </label>
+                  <label>
+                    シールド +%
+                    <input id="manualShieldPercent" type="number" value="0" step="0.1">
+                  </label>
+                  <label>
+                    固定シールド +/-
+                    <input id="manualShieldFlat" type="number" value="0" step="1">
+                  </label>
+                  <label>
+                    回数/対象数
+                    <input id="shieldCount" type="number" min="1" max="20" value="1" step="1">
+                  </label>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="stack">
+            <section class="panel result-panel">
+              <div class="result-head">
+                <h2>シールド結果</h2>
+              </div>
+              <div class="result-layout">
+                <div class="damage-total">
+                  <div class="total-box primary">
+                    <span class="total-label">シールド量</span>
+                    <strong id="shieldAmount" class="total-value">0</strong>
+                    <span id="shieldAmountSub" class="total-sub">選択中のシールド式</span>
+                  </div>
+                  <div class="stats-grid">
+                    <div class="stat-tile">
+                      <span class="total-label">攻撃</span>
+                      <strong id="shieldAttackStat">0</strong>
+                    </div>
+                    <div class="stat-tile">
+                      <span class="total-label">特攻</span>
+                      <strong id="shieldSpAttackStat">0</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="details">
+                  <div id="shieldLearnChipRow"></div>
+                  <div class="formula-line">
+                    <code id="shieldFormulaText">-</code>
+                  </div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>項目</th>
+                        <th>値</th>
+                      </tr>
+                    </thead>
+                    <tbody id="shieldBreakdownBody"></tbody>
+                  </table>
+                  <div id="shieldItemEffects" class="item-effects"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
     </section>
   </main>
 
@@ -1111,7 +1333,11 @@
       heldItems: [],
       moveEntries: [],
       moveChoices: [],
+      shieldMoveEntries: [],
+      shieldMoveChoices: [],
       selectedMoveSlot: "basic",
+      selectedShieldMoveSlot: "",
+      activeTab: "damage",
       suppressTargetAutoFill: false
     };
 
@@ -1168,7 +1394,8 @@
     function bindElements() {
       [
         "loading", "loadingStatus", "loadingDetail", "retryLoadButton",
-        "errorBox", "calculator", "pokemonSelect", "levelRange", "levelValue",
+        "errorBox", "calculator", "damageTabButton", "shieldTabButton", "damagePanel", "shieldPanel",
+        "pokemonSelect", "levelRange", "levelValue",
         "moveChoices", "applyBuildButton", "clearItemsButton", "targetSelect",
         "targetLevelRange", "targetLevelValue", "targetDefense", "targetSpDefense",
         "rawDamage", "rawDamageSub", "finalDamage", "finalDamageSub", "attackStat",
@@ -1178,7 +1405,19 @@
         "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc",
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
-        "pokemonImage", "pokemonImageName", "targetImage", "targetImageName"
+        "pokemonImage", "pokemonImageName", "targetImage", "targetImageName",
+        "shieldPokemonSelect", "shieldPokemonImage", "shieldPokemonImageName",
+        "shieldLevelRange", "shieldLevelValue", "shieldMoveChoices",
+        "shieldApplyBuildButton", "shieldClearItemsButton",
+        "shieldConditionAttackWeight", "shieldAttackWeightStacks",
+        "shieldConditionSpAtkSpecs", "shieldSpAtkSpecsStacks",
+        "shieldConditionWeaknessPolicy", "shieldWeaknessPolicyStacks",
+        "shieldConditionAccelBracer", "shieldAccelBracerStacks",
+        "shieldConditionDriveLens", "shieldDriveLensStacks",
+        "shieldManualAttack", "shieldManualSpAttack", "manualShieldPercent",
+        "manualShieldFlat", "shieldCount", "shieldAmount", "shieldAmountSub",
+        "shieldAttackStat", "shieldSpAttackStat", "shieldFormulaText",
+        "shieldBreakdownBody", "shieldItemEffects", "shieldLearnChipRow"
       ].forEach((id) => {
         el[id] = document.getElementById(id);
       });
@@ -1186,6 +1425,8 @@
       for (let i = 0; i < 3; i += 1) {
         el[`itemSelect${i}`] = document.getElementById(`itemSelect${i}`);
         el[`itemLevel${i}`] = document.getElementById(`itemLevel${i}`);
+        el[`shieldItemSelect${i}`] = document.getElementById(`shieldItemSelect${i}`);
+        el[`shieldItemLevel${i}`] = document.getElementById(`shieldItemLevel${i}`);
       }
     }
 
@@ -1206,6 +1447,18 @@
       el.retryLoadButton.hidden = false;
       el.errorBox.hidden = true;
       el.calculator.hidden = true;
+    }
+
+    function selectCalculatorTab(tabName) {
+      const shieldActive = tabName === "shield";
+      state.activeTab = shieldActive ? "shield" : "damage";
+      el.damagePanel.hidden = shieldActive;
+      el.shieldPanel.hidden = !shieldActive;
+      el.damageTabButton.classList.toggle("active", !shieldActive);
+      el.shieldTabButton.classList.toggle("active", shieldActive);
+      el.damageTabButton.setAttribute("aria-selected", shieldActive ? "false" : "true");
+      el.shieldTabButton.setAttribute("aria-selected", shieldActive ? "true" : "false");
+      if (shieldActive) updateShieldAll();
     }
 
     function number(value, fallback = 0) {
@@ -1320,6 +1573,34 @@
       return Array.from(new Map(selected.map((entry) => [entry.partKey, entry])).values());
     }
 
+    function selectedShieldMoveChoice() {
+      return state.shieldMoveChoices.find((choice) => choice.slotKey === state.selectedShieldMoveSlot && !choice.disabled)
+        || state.shieldMoveChoices.find((choice) => !choice.disabled)
+        || null;
+    }
+
+    function selectedShieldParts(choice = selectedShieldMoveChoice()) {
+      if (!choice || !choice.entries.length) return [];
+      const level = number(el.shieldLevelRange.value, 15);
+      const available = choice.entries.filter((entry) => level >= number(entry.minLevel, 1) && isShieldEntry(entry));
+      const enhanced = available.filter((entry) => entry.enhanced);
+      const regular = available.filter((entry) => !entry.enhanced);
+
+      if (!enhanced.length) return regular;
+
+      const enhancedLabels = new Set(enhanced.map((entry) => normalizeShieldLabel(entry.label)));
+      const remainingRegular = regular.filter((entry) => !enhancedLabels.has(normalizeShieldLabel(entry.label)));
+      return [...remainingRegular, ...enhanced];
+    }
+
+    function normalizeShieldLabel(label) {
+      return String(label || "")
+        .toLowerCase()
+        .replace(/\b(enhanced|plus)\b/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
     function selectedItems() {
       const rows = [];
       for (let i = 0; i < 3; i += 1) {
@@ -1336,13 +1617,42 @@
       return rows;
     }
 
+    function selectedShieldPokemon() {
+      return state.pokemon.find((pokemon) => pokemon.name === el.shieldPokemonSelect.value);
+    }
+
+    function selectedShieldItems() {
+      const rows = [];
+      for (let i = 0; i < 3; i += 1) {
+        const name = el[`shieldItemSelect${i}`].value;
+        if (!name) continue;
+        const item = state.heldItems.find((entry) => entry.name === name);
+        if (!item) continue;
+        rows.push({
+          item,
+          level: clamp(number(el[`shieldItemLevel${i}`].value, 40), 1, 40),
+          slot: i
+        });
+      }
+      return rows;
+    }
+
     function selectedItemLevel(itemName) {
       const row = selectedItems().find((entry) => entry.item.name === itemName);
       return row ? row.level : 40;
     }
 
+    function selectedShieldItemLevel(itemName) {
+      const row = selectedShieldItems().find((entry) => entry.item.name === itemName);
+      return row ? row.level : 40;
+    }
+
     function hasItem(itemName) {
       return selectedItems().some((entry) => entry.item.name === itemName);
+    }
+
+    function hasShieldItem(itemName) {
+      return selectedShieldItems().some((entry) => entry.item.name === itemName);
     }
 
     function pokemonStats(name, level) {
@@ -1377,6 +1687,7 @@
     function updateAllPokemonPreviews() {
       updatePokemonPreview(el.pokemonSelect, el.pokemonImage, el.pokemonImageName);
       updatePokemonPreview(el.targetSelect, el.targetImage, el.targetImageName);
+      updatePokemonPreview(el.shieldPokemonSelect, el.shieldPokemonImage, el.shieldPokemonImageName);
     }
 
     function fillOptions(select, rows, getValue, getLabel, placeholder) {
@@ -1419,6 +1730,14 @@
         "なし"
       );
 
+      const shieldPokemonRows = pokemonRows.filter(pokemonHasShieldFormula);
+      fillOptions(
+        el.shieldPokemonSelect,
+        shieldPokemonRows,
+        (pokemon) => pokemon.name,
+        (pokemon) => jpPokemonName(pokemon)
+      );
+
       const itemRows = state.heldItems
         .slice()
         .sort((a, b) => a.display_name.localeCompare(b.display_name));
@@ -1431,21 +1750,65 @@
           (item) => jpItemName(item),
           "なし"
         );
+        fillOptions(
+          el[`shieldItemSelect${i}`],
+          itemRows,
+          (item) => item.name,
+          (item) => jpItemName(item),
+          "なし"
+        );
       }
 
       const firstPokemon = pokemonRows.find((pokemon) => pokemon.name === "Pikachu") || pokemonRows[0];
       if (firstPokemon) el.pokemonSelect.value = firstPokemon.name;
       el.targetSelect.value = firstPokemon ? firstPokemon.name : "";
+      const firstShieldPokemon = shieldPokemonRows.find((pokemon) => pokemon.name === "Blastoise") || shieldPokemonRows[0];
+      if (firstShieldPokemon) el.shieldPokemonSelect.value = firstShieldPokemon.name;
 
       updateMoveOptions();
       applyRecommendedBuild();
       syncTargetStats();
+      updateShieldMoveOptions();
+      applyRecommendedShieldBuild();
       updateAllPokemonPreviews();
       updateAll();
+      updateShieldAll();
     }
 
     function getRsbField(rsb, prefix, key) {
       return prefix ? rsb[`${prefix}_${key}`] : rsb[key];
+    }
+
+    function isShieldEntry(entry) {
+      const label = String(entry.label || "");
+      return /shield/i.test(label)
+        && !/(damage|healing|heal)/i.test(label)
+        && !/shield stance/i.test(label);
+    }
+
+    function pokemonHasShieldFormula(pokemon) {
+      const prefixes = ["", "add1", "add2", "add3", "add4", "add5", "enhanced", "enhanced_add1", "enhanced_add2", "enhanced_add3", "enhanced_add4", "enhanced_add5"];
+      const nodes = [];
+      (pokemon.skills || []).forEach((skill) => {
+        nodes.push(skill, ...(skill.upgrades || []));
+      });
+
+      return nodes.some((node) => {
+        return ["rsb", "boosted_rsb"].some((rsbName) => {
+          const rsb = node[rsbName];
+          if (!rsb) return false;
+          return prefixes.some((prefix) => {
+            const label = String(getRsbField(rsb, prefix, "label") || "");
+            const ratio = getRsbField(rsb, prefix, "ratio");
+            const dmgType = String(getRsbField(rsb, prefix, "dmg_type") || "").trim();
+            const exception = String(getRsbField(rsb, prefix, "exception") || "");
+            return ratio !== "" && ratio !== undefined && ratio !== null
+              && dmgType
+              && exception !== "True"
+              && isShieldEntry({ label });
+          });
+        });
+      });
     }
 
     function isAutoIncludedDamageEntry(entry) {
@@ -1767,6 +2130,177 @@
       });
     }
 
+    function updateShieldMoveOptions() {
+      const pokemon = selectedShieldPokemon();
+      state.shieldMoveEntries = [];
+      state.shieldMoveChoices = [];
+      if (!pokemon) {
+        renderShieldMoveChoices();
+        return;
+      }
+
+      const level = number(el.shieldLevelRange.value, 15);
+      const skills = pokemon.skills || [];
+      const passive = skills.find((skill) => skill.ability === "Passive" || skill.ability === "Passive Ability");
+      const basic = skills.find((skill) => skill.ability === "Basic");
+      const move1 = skills.find((skill) => skill.ability === "Move 1");
+      const move2 = skills.find((skill) => skill.ability === "Move 2");
+      const unite = skills.find((skill) => skill.ability === "Unite Move");
+
+      const createChoice = ({ slotKey, slotLabel, node, rsb, groupName, minLevel, iconName }) => {
+        if (!node || !rsb) return;
+        const displayName = slotKey === "basic" ? "通常攻撃" : slotKey === "boosted" ? "強化攻撃" : node.name || slotLabel;
+        const iconUrl = skillIconUrl(pokemon.name, iconName || node.name || "Attack");
+        const entries = [];
+        addRsbEntries(entries, rsb, displayName, groupName || node.ability || "", minLevel || node.level1 || node.level || 1, "", {
+          slotKey,
+          slotLabel,
+          displayName,
+          iconUrl,
+          enhancedMinLevel: node.level2 || minLevel || node.level1 || node.level || 1
+        });
+        const shieldEntries = entries.filter(isShieldEntry);
+        if (!shieldEntries.length) return;
+
+        shieldEntries.forEach((entry, index) => {
+          entry.id = `shield-${slotKey}-${index}`;
+          entry.slotKey = slotKey;
+          entry.slotLabel = slotLabel;
+          entry.displayName = displayName;
+          entry.iconUrl = iconUrl;
+        });
+
+        const learnLevel = Math.min(...shieldEntries.map((entry) => number(entry.minLevel, 1)));
+        const choice = {
+          slotKey,
+          slotLabel,
+          displayName,
+          iconUrl,
+          minLevel: learnLevel,
+          entries: shieldEntries,
+          disabled: !shieldEntries.some((entry) => level >= number(entry.minLevel, 1))
+        };
+        state.shieldMoveChoices.push(choice);
+        state.shieldMoveEntries.push(...shieldEntries);
+      };
+
+      createChoice({
+        slotKey: "passive",
+        slotLabel: "特性",
+        node: passive,
+        rsb: passive && passive.rsb,
+        groupName: "Passive",
+        minLevel: 1
+      });
+
+      createChoice({
+        slotKey: "basic",
+        slotLabel: "通常",
+        node: basic,
+        rsb: basic && basic.rsb,
+        groupName: "Basic",
+        minLevel: 1,
+        iconName: "Attack"
+      });
+
+      createChoice({
+        slotKey: "boosted",
+        slotLabel: "通常強化",
+        node: basic,
+        rsb: basic && basic.boosted_rsb,
+        groupName: "Basic",
+        minLevel: 1,
+        iconName: "Attack"
+      });
+
+      [move1, ...((move1 && move1.upgrades) || [])].filter(Boolean).forEach((node, index) => {
+        createChoice({
+          slotKey: `move1-${index}`,
+          slotLabel: "技1",
+          node,
+          rsb: node.rsb,
+          groupName: "Move 1",
+          minLevel: node.level1 || node.level || 1
+        });
+      });
+
+      [move2, ...((move2 && move2.upgrades) || [])].filter(Boolean).forEach((node, index) => {
+        createChoice({
+          slotKey: `move2-${index}`,
+          slotLabel: "技2",
+          node,
+          rsb: node.rsb,
+          groupName: "Move 2",
+          minLevel: node.level1 || node.level || 1
+        });
+      });
+
+      createChoice({
+        slotKey: "unite",
+        slotLabel: "ユナイト技",
+        node: unite,
+        rsb: unite && unite.rsb,
+        groupName: "Unite Move",
+        minLevel: unite && unite.level || 1
+      });
+
+      if (!state.shieldMoveChoices.some((choice) => choice.slotKey === state.selectedShieldMoveSlot && !choice.disabled)) {
+        state.selectedShieldMoveSlot = (state.shieldMoveChoices.find((choice) => !choice.disabled) || {}).slotKey || "";
+      }
+      renderShieldMoveChoices();
+    }
+
+    function renderShieldMoveChoices() {
+      el.shieldMoveChoices.innerHTML = "";
+
+      if (!state.shieldMoveChoices.length) {
+        const message = document.createElement("div");
+        message.className = "effect-note";
+        message.textContent = "現在のレベルで計算できるシールド技がありません。";
+        el.shieldMoveChoices.appendChild(message);
+        return;
+      }
+
+      state.shieldMoveChoices.forEach((choice) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `move-choice${choice.slotKey === state.selectedShieldMoveSlot ? " active" : ""}`;
+        button.dataset.slot = choice.slotKey;
+        button.disabled = choice.disabled;
+        button.setAttribute("role", "radio");
+        button.setAttribute("aria-checked", choice.slotKey === state.selectedShieldMoveSlot ? "true" : "false");
+
+        const img = document.createElement("img");
+        img.src = choice.iconUrl || brokenImageUrl();
+        img.alt = "";
+        img.onerror = () => {
+          img.onerror = null;
+          img.src = brokenImageUrl();
+        };
+
+        const text = document.createElement("span");
+        text.className = "move-choice-text";
+        const slot = document.createElement("span");
+        slot.className = "move-choice-slot";
+        slot.textContent = choice.slotLabel;
+        const name = document.createElement("span");
+        name.className = "move-choice-name";
+        name.textContent = jpMoveName(choice.displayName);
+        const note = document.createElement("span");
+        note.className = "move-choice-note";
+        note.textContent = choice.disabled ? `Lv${choice.minLevel}以降` : "計算可";
+
+        text.append(slot, name, note);
+        button.append(img, text);
+        button.addEventListener("click", () => {
+          state.selectedShieldMoveSlot = choice.slotKey;
+          renderShieldMoveChoices();
+          updateShieldAll();
+        });
+        el.shieldMoveChoices.appendChild(button);
+      });
+    }
+
     function applyRecommendedBuild() {
       const pokemon = selectedPokemon();
       const build = pokemon && Array.isArray(pokemon.builds) ? pokemon.builds.find((entry) => Array.isArray(entry.held_items)) : null;
@@ -1784,6 +2318,25 @@
         el[`itemLevel${i}`].value = 40;
       }
       updateAll();
+    }
+
+    function applyRecommendedShieldBuild() {
+      const pokemon = selectedShieldPokemon();
+      const build = pokemon && Array.isArray(pokemon.builds) ? pokemon.builds.find((entry) => Array.isArray(entry.held_items)) : null;
+      const items = build ? build.held_items.slice(0, 3) : [];
+      for (let i = 0; i < 3; i += 1) {
+        el[`shieldItemSelect${i}`].value = items[i] || "";
+        el[`shieldItemLevel${i}`].value = 40;
+      }
+      updateShieldAll();
+    }
+
+    function clearShieldItems() {
+      for (let i = 0; i < 3; i += 1) {
+        el[`shieldItemSelect${i}`].value = "";
+        el[`shieldItemLevel${i}`].value = 40;
+      }
+      updateShieldAll();
     }
 
     function conditionNumber(id, min, max) {
@@ -1812,8 +2365,30 @@
       });
     }
 
+    function updateShieldConditionVisibility() {
+      const names = new Set(selectedShieldItems().map((entry) => entry.item.name));
+      const map = {
+        shieldConditionAttackWeight: "Attack Weight",
+        shieldConditionSpAtkSpecs: "Sp. Atk Specs",
+        shieldConditionWeaknessPolicy: "Weakness Policy",
+        shieldConditionAccelBracer: "Accel Bracer",
+        shieldConditionDriveLens: "Drive Lens"
+      };
+      Object.entries(map).forEach(([id, itemName]) => {
+        el[id].hidden = !names.has(itemName);
+      });
+    }
+
     function effectTierFor(itemName) {
       const row = selectedItems().find((entry) => entry.item.name === itemName);
+      if (!row) return 0;
+      const item = row.item;
+      const raw = row.level < 10 ? item.level1 : row.level < 20 ? item.level10 : item.level20;
+      return number(String(raw || "").replace("%", ""), 0);
+    }
+
+    function shieldEffectTierFor(itemName) {
+      const row = selectedShieldItems().find((entry) => entry.item.name === itemName);
       if (!row) return 0;
       const item = row.item;
       const raw = row.level < 10 ? item.level1 : row.level < 20 ? item.level10 : item.level20;
@@ -1895,6 +2470,71 @@
       };
     }
 
+    function computeShieldStats() {
+      const level = number(el.shieldLevelRange.value, 15);
+      const pokemon = selectedShieldPokemon();
+      const baseStats = pokemon ? pokemonStats(pokemon.name, level) : null;
+      const baseAttack = number(baseStats && baseStats.attack, 0);
+      const baseSpAttack = number(baseStats && baseStats.sp_attack, 0);
+      const bonuses = {
+        attackFlat: 0,
+        spAttackFlat: 0,
+        itemLines: []
+      };
+
+      selectedShieldItems().forEach(({ item, level: itemLevel }) => {
+        (item.stats || []).forEach((stat) => {
+          const value = itemLevelValue(itemLevel, stat);
+          const label = stat.label;
+          if (label === "Attack") bonuses.attackFlat += value;
+          if (label === "Sp. Attack") bonuses.spAttackFlat += value;
+          if (value) {
+            const unit = stat.percent ? "%" : "";
+            bonuses.itemLines.push(`${jpItemName(item)}: ${jpStat(label)} +${formatNumber(value, 2)}${unit}`);
+          }
+        });
+      });
+
+      let attackFlat = bonuses.attackFlat + number(el.shieldManualAttack.value, 0);
+      let spAttackFlat = bonuses.spAttackFlat + number(el.shieldManualSpAttack.value, 0);
+      let attackPercent = 0;
+      let spAttackPercent = 0;
+
+      if (hasShieldItem("Attack Weight")) {
+        attackFlat += conditionNumber("shieldAttackWeightStacks", 0, 6) * shieldEffectTierFor("Attack Weight");
+      }
+      if (hasShieldItem("Sp. Atk Specs")) {
+        spAttackFlat += conditionNumber("shieldSpAtkSpecsStacks", 0, 6) * shieldEffectTierFor("Sp. Atk Specs");
+      }
+      if (hasShieldItem("Weakness Policy")) {
+        attackPercent += conditionNumber("shieldWeaknessPolicyStacks", 0, 4) * shieldEffectTierFor("Weakness Policy");
+      }
+      if (hasShieldItem("Accel Bracer")) {
+        attackPercent += conditionNumber("shieldAccelBracerStacks", 0, 20) * shieldEffectTierFor("Accel Bracer");
+      }
+      if (hasShieldItem("Drive Lens")) {
+        spAttackPercent += conditionNumber("shieldDriveLensStacks", 0, 20) * shieldEffectTierFor("Drive Lens");
+      }
+      if (hasShieldItem("Wise Glasses")) {
+        spAttackPercent += shieldEffectTierFor("Wise Glasses");
+      }
+
+      const attack = (baseAttack + attackFlat) * (1 + attackPercent / 100);
+      const spAttack = (baseSpAttack + spAttackFlat) * (1 + spAttackPercent / 100);
+
+      return {
+        baseAttack,
+        baseSpAttack,
+        attack,
+        spAttack,
+        attackFlat,
+        spAttackFlat,
+        attackPercent,
+        spAttackPercent,
+        itemLines: bonuses.itemLines
+      };
+    }
+
     function computeExtraDamages(stats) {
       const extras = [];
 
@@ -1962,6 +2602,116 @@
         note.textContent = `${jpItemName(item)}${effect}: ${jpItemEffect(item)}`;
         el.itemEffects.appendChild(note);
       });
+    }
+
+    function renderShieldItemEffects() {
+      el.shieldItemEffects.innerHTML = "";
+      selectedShieldItems().forEach(({ item, level }) => {
+        const note = document.createElement("div");
+        note.className = "effect-note";
+        const tier = level < 10 ? item.level1 : level < 20 ? item.level10 : item.level20;
+        const effect = item.description3 && tier ? `（${jpStat(item.description3)}: ${tier}）` : "";
+        note.textContent = `${jpItemName(item)}${effect}: ${jpItemEffect(item)}`;
+        el.shieldItemEffects.appendChild(note);
+      });
+    }
+
+    function updateShieldAll() {
+      if (!el.shieldPokemonSelect) return;
+      updatePokemonPreview(el.shieldPokemonSelect, el.shieldPokemonImage, el.shieldPokemonImageName);
+      updateShieldConditionVisibility();
+      el.shieldLevelValue.textContent = el.shieldLevelRange.value;
+
+      const choice = selectedShieldMoveChoice();
+      const parts = selectedShieldParts(choice);
+      const level = number(el.shieldLevelRange.value, 15);
+      const stats = computeShieldStats();
+      const count = clamp(number(el.shieldCount.value, 1), 1, 20);
+      const shieldMultiplier = Math.max(0, 1 + number(el.manualShieldPercent.value, 0) / 100);
+      const shieldFlat = number(el.manualShieldFlat.value, 0);
+
+      el.shieldAttackStat.textContent = formatNumber(stats.attack, 1);
+      el.shieldSpAttackStat.textContent = formatNumber(stats.spAttack, 1);
+
+      if (!choice || !parts.length) {
+        el.shieldAmount.textContent = "0";
+        el.shieldAmountSub.textContent = "現在のレベルで計算できるシールド式なし";
+        el.shieldFormulaText.textContent = "-";
+        el.shieldBreakdownBody.innerHTML = "";
+        el.shieldLearnChipRow.innerHTML = "";
+        renderShieldItemEffects();
+        return;
+      }
+
+      const results = parts.map((part) => {
+        const typeLabel = jpDamageType(part.dmgType);
+        const moveStat = String(part.dmgType).trim() === "Atk" ? stats.attack : stats.spAttack;
+        const statComponent = Math.floor(part.ratio * moveStat / 100);
+        const levelComponent = part.slider * (level - 1);
+        const baseComponent = part.base;
+        const value = Math.max(0, Math.floor(statComponent + levelComponent + baseComponent));
+        return {
+          part,
+          typeLabel,
+          moveStat,
+          statComponent,
+          levelComponent,
+          baseComponent,
+          value
+        };
+      });
+
+      const baseShield = results.reduce((sum, result) => sum + result.value, 0);
+      const perApplication = Math.max(0, Math.floor(baseShield * shieldMultiplier + shieldFlat));
+      const totalShield = perApplication * count;
+      const moveTitle = `${choice.slotLabel}${choice.displayName ? ` - ${jpMoveName(choice.displayName)}` : ""}`;
+
+      el.shieldAmount.textContent = totalShield;
+      el.shieldAmountSub.textContent = count > 1
+        ? `1回あたり ${perApplication} × ${formatNumber(count, 0)}回/対象`
+        : `基礎 ${baseShield} / 補正後 ${perApplication}`;
+
+      if (results.length === 1) {
+        const result = results[0];
+        el.shieldFormulaText.textContent = `${moveTitle}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (Lv${level} - 1) + ${result.part.base} = ${result.value}（小数点以下は切り捨て）`;
+      } else {
+        el.shieldFormulaText.textContent = `${moveTitle}: ${results.length}項目を合算 = ${baseShield}（各項目で小数点以下は切り捨て）`;
+      }
+
+      el.shieldLearnChipRow.innerHTML = "";
+      const learnChip = document.createElement("span");
+      learnChip.className = level >= choice.minLevel ? "chip good" : "chip warn";
+      learnChip.textContent = level >= choice.minLevel ? `使用可能: Lv${choice.minLevel}以降` : `未習得: Lv${choice.minLevel}以降`;
+      el.shieldLearnChipRow.appendChild(learnChip);
+      const typeChip = document.createElement("span");
+      typeChip.className = "chip";
+      typeChip.style.marginLeft = "8px";
+      typeChip.textContent = `${moveTitle} / シールド`;
+      el.shieldLearnChipRow.appendChild(typeChip);
+
+      const partRows = results.map((result, index) => {
+        return [
+          `シールド式 ${index + 1}`,
+          `${jpMoveLabel(result.part.label)}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (${level} - 1) + ${result.part.base} = ${result.value}`
+        ];
+      });
+
+      const rows = [
+        ["計算対象", `${moveTitle} / ${results.length > 1 ? "複数項目を合算" : jpMoveLabel(results[0].part.label)}`],
+        ...partRows,
+        ["基礎シールド", formatNumber(baseShield, 0)],
+        ["シールド補正", `×${formatNumber(shieldMultiplier, 3)} / 固定 ${formatNumber(shieldFlat, 1)}`],
+        ["1回あたり", formatNumber(perApplication, 0)],
+        ["回数/対象数", formatNumber(count, 0)],
+        ["合計シールド", formatNumber(totalShield, 0)]
+      ];
+
+      if (stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
+        rows.splice(1, 0, ["能力補正", `攻撃 +${formatNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 +${formatNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
+      }
+
+      el.shieldBreakdownBody.innerHTML = rows.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(value)}</td></tr>`).join("");
+      renderShieldItemEffects();
     }
 
     function updateAll() {
@@ -2100,6 +2850,9 @@
     }
 
     function wireEvents() {
+      el.damageTabButton.addEventListener("click", () => selectCalculatorTab("damage"));
+      el.shieldTabButton.addEventListener("click", () => selectCalculatorTab("shield"));
+
       el.pokemonSelect.addEventListener("change", () => {
         updateMoveOptions();
         applyRecommendedBuild();
@@ -2112,11 +2865,28 @@
       el.applyBuildButton.addEventListener("click", applyRecommendedBuild);
       el.clearItemsButton.addEventListener("click", clearItems);
 
+      el.shieldPokemonSelect.addEventListener("change", () => {
+        updateShieldMoveOptions();
+        applyRecommendedShieldBuild();
+        updateShieldAll();
+      });
+      el.shieldLevelRange.addEventListener("input", () => {
+        updateShieldMoveOptions();
+        updateShieldAll();
+      });
+      el.shieldApplyBuildButton.addEventListener("click", applyRecommendedShieldBuild);
+      el.shieldClearItemsButton.addEventListener("click", clearShieldItems);
+
       for (let i = 0; i < 3; i += 1) {
         el[`itemSelect${i}`].addEventListener("change", updateAll);
         el[`itemLevel${i}`].addEventListener("input", (event) => {
           event.target.value = clamp(number(event.target.value, 40), 1, 40);
           updateAll();
+        });
+        el[`shieldItemSelect${i}`].addEventListener("change", updateShieldAll);
+        el[`shieldItemLevel${i}`].addEventListener("input", (event) => {
+          event.target.value = clamp(number(event.target.value, 40), 1, 40);
+          updateShieldAll();
         });
       }
 
@@ -2145,6 +2915,16 @@
       ].forEach((id) => {
         el[id].addEventListener("input", updateAll);
         el[id].addEventListener("change", updateAll);
+      });
+
+      [
+        "shieldManualAttack", "shieldManualSpAttack", "manualShieldPercent",
+        "manualShieldFlat", "shieldCount", "shieldAttackWeightStacks",
+        "shieldSpAtkSpecsStacks", "shieldWeaknessPolicyStacks",
+        "shieldAccelBracerStacks", "shieldDriveLensStacks"
+      ].forEach((id) => {
+        el[id].addEventListener("input", updateShieldAll);
+        el[id].addEventListener("change", updateShieldAll);
       });
 
       el.retryLoadButton.addEventListener("click", () => {
@@ -2205,6 +2985,7 @@
         populateControls();
         el.loading.hidden = true;
         el.calculator.hidden = false;
+        selectCalculatorTab(state.activeTab);
       } catch (error) {
         showLoadError(error);
       }
