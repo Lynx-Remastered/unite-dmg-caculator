@@ -797,6 +797,34 @@
 
         <section class="panel">
           <div class="panel-head">
+            <h2>特殊ポケモン撃破バフ</h2>
+          </div>
+          <div class="panel-body stack">
+            <label>
+              レジ系バフ
+              <select id="regiBuffSelect">
+                <option value="none">なし</option>
+                <option value="regirock">レジロック</option>
+                <option value="regice">レジアイス</option>
+                <option value="registeel">レジスチル</option>
+              </select>
+            </label>
+            <div class="condition-grid">
+              <label class="check-row">
+                <span>レジドラゴ</span>
+                <input id="regidragoBuff" type="checkbox">
+              </label>
+              <label class="check-row">
+                <span>グラードン</span>
+                <input id="groudonBuff" type="checkbox">
+              </label>
+            </div>
+            <div id="specialPokemonBuffNote" class="effect-note">撃破バフなし</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
             <h2>手動補正</h2>
           </div>
           <div class="panel-body stack">
@@ -1313,6 +1341,7 @@
 
     <footer class="source site-footer">
       データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年6月24日取得）<br>
+      特殊ポケモン撃破バフ: <a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a><br>
       式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
     </footer>
   </main>
@@ -1523,6 +1552,13 @@
       "Unite Move": "ユナイトわざ"
     };
 
+    const REGI_BUFFS = {
+      none: { name: "", attackPercent: 0, spAttackPercent: 0, description: "" },
+      regirock: { name: "レジロック", attackPercent: 0, spAttackPercent: 0, description: "防御+30%・特防+25%（与ダメージ変化なし）" },
+      regice: { name: "レジアイス", attackPercent: 0, spAttackPercent: 0, description: "最大HPの5%を3秒ごとに回復（与ダメージ変化なし）" },
+      registeel: { name: "レジスチル", attackPercent: 15, spAttackPercent: 15, description: "攻撃+15%・特攻+15%" }
+    };
+
     const state = {
       pokemon: [],
       stats: [],
@@ -1605,6 +1641,7 @@
         "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc",
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
+        "regiBuffSelect", "regidragoBuff", "groudonBuff", "specialPokemonBuffNote",
         "pokemonImage", "pokemonImageName", "targetImage", "targetImageName",
         "shieldPokemonSelect", "shieldPokemonImage", "shieldPokemonImageName",
         "shieldLevelRange", "shieldLevelValue", "shieldMoveChoices",
@@ -2951,6 +2988,22 @@
       });
     }
 
+    function selectedSpecialPokemonBuffLines() {
+      const lines = [];
+      const regiBuff = REGI_BUFFS[el.regiBuffSelect.value] || REGI_BUFFS.none;
+      if (regiBuff.name) lines.push(`${regiBuff.name}: ${regiBuff.description}`);
+      if (el.regidragoBuff.checked) lines.push("レジドラゴ: ゴール速度+100%（与ダメージ変化なし）");
+      if (el.groudonBuff.checked) lines.push("グラードン: 与ダメージ+50%・ゴール速度+300%");
+      return lines;
+    }
+
+    function syncSpecialPokemonBuffs() {
+      if (el.groudonBuff.checked) el.regidragoBuff.checked = false;
+      el.regidragoBuff.disabled = el.groudonBuff.checked;
+      const lines = selectedSpecialPokemonBuffLines();
+      el.specialPokemonBuffNote.textContent = lines.length ? lines.join(" / ") : "撃破バフなし";
+    }
+
     function updateShieldConditionVisibility() {
       const names = new Set(selectedShieldItems().map((entry) => entry.item.name));
       const map = {
@@ -3067,6 +3120,10 @@
         spAttackPercent += effectTierFor("Wise Glasses");
       }
 
+      const regiBuff = REGI_BUFFS[el.regiBuffSelect.value] || REGI_BUFFS.none;
+      attackPercent += regiBuff.attackPercent;
+      spAttackPercent += regiBuff.spAttackPercent;
+
       const attackBeforePercent = baseAttack + attackFlat;
       const spAttackBeforePercent = baseSpAttack + spAttackFlat;
       const attack = attackBeforePercent * (1 + attackPercent / 100);
@@ -3081,6 +3138,7 @@
         spAttackFlat,
         attackPercent,
         spAttackPercent,
+        specialBuffLines: selectedSpecialPokemonBuffLines(),
         critRate: baseCrit + bonuses.critRate,
         critDamageMultiplier: 2 + bonuses.critDamage / 100,
         itemLines: bonuses.itemLines
@@ -3544,6 +3602,7 @@
     function updateAll() {
       updateAllPokemonPreviews();
       updateConditionVisibility();
+      syncSpecialPokemonBuffs();
       el.levelValue.textContent = el.levelRange.value;
       el.targetLevelValue.textContent = el.targetLevelRange.value;
 
@@ -3569,6 +3628,9 @@
 
       if (hasItem("Energy Amplifier") && el.energyAmpProc.checked) {
         damageMultiplier += effectTierFor("Energy Amplifier") / 100;
+      }
+      if (el.groudonBuff.checked) {
+        damageMultiplier += 0.5;
       }
 
       const moveResults = move.parts.map((part) => {
@@ -3662,6 +3724,10 @@
 
       if (stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
         rows.splice(1, 0, ["能力補正", `攻撃 +${formatNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 +${formatNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
+      }
+      if (stats.specialBuffLines.length) {
+        const specialBuffRowIndex = stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent ? 2 : 1;
+        rows.splice(specialBuffRowIndex, 0, ["特殊ポケモン撃破バフ", stats.specialBuffLines.join(" / ")]);
       }
 
       el.breakdownBody.innerHTML = rows.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(value)}</td></tr>`).join("");
@@ -3760,7 +3826,7 @@
         "manualAttack", "manualSpAttack", "manualDamagePercent", "manualExtraDamage",
         "criticalHit", "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc", "chargingCharmProc",
-        "razorClawProc", "energyAmpProc"
+        "razorClawProc", "energyAmpProc", "regiBuffSelect", "regidragoBuff", "groudonBuff"
       ].forEach((id) => {
         el[id].addEventListener("input", updateAll);
         el[id].addEventListener("change", updateAll);
