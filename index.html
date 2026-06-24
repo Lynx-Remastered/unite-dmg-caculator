@@ -3095,8 +3095,6 @@
     }
 
     function syncSpecialPokemonBuffs() {
-      if (el.groudonBuff.checked) el.regidragoBuff.checked = false;
-      el.regidragoBuff.disabled = el.groudonBuff.checked;
       const lines = selectedSpecialPokemonBuffLines();
       el.specialPokemonBuffNote.textContent = lines.length ? lines.join(" / ") : "撃破バフなし";
     }
