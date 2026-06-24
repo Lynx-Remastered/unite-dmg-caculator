@@ -818,6 +818,10 @@
                 <span>グラードン</span>
                 <input id="groudonBuff" type="checkbox">
               </label>
+              <label class="check-row">
+                <span>レックウザ</span>
+                <input id="rayquazaBuff" type="checkbox">
+              </label>
             </div>
             <div id="specialPokemonBuffNote" class="effect-note">撃破バフなし</div>
           </div>
@@ -1555,8 +1559,8 @@
 
     const REGI_BUFFS = {
       none: { name: "", attackPercent: 0, spAttackPercent: 0, description: "" },
-      regirock: { name: "レジロック", attackPercent: 0, spAttackPercent: 0, description: "防御+30%・特防+25%（与ダメージ変化なし）" },
-      regice: { name: "レジアイス", attackPercent: 0, spAttackPercent: 0, description: "最大HPの5%を3秒ごとに回復（与ダメージ変化なし）" },
+      regirock: { name: "レジロック", attackPercent: 0, spAttackPercent: 0, description: "与ダメージ変化なし" },
+      regice: { name: "レジアイス", attackPercent: 0, spAttackPercent: 0, description: "与ダメージ変化なし" },
       registeel: { name: "レジスチル", attackPercent: 15, spAttackPercent: 15, description: "攻撃+15%・特攻+15%" }
     };
 
@@ -1737,7 +1741,7 @@
         "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc",
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
-        "regiBuffSelect", "regidragoBuff", "groudonBuff", "specialPokemonBuffNote",
+        "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff", "specialPokemonBuffNote",
         "pokemonImage", "pokemonImageName", "targetImage", "targetImageName",
         "shieldPokemonSelect", "shieldPokemonImage", "shieldPokemonImageName",
         "shieldLevelRange", "shieldLevelValue", "shieldMoveChoices",
@@ -3089,8 +3093,11 @@
       const lines = [];
       const regiBuff = REGI_BUFFS[el.regiBuffSelect.value] || REGI_BUFFS.none;
       if (regiBuff.name) lines.push(`${regiBuff.name}: ${regiBuff.description}`);
-      if (el.regidragoBuff.checked) lines.push("レジドラゴ: ゴール速度+100%（与ダメージ変化なし）");
-      if (el.groudonBuff.checked) lines.push("グラードン: 与ダメージ+50%・ゴール速度+300%");
+      if (el.regidragoBuff.checked) lines.push("レジドラゴ: 与ダメージ変化なし");
+      if (el.groudonBuff.checked) lines.push("グラードン: 与ダメージ+50%");
+      if (el.rayquazaBuff.checked) {
+        lines.push("レックウザ: 与ダメージ+40%（シールド中）");
+      }
       return lines;
     }
 
@@ -3727,6 +3734,9 @@
       if (el.groudonBuff.checked) {
         damageMultiplier += 0.5;
       }
+      if (el.rayquazaBuff.checked) {
+        damageMultiplier += 0.4;
+      }
 
       const moveResults = move.parts.map((part) => {
         const typeLabel = jpDamageType(part.dmgType);
@@ -3921,7 +3931,7 @@
         "manualAttack", "manualSpAttack", "manualDamagePercent", "manualExtraDamage",
         "criticalHit", "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc", "chargingCharmProc",
-        "razorClawProc", "energyAmpProc", "regiBuffSelect", "regidragoBuff", "groudonBuff"
+        "razorClawProc", "energyAmpProc", "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff"
       ].forEach((id) => {
         el[id].addEventListener("input", updateAll);
         el[id].addEventListener("change", updateAll);
