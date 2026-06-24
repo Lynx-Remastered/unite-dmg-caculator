@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ポケモンユナイト 計算ツール</title>
+  <title>ダメージ・シールド・回復量計算</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2064%2064%22%3E%3Crect%20width=%2264%22%20height=%2264%22%20rx=%2214%22%20fill=%22%230d1016%22/%3E%3Ccircle%20cx=%2232%22%20cy=%2232%22%20r=%2222%22%20fill=%22%23f2b33d%22/%3E%3Cpath%20d=%22M14%2032h36%22%20stroke=%22%230d1016%22%20stroke-width=%226%22/%3E%3Ccircle%20cx=%2232%22%20cy=%2232%22%20r=%228%22%20fill=%22%23eef3f8%22%20stroke=%22%230d1016%22%20stroke-width=%225%22/%3E%3C/svg%3E">
   <style>
     :root {
@@ -46,26 +46,17 @@
       padding: 24px 0 36px;
     }
 
-    header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
-      align-items: end;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(28px, 4vw, 44px);
-      line-height: 1.04;
-      letter-spacing: 0;
-    }
-
     .source {
       color: var(--muted);
       font-size: 13px;
       text-align: right;
       line-height: 1.5;
+    }
+
+    .site-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
     }
 
     a {
@@ -621,7 +612,6 @@
     }
 
     @media (max-width: 980px) {
-      header,
       .app-shell,
       .result-layout {
         grid-template-columns: 1fr;
@@ -664,16 +654,6 @@
 </head>
 <body>
   <main>
-    <header>
-      <div>
-        <h1>ポケモンユナイト 計算ツール</h1>
-      </div>
-      <div class="source">
-        データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">unite-db.com</a><br>
-        式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
-      </div>
-    </header>
-
     <div id="loading" class="panel loading" role="status" aria-live="polite">
       <div class="loading-content">
         <div class="loading-title">データを準備しています</div>
@@ -1330,6 +1310,11 @@
         </div>
       </section>
     </section>
+
+    <footer class="source site-footer">
+      データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年6月24日取得）<br>
+      式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
+    </footer>
   </main>
 
   <script>
@@ -1410,6 +1395,7 @@
       "Pawmot": "パーモット",
       "Pikachu": "ピカチュウ",
       "Psyduck": "コダック",
+      "Quaquaval": "ウェーニバル",
       "Raichu": "ライチュウ",
       "Rapidash": "ギャロップ",
       "Sableye": "ヤミラミ",
