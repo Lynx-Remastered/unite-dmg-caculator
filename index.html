@@ -1155,12 +1155,12 @@
           </div>
           <div class="panel-body stack">
             <div class="button-row">
-              <button id="applyEmblemButton" type="button">推奨エンブレム</button>
-              <button id="clearEmblemButton" class="secondary" type="button">エンブレムなし</button>
+              <button id="applyEmblemButton" type="button">推奨メダル</button>
+              <button id="clearEmblemButton" class="secondary" type="button">メダルなし</button>
             </div>
-            <div id="emblemBuildName" class="effect-note">エンブレムなし</div>
-            <div id="emblemSlots" class="emblem-slots" aria-label="個別エンブレム"></div>
-            <div class="emblem-summary-grid" aria-label="エンブレム集計">
+            <div id="emblemBuildName" class="effect-note">メダルなし</div>
+            <div id="emblemSlots" class="emblem-slots" aria-label="個別メダル"></div>
+            <div class="emblem-summary-grid" aria-label="メダル集計">
               <div class="emblem-summary-item">
                 <span>選択枚数</span>
                 <strong id="emblemSlotCount">0 / 10</strong>
@@ -1791,7 +1791,7 @@
       特殊ポケモン撃破バフ: <a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a><br>
       デフォルト持ち物: <a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得、各ポケモンの先頭掲載ビルド）<br>
       サポートメダル: <a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB</a> / <a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得）<br>
-      エンブレムの日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a><br>
+      メダルの日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a><br>
       式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
     </footer>
   </main>
@@ -3580,10 +3580,10 @@
 
       const gradeLabel = EMBLEM_GRADE_LABELS[emblem.grade] || emblem.grade;
       const pokemonName = emblemJapaneseName(emblem);
-      visual.setAttribute("aria-label", `${pokemonName} ${gradeLabel}エンブレムを変更`);
+      visual.setAttribute("aria-label", `${pokemonName} ${gradeLabel}メダルを変更`);
       visual.title = `${pokemonName}（${gradeLabel}）`;
       icon.hidden = false;
-      icon.alt = `${pokemonName} ${gradeLabel}エンブレム`;
+      icon.alt = `${pokemonName} ${gradeLabel}メダル`;
       icon.src = emblemIconUrl(emblem);
       placeholder.hidden = true;
 
@@ -3849,7 +3849,7 @@
         speciesSelect.value = emblem ? emblem.pokedex : "";
         populateEmblemGradeSelect(i, emblem ? emblem.grade : "");
       }
-      el.emblemBuildName.textContent = label || "エンブレムなし";
+      el.emblemBuildName.textContent = label || "メダルなし";
     }
 
     function applyRecommendedEmblems() {
@@ -3861,7 +3861,7 @@
 
     function clearEmblems() {
       state.emblemFallback = null;
-      setEmblemControls(null, "エンブレムなし");
+      setEmblemControls(null, "メダルなし");
       updateAll();
     }
 
