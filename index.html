@@ -43,7 +43,7 @@
     main {
       width: min(1360px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 24px 0 36px;
+      padding: 16px 0 24px;
     }
 
     .source {
@@ -54,8 +54,8 @@
     }
 
     .site-footer {
-      margin-top: 20px;
-      padding-top: 16px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid var(--line);
     }
 
@@ -66,25 +66,25 @@
     .app-shell {
       display: grid;
       grid-template-columns: minmax(320px, 460px) 1fr;
-      gap: 18px;
+      gap: 12px;
       align-items: start;
     }
 
     .tab-bar {
       display: flex;
       gap: 8px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       border-bottom: 1px solid var(--line);
     }
 
     .tab-button {
-      min-height: 42px;
+      min-height: 36px;
       border: 0;
       border-bottom: 3px solid transparent;
       border-radius: 0;
       background: transparent;
       color: var(--muted);
-      padding: 10px 14px;
+      padding: 7px 12px;
       font-weight: 900;
     }
 
@@ -107,7 +107,7 @@
 
     .panel > .panel-head,
     .result-head {
-      padding: 16px 18px 10px;
+      padding: 12px 14px 8px;
       border-bottom: 1px solid var(--line);
     }
 
@@ -119,23 +119,23 @@
     }
 
     .panel-body {
-      padding: 16px 18px 18px;
+      padding: 12px 14px 14px;
     }
 
     .stack {
       display: grid;
-      gap: 14px;
+      gap: 10px;
     }
 
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 10px;
     }
 
     label {
       display: grid;
-      gap: 6px;
+      gap: 4px;
       font-size: 12px;
       font-weight: 700;
       color: #d9e2ec;
@@ -145,12 +145,12 @@
     input[type="number"],
     input[type="text"] {
       width: 100%;
-      min-height: 40px;
+      min-height: 36px;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: var(--input-bg);
       color: var(--ink);
-      padding: 8px 10px;
+      padding: 6px 8px;
       font: inherit;
       font-size: 14px;
     }
@@ -171,12 +171,12 @@
     .range-row {
       display: grid;
       grid-template-columns: 1fr 48px;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
     .range-value {
-      min-height: 34px;
+      min-height: 32px;
       border: 1px solid var(--line);
       border-radius: 6px;
       display: grid;
@@ -187,31 +187,31 @@
 
     .held-items {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
     .pokemon-picker {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 92px;
-      gap: 12px;
+      grid-template-columns: minmax(0, 1fr) 84px;
+      gap: 10px;
       align-items: end;
     }
 
     .pokemon-preview {
-      min-height: 92px;
+      min-height: 84px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface-3);
       display: grid;
-      grid-template-rows: 66px auto;
+      grid-template-rows: 58px auto;
       place-items: center;
-      padding: 8px;
+      padding: 6px;
       overflow: hidden;
     }
 
     .pokemon-preview img {
-      max-width: 72px;
-      max-height: 66px;
+      max-width: 64px;
+      max-height: 58px;
       object-fit: contain;
     }
 
@@ -228,17 +228,17 @@
 
     .move-choice-grid {
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     .move-choice {
       width: 100%;
-      min-height: 60px;
+      min-height: 52px;
       display: grid;
-      grid-template-columns: 48px minmax(0, 1fr);
-      gap: 10px;
+      grid-template-columns: 40px minmax(0, 1fr);
+      gap: 8px;
       align-items: center;
-      padding: 9px 10px;
+      padding: 6px 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface-3);
@@ -263,8 +263,8 @@
     }
 
     .move-choice img {
-      width: 44px;
-      height: 44px;
+      width: 36px;
+      height: 36px;
       object-fit: contain;
     }
 
@@ -300,9 +300,9 @@
     .item-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 112px;
-      gap: 10px;
+      gap: 8px;
       align-items: end;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface-3);
@@ -323,15 +323,15 @@
 
     .condition-grid {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
     .condition-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 92px;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface-3);
@@ -343,10 +343,10 @@
 
     .check-row {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
       justify-content: space-between;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface-3);
@@ -359,12 +359,12 @@
     }
 
     button {
-      min-height: 40px;
+      min-height: 36px;
       border: 1px solid #d79c24;
       border-radius: 6px;
       background: var(--accent);
       color: #211805;
-      padding: 8px 12px;
+      padding: 6px 10px;
       font: inherit;
       font-weight: 800;
       cursor: pointer;
@@ -384,7 +384,7 @@
     .button-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 8px;
     }
 
     .result-panel {
@@ -394,19 +394,19 @@
     .result-layout {
       display: grid;
       grid-template-columns: minmax(260px, 360px) 1fr;
-      gap: 16px;
-      padding: 16px 18px 18px;
+      gap: 12px;
+      padding: 12px 14px 14px;
     }
 
     .damage-total {
       display: grid;
-      gap: 12px;
+      gap: 10px;
     }
 
     .total-box {
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 16px;
+      padding: 12px;
       background: var(--surface-3);
     }
 
@@ -425,7 +425,7 @@
     .total-value {
       display: block;
       margin-top: 4px;
-      font-size: clamp(38px, 7vw, 68px);
+      font-size: 52px;
       line-height: 0.95;
       font-weight: 900;
       letter-spacing: 0;
@@ -433,7 +433,7 @@
 
     .total-sub {
       display: block;
-      margin-top: 8px;
+      margin-top: 6px;
       color: var(--muted);
       font-size: 13px;
       line-height: 1.45;
@@ -442,51 +442,51 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
+      gap: 8px;
     }
 
     .stat-tile {
-      min-height: 76px;
+      min-height: 64px;
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 10px;
+      padding: 8px;
       background: var(--surface-3);
     }
 
     .stat-tile strong {
       display: block;
       margin-top: 4px;
-      font-size: 22px;
+      font-size: 20px;
       line-height: 1;
     }
 
     .details {
       display: grid;
-      gap: 14px;
+      gap: 10px;
     }
 
     .formula-line {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      min-height: 42px;
-      padding: 12px;
+      min-height: 36px;
+      padding: 9px;
       border-radius: 8px;
       background: #17212b;
       color: #fff;
     }
 
     .formula-line code {
-      font-size: 14px;
+      font-size: 13px;
       white-space: normal;
     }
 
     .chip {
       display: inline-flex;
       align-items: center;
-      min-height: 26px;
-      padding: 4px 8px;
+      min-height: 24px;
+      padding: 3px 7px;
       border-radius: 999px;
       background: #253141;
       color: #eaf0f7;
@@ -521,7 +521,7 @@
 
     th,
     td {
-      padding: 10px 12px;
+      padding: 8px 10px;
       text-align: left;
       border-bottom: 1px solid var(--line);
       vertical-align: top;
@@ -539,18 +539,35 @@
 
     .item-effects {
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     .effect-note {
       border-left: 4px solid var(--accent-2);
       background: rgba(52, 195, 186, 0.08);
       border-radius: 6px;
-      padding: 9px 10px;
+      padding: 7px 8px;
       color: #dbe5ef;
       font-size: 13px;
       line-height: 1.45;
     }
+
+    .color-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .color-swatch {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 3px;
+    }
+
+    .color-swatch.brown { background: #a66d3f; }
+    .color-swatch.green { background: #43a96b; }
 
     .loading {
       min-height: 420px;
@@ -605,7 +622,7 @@
     }
 
     .footer-note {
-      margin-top: 14px;
+      margin-top: 10px;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.5;
@@ -624,8 +641,8 @@
 
     @media (max-width: 620px) {
       main {
-        width: min(100% - 20px, 1360px);
-        padding-top: 16px;
+        width: min(100% - 16px, 1360px);
+        padding: 10px 0 20px;
       }
 
       .grid-2,
@@ -640,6 +657,17 @@
 
       .tab-bar {
         display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+      }
+
+      .tab-button {
+        padding-inline: 4px;
+        font-size: 13px;
+      }
+
+      .button-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .check-row {
@@ -647,7 +675,7 @@
       }
 
       .total-value {
-        font-size: 46px;
+        font-size: 42px;
       }
     }
   </style>
@@ -744,6 +772,42 @@
                 <input id="itemLevel2" data-item-level-index="2" type="number" min="1" max="40" value="40">
               </label>
             </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>サポートメダル</h2>
+          </div>
+          <div class="panel-body stack">
+            <div class="button-row">
+              <button id="applyEmblemButton" type="button">推奨エンブレム</button>
+              <button id="clearEmblemButton" class="secondary" type="button">エンブレムなし</button>
+            </div>
+            <div id="emblemBuildName" class="effect-note">エンブレムなし</div>
+            <div class="grid-2">
+              <label>
+                <span class="color-label"><span class="color-swatch brown" aria-hidden="true"></span>ブラウン枚数</span>
+                <input id="emblemBrownCount" type="number" min="0" max="10" value="0" step="1">
+              </label>
+              <label>
+                <span class="color-label"><span class="color-swatch green" aria-hidden="true"></span>グリーン枚数</span>
+                <input id="emblemGreenCount" type="number" min="0" max="10" value="0" step="1">
+              </label>
+              <label>
+                攻撃 +/-
+                <input id="emblemAttack" type="number" value="0" step="0.1">
+              </label>
+              <label>
+                特攻 +/-
+                <input id="emblemSpAttack" type="number" value="0" step="0.1">
+              </label>
+              <label>
+                急所率 +/-（%）
+                <input id="emblemCritRate" type="number" value="0" step="0.1">
+              </label>
+            </div>
+            <div id="emblemEffectNote" class="effect-note">ダメージに関係する補正はありません</div>
           </div>
         </section>
 
@@ -946,7 +1010,7 @@
         </section>
 
         <p class="footer-note">
-          ポケモン、能力値、技のRSB、持ち物データは同梱JSONから読み込みます。条件付きの持ち物効果は、チェックを入れた場合または回数を入力した場合だけ反映します。
+          ポケモン、能力値、技のRSB、持ち物、サポートメダルのデータは同梱JSONから読み込みます。条件付きの効果は、チェックを入れた場合または回数を入力した場合だけ反映します。
         </p>
       </div>
       </section>
@@ -1347,6 +1411,7 @@
       データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年6月24日取得）<br>
       特殊ポケモン撃破バフ: <a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a><br>
       デフォルト持ち物: <a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得、各ポケモンの先頭掲載ビルド）<br>
+      サポートメダル: <a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB</a> / <a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得）<br>
       式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
     </footer>
   </main>
@@ -1355,7 +1420,9 @@
     const DATA_SOURCES = {
       pokemon: ["./data/pokemon.json"],
       stats: ["./data/stats.json"],
-      heldItems: ["./data/held_items.json"]
+      heldItems: ["./data/held_items.json"],
+      emblems: ["./data/emblems.json"],
+      emblemSets: ["./data/emblem_sets.json"]
     };
 
     const DATA_FETCH_TIMEOUT_MS = 15000;
@@ -1564,6 +1631,25 @@
       registeel: { name: "レジスチル", attackPercent: 15, spAttackPercent: 15, description: "攻撃+15%・特攻+15%" }
     };
 
+    const WIKI_EMBLEM_PRESETS = {
+      Quaquaval: {
+        name: "茶6・白6（ポケモンユナイトWiki*）",
+        brownCount: 6,
+        greenCount: 0,
+        attack: 0,
+        spAttack: 0,
+        critRate: 0
+      },
+      Zapdos: {
+        name: "緑6・黒7（ポケモンユナイトWiki*）",
+        brownCount: 0,
+        greenCount: 6,
+        attack: 0,
+        spAttack: 0,
+        critRate: 0
+      }
+    };
+
     const DAMAGE_RECOMMENDED_ITEMS = {
       "Absol": ["Scope Lens", "Razor Claw", "Charging Charm"],
       "Aegislash": ["Razor Claw", "Muscle Band", "Focus Band"],
@@ -1663,6 +1749,8 @@
       pokemon: [],
       stats: [],
       heldItems: [],
+      emblems: [],
+      emblemSets: [],
       moveEntries: [],
       moveChoices: [],
       shieldMoveEntries: [],
@@ -1741,6 +1829,8 @@
         "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc",
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
+        "applyEmblemButton", "clearEmblemButton", "emblemBuildName", "emblemBrownCount",
+        "emblemGreenCount", "emblemAttack", "emblemSpAttack", "emblemCritRate", "emblemEffectNote",
         "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff", "specialPokemonBuffNote",
         "pokemonImage", "pokemonImageName", "targetImage", "targetImageName",
         "shieldPokemonSelect", "shieldPokemonImage", "shieldPokemonImageName",
@@ -2232,6 +2322,7 @@
 
       updateMoveOptions();
       applyRecommendedBuild();
+      applyRecommendedEmblems();
       syncTargetStats();
       updateShieldMoveOptions();
       applyRecommendedShieldBuild();
@@ -3015,6 +3106,87 @@
       updateAll();
     }
 
+    function emblemIdsFromLink(link) {
+      try {
+        const buildParam = new URL(link).searchParams.get("build") || "";
+        return buildParam.split(",").filter(Boolean);
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function emblemPresetFromBuild(pokemon) {
+      if (!pokemon || !Array.isArray(pokemon.builds)) return null;
+      const build = pokemon.builds.find((entry) => Array.isArray(entry.emblem_link) && entry.emblem_link[0]);
+      if (!build) return WIKI_EMBLEM_PRESETS[pokemon.name] || null;
+
+      let ids = emblemIdsFromLink(build.emblem_link[0]);
+      if (!ids.length && Array.isArray(build.emblem_name) && build.emblem_name[0]) {
+        const referencedName = build.emblem_name[0];
+        for (const candidatePokemon of state.pokemon) {
+          for (const candidateBuild of candidatePokemon.builds || []) {
+            const nameIndex = Array.isArray(candidateBuild.emblem_name)
+              ? candidateBuild.emblem_name.indexOf(referencedName)
+              : -1;
+            if (nameIndex < 0 || !Array.isArray(candidateBuild.emblem_link)) continue;
+            ids = emblemIdsFromLink(candidateBuild.emblem_link[nameIndex]);
+            if (ids.length) break;
+          }
+          if (ids.length) break;
+        }
+      }
+      if (!ids.length) return WIKI_EMBLEM_PRESETS[pokemon.name] || null;
+
+      const emblems = ids
+        .map((id) => state.emblems.find((emblem) => emblem.name === id))
+        .filter(Boolean);
+      if (!emblems.length) return WIKI_EMBLEM_PRESETS[pokemon.name] || null;
+
+      const colors = { Brown: new Set(), Green: new Set() };
+      const totals = { attack: 0, spAttack: 0, critRate: 0 };
+      emblems.forEach((emblem) => {
+        const stats = emblem.stats && emblem.stats[0] ? emblem.stats[0] : {};
+        totals.attack += number(stats.attack, 0);
+        totals.spAttack += number(stats.sp_attack, 0);
+        totals.critRate += number(stats.crit, 0);
+        Object.keys(colors).forEach((color) => {
+          if (emblem.color1 === color || emblem.color2 === color) {
+            colors[color].add(emblem.display_name || emblem.name);
+          }
+        });
+      });
+
+      return {
+        name: `UniteDB推奨（${emblems.length}枚）`,
+        brownCount: colors.Brown.size,
+        greenCount: colors.Green.size,
+        attack: totals.attack,
+        spAttack: totals.spAttack,
+        critRate: totals.critRate
+      };
+    }
+
+    function setEmblemControls(preset, label) {
+      const values = preset || {};
+      el.emblemBrownCount.value = clamp(number(values.brownCount, 0), 0, 10);
+      el.emblemGreenCount.value = clamp(number(values.greenCount, 0), 0, 10);
+      el.emblemAttack.value = formatNumber(number(values.attack, 0), 2);
+      el.emblemSpAttack.value = formatNumber(number(values.spAttack, 0), 2);
+      el.emblemCritRate.value = formatNumber(number(values.critRate, 0), 2);
+      el.emblemBuildName.textContent = label || "エンブレムなし";
+    }
+
+    function applyRecommendedEmblems() {
+      const preset = emblemPresetFromBuild(selectedPokemon());
+      setEmblemControls(preset, preset ? `推奨構成: ${preset.name}` : "推奨構成なし");
+      updateAll();
+    }
+
+    function clearEmblems() {
+      setEmblemControls(null, "エンブレムなし");
+      updateAll();
+    }
+
     function clearItems() {
       for (let i = 0; i < 3; i += 1) {
         el[`itemSelect${i}`].value = "";
@@ -3167,6 +3339,56 @@
       return number(String(raw || "").replace("%", ""), 0);
     }
 
+    function signedNumber(value, digits = 1) {
+      const formatted = formatNumber(value, digits);
+      return value > 0 ? `+${formatted}` : formatted;
+    }
+
+    function emblemSetPercent(color, count) {
+      const set = state.emblemSets.find((entry) => entry.name === color);
+      if (!set) return 0;
+      if (count >= number(set.count3, 99)) return number(set.bonus3, 0);
+      if (count >= number(set.count2, 99)) return number(set.bonus2, 0);
+      if (count >= number(set.count1, 99)) return number(set.bonus1, 0);
+      return 0;
+    }
+
+    function selectedEmblemBonuses(baseAttack, baseSpAttack) {
+      const brownCount = clamp(number(el.emblemBrownCount.value, 0), 0, 10);
+      const greenCount = clamp(number(el.emblemGreenCount.value, 0), 0, 10);
+      const attackFlat = number(el.emblemAttack.value, 0);
+      const spAttackFlat = number(el.emblemSpAttack.value, 0);
+      const critRate = number(el.emblemCritRate.value, 0);
+      const attackPercent = emblemSetPercent("Brown", brownCount);
+      const spAttackPercent = emblemSetPercent("Green", greenCount);
+      const attackSetBonus = baseAttack * attackPercent / 100;
+      const spAttackSetBonus = baseSpAttack * spAttackPercent / 100;
+      const lines = [];
+
+      if (attackPercent || spAttackPercent) {
+        const colors = [];
+        if (attackPercent) colors.push(`茶${brownCount}: 攻撃+${formatNumber(attackPercent, 1)}%（基礎能力から+${formatNumber(attackSetBonus, 1)}）`);
+        if (spAttackPercent) colors.push(`緑${greenCount}: 特攻+${formatNumber(spAttackPercent, 1)}%（基礎能力から+${formatNumber(spAttackSetBonus, 1)}）`);
+        lines.push(colors.join(" / "));
+      }
+      if (attackFlat || spAttackFlat || critRate) {
+        lines.push(`個別補正: 攻撃${signedNumber(attackFlat, 1)} / 特攻${signedNumber(spAttackFlat, 1)} / 急所率${signedNumber(critRate, 1)}%`);
+      }
+
+      return {
+        brownCount,
+        greenCount,
+        attackFlat,
+        spAttackFlat,
+        critRate,
+        attackPercent,
+        spAttackPercent,
+        attackSetBonus,
+        spAttackSetBonus,
+        lines
+      };
+    }
+
     function computeAttackerStats() {
       const level = number(el.levelRange.value, 15);
       const pokemon = selectedPokemon();
@@ -3174,6 +3396,7 @@
       const baseAttack = number(baseStats && baseStats.attack, 0);
       const baseSpAttack = number(baseStats && baseStats.sp_attack, 0);
       const baseCrit = number(baseStats && baseStats.crit, 0);
+      const emblem = selectedEmblemBonuses(baseAttack, baseSpAttack);
 
       const bonuses = {
         attackFlat: 0,
@@ -3198,8 +3421,8 @@
         });
       });
 
-      let attackFlat = bonuses.attackFlat + number(el.manualAttack.value, 0);
-      let spAttackFlat = bonuses.spAttackFlat + number(el.manualSpAttack.value, 0);
+      let attackFlat = bonuses.attackFlat + emblem.attackFlat + number(el.manualAttack.value, 0);
+      let spAttackFlat = bonuses.spAttackFlat + emblem.spAttackFlat + number(el.manualSpAttack.value, 0);
       let attackPercent = 0;
       let spAttackPercent = 0;
 
@@ -3228,8 +3451,8 @@
 
       const attackBeforePercent = baseAttack + attackFlat;
       const spAttackBeforePercent = baseSpAttack + spAttackFlat;
-      const attack = attackBeforePercent * (1 + attackPercent / 100);
-      const spAttack = spAttackBeforePercent * (1 + spAttackPercent / 100);
+      const attack = attackBeforePercent * (1 + attackPercent / 100) + emblem.attackSetBonus;
+      const spAttack = spAttackBeforePercent * (1 + spAttackPercent / 100) + emblem.spAttackSetBonus;
 
       return {
         baseAttack,
@@ -3240,8 +3463,10 @@
         spAttackFlat,
         attackPercent,
         spAttackPercent,
+        emblem,
+        emblemLines: emblem.lines,
         specialBuffLines: selectedSpecialPokemonBuffLines(),
-        critRate: baseCrit + bonuses.critRate,
+        critRate: Math.max(0, baseCrit + bonuses.critRate + emblem.critRate),
         critDamageMultiplier: 2 + bonuses.critDamage / 100,
         itemLines: bonuses.itemLines
       };
@@ -3716,6 +3941,9 @@
       el.spAttackStat.textContent = formatNumber(stats.spAttack, 1);
       el.critRateStat.textContent = `${formatNumber(stats.critRate, 1)}%`;
       el.critDamageStat.textContent = `${formatNumber(stats.critDamageMultiplier * 100, 1)}%`;
+      el.emblemEffectNote.textContent = stats.emblemLines.length
+        ? stats.emblemLines.join(" / ")
+        : "ダメージに関係する補正はありません";
 
       if (!move) {
         el.rawDamage.textContent = "0";
@@ -3827,12 +4055,17 @@
         ["防御参照", moveResults.map((result) => `${result.part.dmgType.trim() === "Atk" ? "防御" : "特防"} ${formatNumber(targetDefenseFor(result.part.dmgType), 1)}`).filter((value, index, rows) => rows.indexOf(value) === index).join(" / ")]
       ];
 
+      let detailRowIndex = 1;
       if (stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
-        rows.splice(1, 0, ["能力補正", `攻撃 +${formatNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 +${formatNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
+        rows.splice(detailRowIndex, 0, ["能力補正", `攻撃 ${signedNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 ${signedNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
+        detailRowIndex += 1;
+      }
+      if (stats.emblemLines.length) {
+        rows.splice(detailRowIndex, 0, ["サポートメダル", stats.emblemLines.join(" / ")]);
+        detailRowIndex += 1;
       }
       if (stats.specialBuffLines.length) {
-        const specialBuffRowIndex = stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent ? 2 : 1;
-        rows.splice(specialBuffRowIndex, 0, ["特殊ポケモン撃破バフ", stats.specialBuffLines.join(" / ")]);
+        rows.splice(detailRowIndex, 0, ["特殊ポケモン撃破バフ", stats.specialBuffLines.join(" / ")]);
       }
 
       el.breakdownBody.innerHTML = rows.map(([name, value]) => `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(value)}</td></tr>`).join("");
@@ -3855,6 +4088,7 @@
       el.pokemonSelect.addEventListener("change", () => {
         updateMoveOptions();
         applyRecommendedBuild();
+        applyRecommendedEmblems();
         updateAll();
       });
       el.levelRange.addEventListener("input", () => {
@@ -3863,6 +4097,16 @@
       });
       el.applyBuildButton.addEventListener("click", applyRecommendedBuild);
       el.clearItemsButton.addEventListener("click", clearItems);
+      el.applyEmblemButton.addEventListener("click", applyRecommendedEmblems);
+      el.clearEmblemButton.addEventListener("click", clearEmblems);
+      ["emblemBrownCount", "emblemGreenCount", "emblemAttack", "emblemSpAttack", "emblemCritRate"].forEach((id) => {
+        ["input", "change"].forEach((eventName) => {
+          el[id].addEventListener(eventName, () => {
+            el.emblemBuildName.textContent = "手動設定";
+            updateAll();
+          });
+        });
+      });
 
       el.shieldPokemonSelect.addEventListener("change", () => {
         updateShieldMoveOptions();
@@ -4007,10 +4251,14 @@
       const pokemon = await fetchJson("pokemon.json", DATA_SOURCES.pokemon, "ポケモンデータ");
       const stats = await fetchJson("stats.json", DATA_SOURCES.stats, "能力値データ");
       const heldItems = await fetchJson("held_items.json", DATA_SOURCES.heldItems, "持ち物データ");
+      const emblems = await fetchJson("emblems.json", DATA_SOURCES.emblems, "サポートメダルデータ");
+      const emblemSets = await fetchJson("emblem_sets.json", DATA_SOURCES.emblemSets, "メダル色効果データ");
 
       state.pokemon = pokemon;
       state.stats = stats;
       state.heldItems = heldItems;
+      state.emblems = emblems;
+      state.emblemSets = emblemSets;
     }
 
     async function init() {
