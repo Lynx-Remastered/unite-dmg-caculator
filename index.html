@@ -951,36 +951,114 @@
       color: var(--danger);
     }
 
-    .emblem-summary-grid {
+    .emblem-effects-board {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 6px;
-    }
-
-    .emblem-summary-item {
-      min-width: 0;
-      padding: 7px 8px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      overflow: hidden;
+      border: 1px solid rgba(var(--accent-2-rgb), 0.42);
+      border-radius: 8px;
       background: var(--surface-3);
     }
 
-    .emblem-summary-item span,
-    .emblem-summary-item strong {
-      display: block;
+    .emblem-effects-section {
+      min-width: 0;
+      padding: 10px;
     }
 
-    .emblem-summary-item span {
+    .emblem-effects-section + .emblem-effects-section {
+      border-left: 1px solid var(--line);
+    }
+
+    .emblem-effects-section h3 {
+      margin: 0 0 8px;
+      color: var(--accent-2);
+      font-size: 13px;
+    }
+
+    .emblem-stat-list {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+    }
+
+    .emblem-stat-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .emblem-stat-row dt {
+      color: var(--muted);
+    }
+
+    .emblem-stat-row dd {
+      margin: 0;
+      font-weight: 900;
+    }
+
+    .emblem-color-effects {
+      display: grid;
+      gap: 6px;
+    }
+
+    .emblem-color-effect-row {
+      --emblem-color: var(--accent-2);
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr);
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 3px 5px;
+      border-left: 3px solid var(--emblem-color);
+      border-radius: 5px;
+      background: var(--input-bg);
+    }
+
+    .emblem-color-current {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .emblem-color-current img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    .emblem-color-current strong {
+      font-size: 14px;
+    }
+
+    .emblem-color-thresholds {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(22px, 1fr));
+      gap: 4px;
+    }
+
+    .emblem-color-threshold {
+      display: grid;
+      place-items: center;
+      min-width: 22px;
+      height: 22px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .emblem-color-threshold.active {
+      border-color: var(--emblem-color);
+      background: color-mix(in srgb, var(--emblem-color) 24%, transparent);
+      color: var(--ink);
+    }
+
+    .emblem-effect-empty {
       color: var(--muted);
       font-size: 11px;
-      font-weight: 800;
-    }
-
-    .emblem-summary-item strong {
-      margin-top: 2px;
-      overflow-wrap: anywhere;
-      font-size: 15px;
-      line-height: 1.2;
     }
 
     .loading {
@@ -1110,8 +1188,13 @@
         --medal-size: 56px;
       }
 
-      .emblem-summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .emblem-effects-board {
+        grid-template-columns: 1fr;
+      }
+
+      .emblem-effects-section + .emblem-effects-section {
+        border-top: 1px solid var(--line);
+        border-left: 0;
       }
 
       .check-row {
@@ -1292,29 +1375,16 @@
                 </div>
               </div>
             </section>
-            <div class="emblem-summary-grid" aria-label="メダル集計">
-              <div class="emblem-summary-item">
-                <span class="color-label"><span class="color-swatch brown" aria-hidden="true"></span>ブラウン</span>
-                <strong id="emblemBrownCount">0枚</strong>
-              </div>
-              <div class="emblem-summary-item">
-                <span class="color-label"><span class="color-swatch green" aria-hidden="true"></span>グリーン</span>
-                <strong id="emblemGreenCount">0枚</strong>
-              </div>
-              <div class="emblem-summary-item">
-                <span>攻撃補正</span>
-                <strong id="emblemAttack">0</strong>
-              </div>
-              <div class="emblem-summary-item">
-                <span>特攻補正</span>
-                <strong id="emblemSpAttack">0</strong>
-              </div>
-              <div class="emblem-summary-item">
-                <span>急所率補正</span>
-                <strong id="emblemCritRate">0%</strong>
-              </div>
+            <div class="emblem-effects-board" aria-label="適用中のメダル効果">
+              <section class="emblem-effects-section" aria-labelledby="emblemStatsHeading">
+                <h3 id="emblemStatsHeading">現在の効果</h3>
+                <dl id="emblemStatEffects" class="emblem-stat-list"></dl>
+              </section>
+              <section class="emblem-effects-section" aria-labelledby="emblemColorsHeading">
+                <h3 id="emblemColorsHeading">カラー効果</h3>
+                <div id="emblemColorEffects" class="emblem-color-effects"></div>
+              </section>
             </div>
-            <div id="emblemEffectNote" class="effect-note">ダメージに関係する補正はありません</div>
           </div>
         </section>
 
@@ -2364,8 +2434,8 @@
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
         "applyEmblemButton", "clearEmblemButton", "emblemBuildName", "emblemSpeciesOptions", "emblemSlots", "emblemSlotCount",
         "emblemEditor", "emblemEditorTitle", "emblemEditorDone", "emblemEditorIcon", "emblemEditorPlaceholder",
-        "emblemEditorColors", "emblemEditorSpecies", "emblemEditorGrade", "emblemEditorClear", "emblemBrownCount",
-        "emblemGreenCount", "emblemAttack", "emblemSpAttack", "emblemCritRate", "emblemEffectNote",
+        "emblemEditorColors", "emblemEditorSpecies", "emblemEditorGrade", "emblemEditorClear",
+        "emblemStatEffects", "emblemColorEffects",
         "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff", "specialPokemonBuffNote",
         "pokemonImage", "pokemonImageName", "targetImage", "targetImageName",
         "shieldPokemonSelect", "shieldPokemonImage", "shieldPokemonImageName",
@@ -3660,6 +3730,23 @@
       Black: "黒", Blue: "青", Brown: "茶", Gray: "灰", Green: "緑", Navy: "紺",
       Pink: "桃", Purple: "紫", Red: "赤", White: "白", Yellow: "黄"
     };
+    const EMBLEM_COLOR_HEX = {
+      Black: "#718096", Blue: "#4aa3df", Brown: "#d88a45", Gray: "#aab2bd", Green: "#45c878",
+      Navy: "#5776c8", Pink: "#e881b5", Purple: "#a970d6", Red: "#ef6b5b", White: "#e4e9ee", Yellow: "#e4c84c"
+    };
+    const EMBLEM_COLOR_DISPLAY_ORDER = [
+      "White", "Green", "Red", "Blue", "Black", "Brown", "Purple", "Yellow", "Pink", "Navy", "Gray"
+    ];
+    const EMBLEM_STAT_DEFINITIONS = [
+      { key: "hp", label: "HP", digits: 0, suffix: "" },
+      { key: "attack", label: "攻撃", digits: 1, suffix: "" },
+      { key: "defense", label: "防御", digits: 1, suffix: "" },
+      { key: "sp_attack", label: "特攻", digits: 1, suffix: "" },
+      { key: "sp_defense", label: "特防", digits: 1, suffix: "" },
+      { key: "crit", label: "急所率", digits: 1, suffix: "%" },
+      { key: "speed", label: "移動速度", digits: 0, suffix: "" },
+      { key: "cdr", label: "待ち時間", digits: 1, suffix: "%" }
+    ];
 
     function emblemJapaneseName(emblem) {
       return state.emblemNamesJa[String(number(emblem && emblem.pokedex, 0))]
@@ -3950,21 +4037,28 @@
     }
 
     function summarizeEmblemRows(emblems) {
-      const colors = { Brown: new Set(), Green: new Set() };
-      const totals = { equippedCount: emblems.length, brownCount: 0, greenCount: 0, attack: 0, spAttack: 0, critRate: 0 };
+      const colors = Object.fromEntries(state.emblemSets.map((set) => [set.name, new Set()]));
+      const flatStats = Object.fromEntries(EMBLEM_STAT_DEFINITIONS.map((definition) => [definition.key, 0]));
+      const totals = { equippedCount: emblems.length, colorCounts: {}, flatStats };
       emblems.forEach((emblem) => {
         const stats = emblem.stats && emblem.stats[0] ? emblem.stats[0] : {};
-        totals.attack += number(stats.attack, 0);
-        totals.spAttack += number(stats.sp_attack, 0);
-        totals.critRate += number(stats.crit, 0);
+        EMBLEM_STAT_DEFINITIONS.forEach((definition) => {
+          flatStats[definition.key] += number(stats[definition.key], 0);
+        });
         Object.keys(colors).forEach((color) => {
           if (emblem.color1 === color || emblem.color2 === color) {
             colors[color].add(emblem.display_name || emblem.name);
           }
         });
       });
-      totals.brownCount = colors.Brown.size;
-      totals.greenCount = colors.Green.size;
+      Object.entries(colors).forEach(([color, members]) => {
+        totals.colorCounts[color] = members.size;
+      });
+      totals.brownCount = totals.colorCounts.Brown || 0;
+      totals.greenCount = totals.colorCounts.Green || 0;
+      totals.attack = flatStats.attack;
+      totals.spAttack = flatStats.sp_attack;
+      totals.critRate = flatStats.crit;
       return totals;
     }
 
@@ -4200,11 +4294,26 @@
     function selectedEmblemBonuses(baseAttack, baseSpAttack) {
       const summary = state.emblemFallback || summarizeEmblemRows(selectedEmblemRows());
       const equippedCount = clamp(number(summary.equippedCount, 0), 0, EMBLEM_SLOT_COUNT);
-      const brownCount = clamp(number(summary.brownCount, 0), 0, EMBLEM_SLOT_COUNT);
-      const greenCount = clamp(number(summary.greenCount, 0), 0, EMBLEM_SLOT_COUNT);
-      const attackFlat = number(summary.attack, 0);
-      const spAttackFlat = number(summary.spAttack, 0);
-      const critRate = number(summary.critRate, 0);
+      const colorCounts = Object.fromEntries(state.emblemSets.map((set) => [set.name, 0]));
+      Object.entries(summary.colorCounts || {}).forEach(([color, count]) => {
+        colorCounts[color] = clamp(number(count, 0), 0, EMBLEM_SLOT_COUNT);
+      });
+      colorCounts.Brown = clamp(number(summary.brownCount, colorCounts.Brown), 0, EMBLEM_SLOT_COUNT);
+      colorCounts.Green = clamp(number(summary.greenCount, colorCounts.Green), 0, EMBLEM_SLOT_COUNT);
+
+      const flatStats = Object.fromEntries(EMBLEM_STAT_DEFINITIONS.map((definition) => [definition.key, 0]));
+      Object.entries(summary.flatStats || {}).forEach(([stat, value]) => {
+        flatStats[stat] = number(value, 0);
+      });
+      flatStats.attack = number(summary.attack, flatStats.attack);
+      flatStats.sp_attack = number(summary.spAttack, flatStats.sp_attack);
+      flatStats.crit = number(summary.critRate, flatStats.crit);
+
+      const brownCount = colorCounts.Brown;
+      const greenCount = colorCounts.Green;
+      const attackFlat = flatStats.attack;
+      const spAttackFlat = flatStats.sp_attack;
+      const critRate = flatStats.crit;
       const attackPercent = emblemSetPercent("Brown", brownCount);
       const spAttackPercent = emblemSetPercent("Green", greenCount);
       const attackSetBonus = baseAttack * attackPercent / 100;
@@ -4232,6 +4341,8 @@
         spAttackPercent,
         attackSetBonus,
         spAttackSetBonus,
+        colorCounts,
+        flatStats,
         lines
       };
     }
@@ -4240,11 +4351,70 @@
       el.emblemSlotCount.textContent = state.emblemFallback
         ? "内訳なし"
         : `${formatNumber(emblem.equippedCount, 0)} / ${EMBLEM_SLOT_COUNT}`;
-      el.emblemBrownCount.textContent = `${formatNumber(emblem.brownCount, 0)}枚`;
-      el.emblemGreenCount.textContent = `${formatNumber(emblem.greenCount, 0)}枚`;
-      el.emblemAttack.textContent = signedNumber(emblem.attackFlat, 1);
-      el.emblemSpAttack.textContent = signedNumber(emblem.spAttackFlat, 1);
-      el.emblemCritRate.textContent = `${signedNumber(emblem.critRate, 1)}%`;
+
+      el.emblemStatEffects.innerHTML = "";
+      const visibleStats = EMBLEM_STAT_DEFINITIONS.filter((definition) => number(emblem.flatStats[definition.key], 0) !== 0);
+      if (!visibleStats.length) {
+        const empty = document.createElement("div");
+        empty.className = "emblem-effect-empty";
+        empty.textContent = "能力補正なし";
+        el.emblemStatEffects.appendChild(empty);
+      } else {
+        visibleStats.forEach((definition) => {
+          const row = document.createElement("div");
+          row.className = "emblem-stat-row";
+          const term = document.createElement("dt");
+          term.textContent = definition.label;
+          const value = document.createElement("dd");
+          value.textContent = `${signedNumber(emblem.flatStats[definition.key], definition.digits)}${definition.suffix}`;
+          row.append(term, value);
+          el.emblemStatEffects.appendChild(row);
+        });
+      }
+
+      el.emblemColorEffects.innerHTML = "";
+      const visibleColors = EMBLEM_COLOR_DISPLAY_ORDER.filter((color) => number(emblem.colorCounts[color], 0) > 0);
+      if (!visibleColors.length) {
+        const empty = document.createElement("div");
+        empty.className = "emblem-effect-empty";
+        empty.textContent = "カラー効果なし";
+        el.emblemColorEffects.appendChild(empty);
+      } else {
+        visibleColors.forEach((color) => {
+          const count = number(emblem.colorCounts[color], 0);
+          const set = state.emblemSets.find((entry) => entry.name === color);
+          if (!set) return;
+
+          const row = document.createElement("div");
+          row.className = "emblem-color-effect-row";
+          row.style.setProperty("--emblem-color", EMBLEM_COLOR_HEX[color] || "var(--accent-2)");
+          row.setAttribute("aria-label", `${EMBLEM_COLOR_LABELS[color] || color}${count}枚`);
+
+          const current = document.createElement("div");
+          current.className = "emblem-color-current";
+          const icon = document.createElement("img");
+          icon.src = emblemSetIconUrl(color);
+          icon.alt = EMBLEM_COLOR_LABELS[color] || color;
+          icon.loading = "lazy";
+          icon.onerror = () => icon.remove();
+          const countLabel = document.createElement("strong");
+          countLabel.textContent = formatNumber(count, 0);
+          current.append(icon, countLabel);
+
+          const thresholds = document.createElement("div");
+          thresholds.className = "emblem-color-thresholds";
+          [set.count1, set.count2, set.count3].forEach((thresholdValue) => {
+            const threshold = number(thresholdValue, 0);
+            const chip = document.createElement("span");
+            chip.className = `emblem-color-threshold${count >= threshold ? " active" : ""}`;
+            chip.textContent = formatNumber(threshold, 0);
+            thresholds.appendChild(chip);
+          });
+
+          row.append(current, thresholds);
+          el.emblemColorEffects.appendChild(row);
+        });
+      }
     }
 
     function computeAttackerStats() {
@@ -4800,9 +4970,6 @@
       el.critRateStat.textContent = `${formatNumber(stats.critRate, 1)}%`;
       el.critDamageStat.textContent = `${formatNumber(stats.critDamageMultiplier * 100, 1)}%`;
       renderEmblemSummary(stats.emblem);
-      el.emblemEffectNote.textContent = stats.emblemLines.length
-        ? stats.emblemLines.join(" / ")
-        : "ダメージに関係する補正はありません";
 
       if (!move) {
         el.rawDamage.textContent = "0";
