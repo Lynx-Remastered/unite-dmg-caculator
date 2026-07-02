@@ -803,23 +803,6 @@
       line-height: 1;
     }
 
-    .emblem-slot-number {
-      position: absolute;
-      left: 50%;
-      bottom: -9px;
-      min-width: 19px;
-      height: 19px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 50%;
-      background: var(--surface-2);
-      color: var(--ink);
-      font-size: 9px;
-      font-weight: 900;
-      transform: translateX(-50%);
-    }
-
     .emblem-color-icons {
       position: absolute;
       right: -5px;
@@ -3899,10 +3882,6 @@
         button.style.setProperty("--angle", `${i * 36}deg`);
         button.style.setProperty("--inverse-angle", `${i * -36}deg`);
 
-        const numberLabel = document.createElement("span");
-        numberLabel.className = "emblem-slot-number";
-        numberLabel.textContent = i + 1;
-
         const icon = document.createElement("img");
         icon.className = "emblem-icon";
         icon.width = 48;
@@ -3917,7 +3896,7 @@
         const colorIcons = document.createElement("span");
         colorIcons.className = "emblem-color-icons";
         colorIcons.setAttribute("aria-hidden", "true");
-        button.append(numberLabel, icon, placeholder, colorIcons);
+        button.append(icon, placeholder, colorIcons);
 
         el[`emblemSlot${i}`] = button;
         el[`emblemIcon${i}`] = icon;
