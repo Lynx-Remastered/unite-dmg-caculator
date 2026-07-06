@@ -1598,6 +1598,10 @@
               <span>エナジーアンプ発動中</span>
               <input id="energyAmpProc" type="checkbox">
             </label>
+            <div id="conditionYveltalMarks" class="condition-row" hidden>
+              <span>はかいカウンタ（計算前）</span>
+              <input id="yveltalMarkStacks" type="number" min="0" max="5" value="0">
+            </div>
             <label class="check-row">
               <span>技本体を急所として計算</span>
               <input id="criticalHit" type="checkbox">
@@ -2154,12 +2158,12 @@
     </section>
 
     <footer class="source site-footer">
-      データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年6月24日取得）<br>
+      データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年7月6日取得）<br>
       特殊ポケモン撃破バフ: <a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a><br>
-      デフォルト持ち物: <a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得、各ポケモンの先頭掲載ビルド）<br>
+      デフォルト持ち物: <a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得、各ポケモンの先頭掲載ビルド） / <a href="https://gamewith.jp/pokemon-unite/article/show/565725" target="_blank" rel="noreferrer">GameWith</a>（イベルタル、2026年7月6日取得）<br>
       サポートメダル: <a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB</a> / <a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得）<br>
       メダルの日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a><br>
-      技の日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a> / <a href="https://gamewith.jp/pokemon-unite/article/show/284186" target="_blank" rel="noreferrer">GameWith</a>（2026年7月2日取得）<br>
+      技の日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a> / <a href="https://gamewith.jp/pokemon-unite/article/show/284186" target="_blank" rel="noreferrer">GameWith</a>（2026年7月6日取得）<br>
       式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
     </footer>
   </main>
@@ -2269,6 +2273,7 @@
       "Vaporeon": "シャワーズ",
       "Venusaur": "フシギバナ",
       "Wigglytuff": "プクリン",
+      "Yveltal": "イベルタル",
       "Zacian": "ザシアン",
       "Zapdos": "サンダー",
       "Zeraora": "ゼラオラ",
@@ -2491,6 +2496,7 @@
       "Vaporeon": ["Sp. Atk Specs", "Buddy Barrier", "Wise Glasses"],
       "Venusaur": ["Slick Spoon", "Energy Amplifier", "Choice Specs"],
       "Wigglytuff": ["Focus Band", "Buddy Barrier", "Rapid Fire Scarf"],
+      "Yveltal": ["Choice Specs", "Wise Glasses", "Slick Spoon"],
       "Zacian": ["Rusted Sword", "Muscle Band", "Razor Claw"],
       "Zapdos": ["Choice Specs", "Wise Glasses", "Slick Spoon"],
       "Zeraora": ["Focus Band", "Muscle Band", "Razor Claw"],
@@ -2624,6 +2630,7 @@
         "spAttackStat", "critRateStat", "critDamageStat", "formulaText",
         "breakdownBody", "itemEffects", "learnChipRow", "manualAttack",
         "manualSpAttack", "manualDamagePercent", "manualExtraDamage", "criticalHit",
+        "conditionYveltalMarks", "yveltalMarkStacks",
         "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc",
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
@@ -4536,6 +4543,7 @@
       Object.entries(map).forEach(([id, itemName]) => {
         document.getElementById(id).hidden = !names.has(itemName);
       });
+      el.conditionYveltalMarks.hidden = selectedPokemon()?.name !== "Yveltal";
     }
 
     function selectedSpecialPokemonBuffLines() {
@@ -5331,6 +5339,11 @@
         damageMultiplier += 0.4;
       }
 
+      const yveltalDamageActive = selectedPokemon()?.name === "Yveltal";
+      const initialYveltalMarks = yveltalDamageActive ? conditionNumber("yveltalMarkStacks", 0, 5) : 0;
+      const yveltalAppliesMarks = yveltalDamageActive && move.slotKey !== "basic";
+      let yveltalMarks = initialYveltalMarks;
+
       const moveResults = move.parts.map((part) => {
         const typeLabel = jpDamageType(part.dmgType);
         const moveStat = String(part.dmgType).trim() === "Atk" ? stats.attack : stats.spAttack;
@@ -5340,10 +5353,23 @@
         const hitCount = Math.max(1, number(part.hitCount, 1));
         const perHitBase = Math.max(0, Math.floor(statComponent + levelComponent + baseComponent));
         const perHitAfterCrit = el.criticalHit.checked ? Math.floor(perHitBase * stats.critDamageMultiplier) : perHitBase;
-        const perHitAfterMultiplier = Math.max(0, Math.floor(perHitAfterCrit * damageMultiplier));
-        const totalAfterCrit = perHitAfterCrit * hitCount;
-        const totalRaw = perHitAfterMultiplier * hitCount;
-        const totalReduced = reduceByDefense(perHitAfterMultiplier, part.dmgType) * hitCount;
+        const yveltalHitDamages = [];
+        let totalAfterCrit = 0;
+        let totalRaw = 0;
+        let totalReduced = 0;
+        let perHitAfterMultiplier = 0;
+
+        for (let hitIndex = 0; hitIndex < hitCount; hitIndex += 1) {
+          const markMultiplier = yveltalDamageActive ? 1 + yveltalMarks * 0.03 : 1;
+          const afterMark = Math.max(0, Math.floor(perHitAfterCrit * markMultiplier));
+          const afterMultiplier = Math.max(0, Math.floor(afterMark * damageMultiplier));
+          if (hitIndex === 0) perHitAfterMultiplier = afterMultiplier;
+          yveltalHitDamages.push(afterMark);
+          totalAfterCrit += afterMark;
+          totalRaw += afterMultiplier;
+          totalReduced += reduceByDefense(afterMultiplier, part.dmgType);
+          if (yveltalAppliesMarks) yveltalMarks = Math.min(5, yveltalMarks + 1);
+        }
 
         return {
           part,
@@ -5356,6 +5382,7 @@
           perHitBase,
           perHitAfterCrit,
           perHitAfterMultiplier,
+          yveltalHitDamages,
           totalAfterCrit,
           totalRaw,
           totalReduced
@@ -5382,7 +5409,12 @@
       const moveTitle = `${move.slotLabel}${move.displayName ? ` - ${jpMoveName(move.displayName)}` : ""}`;
       if (moveResults.length === 1) {
         const result = moveResults[0];
-        const hitText = result.hitCount > 1 ? ` × ${formatNumber(result.hitCount, 0)}ヒット = ${formatNumber(result.totalAfterCrit, 0)}` : "";
+        const hasYveltalAdjustment = yveltalDamageActive && (
+          result.hitCount > 1 || result.yveltalHitDamages.some((value) => value !== result.perHitAfterCrit)
+        );
+        const hitText = hasYveltalAdjustment
+          ? ` / はかい補正 ${result.yveltalHitDamages.join(" + ")} = ${formatNumber(result.totalAfterCrit, 0)}`
+          : result.hitCount > 1 ? ` × ${formatNumber(result.hitCount, 0)}ヒット = ${formatNumber(result.totalAfterCrit, 0)}` : "";
         el.formulaText.textContent = `${moveTitle}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (Lv${level} - 1) + ${result.part.base} = ${result.perHitBase}${hitText}（各ヒットで小数点以下は切り捨て）`;
       } else {
         const totalHits = moveResults.reduce((sum, result) => sum + result.hitCount, 0);
@@ -5404,10 +5436,15 @@
         const hitText = result.hitCount > 1
           ? ` × ${formatNumber(result.hitCount, 0)}ヒット`
           : "";
+        const markText = yveltalDamageActive && (
+          result.hitCount > 1 || result.yveltalHitDamages.some((value) => value !== result.perHitAfterCrit)
+        )
+          ? ` / はかい補正 ${result.yveltalHitDamages.join(" + ")}`
+          : "";
         const critText = el.criticalHit.checked ? ` / 急所後 ${result.perHitAfterCrit}` : "";
         return [
           `技本体 ${index + 1}`,
-          `${jpMoveLabel(result.part.label)}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (${level} - 1) + ${result.part.base} = ${result.perHitBase}${critText}${hitText} -> ${formatNumber(result.totalRaw, 0)}`
+          `${jpMoveLabel(result.part.label)}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (${level} - 1) + ${result.part.base} = ${result.perHitBase}${critText}${hitText}${markText} -> ${formatNumber(result.totalRaw, 0)}`
         ];
       });
 
@@ -5421,6 +5458,10 @@
       ];
 
       let detailRowIndex = 1;
+      if (yveltalDamageActive) {
+        rows.splice(detailRowIndex, 0, ["はかいカウンタ", `開始 ${formatNumber(initialYveltalMarks, 0)} / 5（1個につき与ダメージ+3%、強化攻撃・技の各ヒット後に付与）`]);
+        detailRowIndex += 1;
+      }
       if (stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
         rows.splice(detailRowIndex, 0, ["能力補正", `攻撃 ${signedNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 ${signedNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
         detailRowIndex += 1;
@@ -5535,7 +5576,7 @@
         "manualAttack", "manualSpAttack", "manualDamagePercent", "manualExtraDamage",
         "criticalHit", "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc", "chargingCharmProc",
-        "razorClawProc", "energyAmpProc", "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff"
+        "razorClawProc", "energyAmpProc", "yveltalMarkStacks", "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff"
       ].forEach((id) => {
         el[id].addEventListener("input", updateAll);
         el[id].addEventListener("change", updateAll);
