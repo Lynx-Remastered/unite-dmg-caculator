@@ -569,6 +569,7 @@
     }
 
     .item-row {
+      position: relative;
       display: grid;
       grid-template-columns: minmax(0, 1fr) 112px;
       gap: 8px;
@@ -577,6 +578,127 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--surface-3);
+    }
+
+    .item-row.held-item-open {
+      z-index: 60;
+    }
+
+    .held-item-picker {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+    }
+
+    .held-item-native {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .held-item-trigger {
+      width: 100%;
+      min-height: 46px;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) 18px;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--input-bg);
+      color: var(--ink);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .held-item-trigger[aria-expanded="true"] {
+      border-color: var(--accent-2);
+    }
+
+    .held-item-icon,
+    .held-item-icon-placeholder {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: var(--surface-2);
+    }
+
+    .held-item-icon-placeholder {
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .held-item-trigger-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .held-item-chevron {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      transition: transform 0.16s ease;
+    }
+
+    .held-item-trigger[aria-expanded="true"] .held-item-chevron {
+      transform: rotate(180deg);
+    }
+
+    .held-item-menu {
+      position: absolute;
+      z-index: 40;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 270px;
+      overflow-y: auto;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--surface-2);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+    }
+
+    .held-item-option {
+      width: 100%;
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      padding: 4px 7px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .held-item-option:hover,
+    .held-item-option[aria-selected="true"] {
+      border-color: rgba(var(--accent-2-rgb), 0.38);
+      background: rgba(var(--accent-2-rgb), 0.14);
     }
 
     .mini {
@@ -1575,7 +1697,7 @@
               <input id="weaknessPolicyStacks" type="number" min="0" max="4" value="0">
             </div>
             <div id="conditionAccelBracer" class="condition-row" hidden>
-              <span>アクセルブレーサーの段階</span>
+              <span>アクセルリストの段階</span>
               <input id="accelBracerStacks" type="number" min="0" max="20" value="0">
             </div>
             <div id="conditionDriveLens" class="condition-row" hidden>
@@ -1587,7 +1709,7 @@
               <input id="choiceSpecsProc" type="checkbox">
             </label>
             <label id="conditionChargingCharm" class="check-row" hidden>
-              <span>チャージチャームの追加ダメージ</span>
+              <span>じゅうてんチャームの追加ダメージ</span>
               <input id="chargingCharmProc" type="checkbox">
             </label>
             <label id="conditionRazorClaw" class="check-row" hidden>
@@ -1860,13 +1982,20 @@
                   <input id="shieldWeaknessPolicyStacks" type="number" min="0" max="4" value="0">
                 </div>
                 <div id="shieldConditionAccelBracer" class="condition-row" hidden>
-                  <span>アクセルブレーサーの段階</span>
+                  <span>アクセルリストの段階</span>
                   <input id="shieldAccelBracerStacks" type="number" min="0" max="20" value="0">
                 </div>
                 <div id="shieldConditionDriveLens" class="condition-row" hidden>
                   <span>ドライブレンズの段階</span>
                   <input id="shieldDriveLensStacks" type="number" min="0" max="20" value="0">
                 </div>
+                <label class="condition-row">
+                  <span>シールドを受ける対象</span>
+                  <select id="shieldTargetType">
+                    <option value="self">自分</option>
+                    <option value="ally">味方</option>
+                  </select>
+                </label>
               </div>
             </section>
 
@@ -1887,13 +2016,6 @@
                   <label>
                     最大HP +/-
                     <input id="shieldManualHp" type="number" value="0" step="1">
-                  </label>
-                  <label>
-                    シールド対象
-                    <select id="shieldTargetType">
-                      <option value="self">自分</option>
-                      <option value="ally">味方</option>
-                    </select>
                   </label>
                   <label>
                     シールド +%
@@ -2062,7 +2184,7 @@
                   <input id="healingWeaknessPolicyStacks" type="number" min="0" max="4" value="0">
                 </div>
                 <div id="healingConditionAccelBracer" class="condition-row" hidden>
-                  <span>アクセルブレーサーの段階</span>
+                  <span>アクセルリストの段階</span>
                   <input id="healingAccelBracerStacks" type="number" min="0" max="20" value="0">
                 </div>
                 <div id="healingConditionDriveLens" class="condition-row" hidden>
@@ -2160,6 +2282,7 @@
     <footer class="source site-footer">
       データ元: <a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年7月6日取得）<br>
       特殊ポケモン撃破バフ: <a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a><br>
+      もちもの名・効果: <a href="https://wikiwiki.jp/poke-unite/%E3%82%82%E3%81%A1%E3%82%82%E3%81%AE" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年7月7日取得）<br>
       デフォルト持ち物: <a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得、各ポケモンの先頭掲載ビルド） / <a href="https://gamewith.jp/pokemon-unite/article/show/565725" target="_blank" rel="noreferrer">GameWith</a>（イベルタル、2026年7月6日取得）<br>
       サポートメダル: <a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB</a> / <a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年6月24日取得）<br>
       メダルの日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a><br>
@@ -2281,21 +2404,21 @@
     };
 
     const HELD_ITEM_JA = {
-      "Accel Bracer": { name: "アクセルブレーサー", effect: "相手チームのポケモンをKO、またはアシストすると、バトル終了まで攻撃が上がります。" },
+      "Accel Bracer": { name: "アクセルリスト", effect: "相手チームのポケモンをKO、またはアシストすると、バトル終了まで攻撃が上がります。" },
       "Aeos Cookie": { name: "エオスビスケット", effect: "ゴールを決めると、バトル終了まで最大HPが上がります。" },
       "Amulet Coin": { name: "おまもりこばん", effect: "野生ポケモンをKOしたときに得られるエオスエナジーが増え、ゴール速度も上がります。" },
       "Assault Vest": { name: "とつげきチョッキ", effect: "一定時間、特攻系のダメージを受けていないと、特攻系ダメージを防ぐシールドを得ます。" },
       "Attack Weight": { name: "もうこうダンベル", effect: "ゴールを決めると、バトル終了まで攻撃が上がります。最大6回。" },
       "Big Root": { name: "おおきなねっこ", effect: "自分へのHP回復効果が上がります。" },
       "Buddy Barrier": { name: "おたすけバリア", effect: "ユナイトわざ使用時、自分と近くの味方1体にシールドを付与します。" },
-      "Charging Charm": { name: "チャージチャーム", effect: "移動や通常攻撃でエネルギーをため、満タン時に追加ダメージを与えます。" },
+      "Charging Charm": { name: "じゅうてんチャーム", effect: "移動や通常攻撃でエネルギーをため、満タン時に追加ダメージを与えます。" },
       "Charizardite X": { name: "リザードナイトX", effect: "リザードンに持たせると、バトル中にメガリザードンXへメガシンカできます。" },
       "Charizardite Y": { name: "リザードナイトY", effect: "リザードンに持たせると、バトル中にメガリザードンYへメガシンカできます。" },
       "Choice Scarf": { name: "こだわりスカーフ", effect: "通常攻撃で隠し段階をため、一定段階で移動速度が上がります。" },
       "Choice Specs": { name: "こだわりメガネ", effect: "わざで相手ポケモンにダメージを与えると、最初に当たった相手へ追加ダメージを与えます。" },
       "Curse Bangle": { name: "のろいのバングル", effect: "攻撃系ダメージを与えた相手のHP回復効果を下げます。" },
       "Curse Incense": { name: "のろいのおこう", effect: "特攻系ダメージを与えた相手のHP回復効果を下げます。" },
-      "Drain Crown": { name: "ドレインクラウン", effect: "攻撃系の通常攻撃で与えたダメージに応じてHPを回復します。" },
+      "Drain Crown": { name: "いやしのかんむり", effect: "攻撃系の通常攻撃で与えたダメージに応じてHPを回復します。" },
       "Drive Lens": { name: "ドライブレンズ", effect: "相手チームのポケモンをKO、またはアシストすると、バトル終了まで特攻が上がります。" },
       "Energy Amplifier": { name: "エナジーアンプ", effect: "ユナイトわざ使用後、一定時間与えるダメージが上がります。" },
       "Exp Share": { name: "がくしゅうそうち", effect: "チーム内で経験値が最も少ないとき、追加経験値を得ます。" },
@@ -2309,7 +2432,7 @@
       "Muscle Band": { name: "ちからのハチマキ", effect: "通常攻撃に、相手の残りHPに応じた攻撃系の追加ダメージを付けます。" },
       "Rapid Fire Scarf": { name: "れんだスカーフ", effect: "通常攻撃で隠し段階をため、一定段階で通常攻撃速度が上がります。" },
       "Razor Claw": { name: "するどいツメ", effect: "わざ使用後の次の通常攻撃に追加ダメージを付けます。近接ポケモンなら相手の移動速度も下げます。" },
-      "Rescue Hood": { name: "レスキューフード", effect: "味方に与えるHP回復効果とシールド効果が上がります。" },
+      "Rescue Hood": { name: "レスキューフード", effect: "味方に与えるHP回復効果とシールド効果が11/14/17%上がります。自分への効果には適用されません。" },
       "Resonant Guard": { name: "きょうめいガード", effect: "相手ポケモンにダメージを与えると、自分と近くの味方1体にシールドを付与します。" },
       "Rocky Helmet": { name: "ゴツゴツメット", effect: "一定以上のダメージを受けると、近くの相手に最大HPに応じた攻撃系ダメージを与えます。" },
       "Rusted Sword": { name: "くちたけん", effect: "ザシアン用の専用持ち物です。" },
@@ -2318,8 +2441,8 @@
       "Shell Bell": { name: "かいがらのすず", effect: "わざを相手ポケモンに当てると、特攻に応じてHPを回復します。" },
       "Slick Spoon": { name: "すりぬけスプーン", effect: "特攻系ダメージを与えるとき、相手の特防を一部無視します。" },
       "Sp. Atk Specs": { name: "しんげきメガネ", effect: "ゴールを決めると、バトル終了まで特攻が上がります。最大6回。" },
-      "Tenacity Belt": { name: "テナシティベルト", effect: "妨害を受けたとき、防御と特防が一定時間上がります。" },
-      "Vanguard Bell": { name: "バンガードベル", effect: "相手に妨害を与えると、自分の最大HPに応じてHPを回復します。" },
+      "Tenacity Belt": { name: "ふんばりベルト", effect: "妨害を受けたとき、防御と特防が一定時間上がります。" },
+      "Vanguard Bell": { name: "さきがけベル", effect: "相手に妨害を与えると、自分の最大HPに応じてHPを回復します。" },
       "Weakness Policy": { name: "じゃくてんほけん", effect: "ダメージを受けると、一定時間攻撃が上がります。最大4段階。" },
       "Wise Glasses": { name: "ものしりメガネ", effect: "特攻を割合でさらに上げます。" }
     };
@@ -2612,6 +2735,126 @@
     function pokemonThumbUrl(name) {
       const fileName = encodeURIComponent(name).replace(/%20/g, "+");
       return `https://d275t8dp8rxb42.cloudfront.net/pokemon/thumbnail/${fileName}.png`;
+    }
+
+    function heldItemIconUrl(name) {
+      const fileName = encodeURIComponent(name).replace(/%20/g, "+");
+      return `https://d275t8dp8rxb42.cloudfront.net/items/held/${fileName}.png`;
+    }
+
+    function createHeldItemIcon(name) {
+      if (!name) {
+        const placeholder = document.createElement("span");
+        placeholder.className = "held-item-icon-placeholder";
+        placeholder.textContent = "-";
+        return placeholder;
+      }
+
+      const image = document.createElement("img");
+      image.className = "held-item-icon";
+      image.src = heldItemIconUrl(name);
+      image.alt = "";
+      image.loading = "lazy";
+      image.addEventListener("error", () => {
+        image.src = brokenImageUrl();
+      }, { once: true });
+      return image;
+    }
+
+    function closeHeldItemPickers(except = null) {
+      document.querySelectorAll(".held-item-picker").forEach((picker) => {
+        if (picker === except) return;
+        const trigger = picker.querySelector(".held-item-trigger");
+        const menu = picker.querySelector(".held-item-menu");
+        if (trigger) trigger.setAttribute("aria-expanded", "false");
+        if (menu) menu.hidden = true;
+        picker.closest(".item-row")?.classList.remove("held-item-open");
+      });
+    }
+
+    function syncHeldItemPicker(select) {
+      const picker = select.closest(".held-item-picker");
+      if (!picker) return;
+      const selected = select.options[select.selectedIndex] || select.options[0];
+      const value = selected ? selected.value : "";
+      const label = selected ? selected.textContent : "なし";
+      const trigger = picker.querySelector(".held-item-trigger");
+      const name = picker.querySelector(".held-item-trigger-name");
+      const icon = picker.querySelector(".held-item-trigger-icon");
+      if (name) name.textContent = label;
+      if (icon) icon.replaceChildren(createHeldItemIcon(value));
+      picker.querySelectorAll(".held-item-option").forEach((option) => {
+        option.setAttribute("aria-selected", option.dataset.value === value ? "true" : "false");
+      });
+      if (trigger) trigger.title = label;
+    }
+
+    function enhanceHeldItemSelect(select) {
+      if (!select || select.dataset.heldItemPickerReady === "true") return;
+      select.dataset.heldItemPickerReady = "true";
+      select.classList.add("held-item-native");
+      select.tabIndex = -1;
+
+      const picker = document.createElement("div");
+      picker.className = "held-item-picker";
+      select.parentNode.insertBefore(picker, select);
+      picker.appendChild(select);
+
+      const trigger = document.createElement("button");
+      trigger.type = "button";
+      trigger.className = "held-item-trigger";
+      trigger.setAttribute("aria-haspopup", "listbox");
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.setAttribute("aria-label", "持ち物を選択");
+
+      const triggerIcon = document.createElement("span");
+      triggerIcon.className = "held-item-trigger-icon";
+      const triggerName = document.createElement("span");
+      triggerName.className = "held-item-trigger-name";
+      const chevron = document.createElement("span");
+      chevron.className = "held-item-chevron";
+      chevron.setAttribute("aria-hidden", "true");
+      chevron.textContent = "▼";
+      trigger.append(triggerIcon, triggerName, chevron);
+
+      const menu = document.createElement("div");
+      menu.className = "held-item-menu";
+      menu.setAttribute("role", "listbox");
+      menu.hidden = true;
+
+      [...select.options].forEach((nativeOption) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "held-item-option";
+        option.setAttribute("role", "option");
+        option.dataset.value = nativeOption.value;
+        const optionName = document.createElement("span");
+        optionName.textContent = nativeOption.textContent;
+        option.append(createHeldItemIcon(nativeOption.value), optionName);
+        option.addEventListener("click", () => {
+          select.value = nativeOption.value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          syncHeldItemPicker(select);
+          closeHeldItemPickers();
+          trigger.focus();
+        });
+        menu.appendChild(option);
+      });
+
+      trigger.addEventListener("click", () => {
+        const willOpen = menu.hidden;
+        closeHeldItemPickers(willOpen ? picker : null);
+        menu.hidden = !willOpen;
+        trigger.setAttribute("aria-expanded", willOpen ? "true" : "false");
+        picker.closest(".item-row")?.classList.toggle("held-item-open", willOpen);
+      });
+      select.addEventListener("change", () => syncHeldItemPicker(select));
+      picker.append(trigger, menu);
+      syncHeldItemPicker(select);
+    }
+
+    function syncHeldItemPickers() {
+      document.querySelectorAll("select.held-item-native").forEach(syncHeldItemPicker);
     }
 
     function brokenImageUrl() {
@@ -3093,7 +3336,7 @@
 
       const itemRows = state.heldItems
         .slice()
-        .sort((a, b) => a.display_name.localeCompare(b.display_name));
+        .sort((a, b) => jpItemName(a).localeCompare(jpItemName(b), "ja"));
 
       for (let i = 0; i < 3; i += 1) {
         fillOptions(
@@ -3117,6 +3360,9 @@
           (item) => jpItemName(item),
           "なし"
         );
+        enhanceHeldItemSelect(el[`itemSelect${i}`]);
+        enhanceHeldItemSelect(el[`shieldItemSelect${i}`]);
+        enhanceHeldItemSelect(el[`healingItemSelect${i}`]);
       }
 
       renderEmblemSlots();
@@ -3912,6 +4158,7 @@
         el[`itemSelect${i}`].value = items[i] || "";
         el[`itemLevel${i}`].value = 40;
       }
+      syncHeldItemPickers();
       updateAll();
     }
 
@@ -4476,6 +4723,7 @@
         el[`itemSelect${i}`].value = "";
         el[`itemLevel${i}`].value = 40;
       }
+      syncHeldItemPickers();
       updateAll();
     }
 
@@ -4487,6 +4735,7 @@
         el[`shieldItemSelect${i}`].value = items[i] || "";
         el[`shieldItemLevel${i}`].value = 40;
       }
+      syncHeldItemPickers();
       updateShieldMoveOptions();
       updateShieldAll();
     }
@@ -4496,6 +4745,7 @@
         el[`shieldItemSelect${i}`].value = "";
         el[`shieldItemLevel${i}`].value = 40;
       }
+      syncHeldItemPickers();
       updateShieldMoveOptions();
       updateShieldAll();
     }
@@ -4508,6 +4758,7 @@
         el[`healingItemSelect${i}`].value = items[i] || "";
         el[`healingItemLevel${i}`].value = 40;
       }
+      syncHeldItemPickers();
       updateHealingAll();
     }
 
@@ -4516,6 +4767,7 @@
         el[`healingItemSelect${i}`].value = "";
         el[`healingItemLevel${i}`].value = 40;
       }
+      syncHeldItemPickers();
       updateHealingAll();
     }
 
@@ -5089,7 +5341,8 @@
       const stats = computeShieldStats();
       const count = clamp(number(el.shieldCount.value, 1), 1, 20);
       const targetType = el.shieldTargetType.value === "ally" ? "ally" : "self";
-      const rescueHoodPercent = targetType === "ally" && hasShieldItem("Rescue Hood")
+      const hasRescueHood = hasShieldItem("Rescue Hood");
+      const rescueHoodPercent = targetType === "ally" && hasRescueHood
         ? shieldEffectTierFor("Rescue Hood")
         : 0;
       const manualShieldPercent = number(el.manualShieldPercent.value, 0);
@@ -5134,11 +5387,16 @@
       const totalShield = perApplication * count;
       const moveTitle = `${choice.slotLabel}${choice.displayName ? ` - ${jpMoveName(choice.displayName)}` : ""}`;
       const targetLabel = targetType === "ally" ? "味方" : "自分";
+      const rescueHoodSummary = hasRescueHood
+        ? targetType === "ally"
+          ? ` / レスキューフード +${formatNumber(rescueHoodPercent, 1)}%`
+          : " / レスキューフード対象外"
+        : "";
 
       el.shieldAmount.textContent = totalShield;
       el.shieldAmountSub.textContent = count > 1
-        ? `1回あたり ${perApplication} × ${formatNumber(count, 0)}回/対象`
-        : `${targetLabel}へのシールド / 基礎 ${baseShield} / 補正後 ${perApplication}`;
+        ? `1回あたり ${perApplication} × ${formatNumber(count, 0)}回/対象${rescueHoodSummary}`
+        : `${targetLabel}へのシールド / 基礎 ${baseShield} / 補正後 ${perApplication}${rescueHoodSummary}`;
 
       if (results.length === 1) {
         const result = results[0];
@@ -5169,7 +5427,7 @@
         ["計算対象", `${moveTitle} / ${results.length > 1 ? "複数項目を合算" : jpMoveLabel(results[0].part.label)}`],
         ...partRows,
         ["シールド対象", targetLabel],
-        ["レスキューフード補正", rescueHoodPercent ? `+${formatNumber(rescueHoodPercent, 1)}%` : "なし"],
+        ["レスキューフード補正", rescueHoodPercent ? `+${formatNumber(rescueHoodPercent, 1)}%` : hasRescueHood ? "自分には適用されません" : "なし"],
         ["基礎シールド", formatNumber(baseShield, 0)],
         ["シールド補正", `×${formatNumber(shieldMultiplier, 3)} / 固定 ${formatNumber(shieldFlat, 1)}`],
         ["1回あたり", formatNumber(perApplication, 0)],
@@ -5487,6 +5745,14 @@
     }
 
     function wireEvents() {
+      document.addEventListener("click", (event) => {
+        if (!(event.target instanceof Element) || !event.target.closest(".held-item-picker")) {
+          closeHeldItemPickers();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closeHeldItemPickers();
+      });
       el.damageTabButton.addEventListener("click", () => selectCalculatorTab("damage"));
       el.shieldTabButton.addEventListener("click", () => selectCalculatorTab("shield"));
       el.healingTabButton.addEventListener("click", () => selectCalculatorTab("healing"));
