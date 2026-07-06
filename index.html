@@ -9,11 +9,14 @@
     (() => {
       try {
         const theme = localStorage.getItem("uniteCalculatorTheme");
+        const mode = localStorage.getItem("uniteCalculatorMode");
         if (["standard", "ocean", "forest", "rose"].includes(theme)) {
           document.documentElement.dataset.theme = theme;
         }
+        document.documentElement.dataset.mode = ["light", "dark"].includes(mode) ? mode : "dark";
       } catch (error) {
         // Storage can be unavailable in privacy-restricted browsers.
+        document.documentElement.dataset.mode = "dark";
       }
     })();
   </script>
@@ -39,6 +42,17 @@
       --success: #60d394;
       --input-bg: #0f151d;
       --shadow: 0 18px 50px rgba(0, 0, 0, 0.34);
+      --label: #d9e2ec;
+      --hover-bg: #121b25;
+      --formula-bg: #17212b;
+      --formula-ink: #ffffff;
+      --chip-bg: #253141;
+      --chip-ink: #eaf0f7;
+      --warn-ink: #ffd98a;
+      --good-ink: #91e7b8;
+      --bad-ink: #ffaea3;
+      --note-ink: #dbe5ef;
+      --danger-ink: #ffb5ab;
       --radius: 8px;
       font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
@@ -98,6 +112,88 @@
       --accent-ink: #2b0917;
       --link: #72ddd5;
       --input-bg: #160d14;
+    }
+
+    :root[data-mode="light"] {
+      color-scheme: light;
+      --bg: #edf1f5;
+      --bg-top: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #e8eef4;
+      --surface-3: #f5f8fa;
+      --line: #c5d0db;
+      --ink: #17212b;
+      --muted: #5b6b7b;
+      --accent: #e0a126;
+      --accent-2: #087f79;
+      --accent-rgb: 224, 161, 38;
+      --accent-2-rgb: 8, 127, 121;
+      --accent-border: #b77b0f;
+      --accent-ink: #211805;
+      --link: #006f69;
+      --danger: #b42318;
+      --success: #137547;
+      --input-bg: #ffffff;
+      --shadow: 0 10px 28px rgba(33, 47, 61, 0.12);
+      --label: #344454;
+      --hover-bg: #edf3f6;
+      --formula-bg: #e5ebf1;
+      --formula-ink: #17212b;
+      --chip-bg: #dce5ed;
+      --chip-ink: #243444;
+      --warn-ink: #825400;
+      --good-ink: #0f6b3e;
+      --bad-ink: #a33225;
+      --note-ink: #334454;
+      --danger-ink: #a33225;
+    }
+
+    :root[data-mode="light"][data-theme="ocean"] {
+      --bg: #e9f1f7;
+      --bg-top: #f6fafc;
+      --surface: #ffffff;
+      --surface-2: #dfebf3;
+      --surface-3: #f1f7fa;
+      --line: #b8cad8;
+      --accent: #1976c9;
+      --accent-2: #b66f00;
+      --accent-rgb: 25, 118, 201;
+      --accent-2-rgb: 182, 111, 0;
+      --accent-border: #0f5f9f;
+      --accent-ink: #ffffff;
+      --link: #005ea8;
+    }
+
+    :root[data-mode="light"][data-theme="forest"] {
+      --bg: #ebf2ee;
+      --bg-top: #f7faf8;
+      --surface: #ffffff;
+      --surface-2: #e1ece6;
+      --surface-3: #f2f7f4;
+      --line: #bdcfc5;
+      --accent: #16844f;
+      --accent-2: #a96800;
+      --accent-rgb: 22, 132, 79;
+      --accent-2-rgb: 169, 104, 0;
+      --accent-border: #0e683d;
+      --accent-ink: #ffffff;
+      --link: #087344;
+    }
+
+    :root[data-mode="light"][data-theme="rose"] {
+      --bg: #f4edf1;
+      --bg-top: #fbf8fa;
+      --surface: #ffffff;
+      --surface-2: #eee2e9;
+      --surface-3: #faf4f7;
+      --line: #d7c1cd;
+      --accent: #c23d73;
+      --accent-2: #087f79;
+      --accent-rgb: 194, 61, 115;
+      --accent-2-rgb: 8, 127, 121;
+      --accent-border: #9f2858;
+      --accent-ink: #ffffff;
+      --link: #a51f57;
     }
 
     * {
@@ -178,13 +274,47 @@
       background: rgba(var(--accent-rgb), 0.08);
     }
 
-    .theme-picker {
+    .appearance-controls {
       display: flex;
       flex: 0 0 auto;
       align-items: center;
-      gap: 7px;
+      gap: 10px;
       min-height: 36px;
       padding: 3px 2px 5px;
+    }
+
+    .mode-picker {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-3);
+    }
+
+    .mode-button {
+      min-height: 28px;
+      padding: 4px 8px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mode-button.active {
+      background: var(--surface-2);
+      color: var(--ink);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+    }
+
+    .theme-picker {
+      display: grid;
+      grid-template-columns: auto 112px;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
     }
 
     .theme-picker-label {
@@ -193,39 +323,13 @@
       font-weight: 800;
     }
 
-    .theme-option {
-      position: relative;
-      width: 26px;
-      height: 26px;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
+    .theme-picker select {
+      width: 112px;
+      min-height: 30px;
+      padding: 4px 7px;
+      font-size: 12px;
+      font-weight: 700;
     }
-
-    .theme-option input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-    }
-
-    .theme-swatch {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255, 255, 255, 0.34);
-      border-radius: 50%;
-      background: var(--swatch);
-    }
-
-    .theme-option input:focus-visible + .theme-swatch,
-    .theme-option input:checked + .theme-swatch {
-      box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink);
-    }
-
-    .theme-option.standard { --swatch: #f2b33d; }
-    .theme-option.ocean { --swatch: #5aaaff; }
-    .theme-option.forest { --swatch: #65cf96; }
-    .theme-option.rose { --swatch: #f07eac; }
 
     .tab-panel {
       width: 100%;
@@ -305,7 +409,7 @@
       gap: 4px;
       font-size: 12px;
       font-weight: 700;
-      color: #d9e2ec;
+      color: var(--label);
     }
 
     select,
@@ -415,7 +519,7 @@
 
     .move-choice:hover:not(:disabled) {
       border-color: rgba(var(--accent-2-rgb), 0.72);
-      background: #121b25;
+      background: var(--hover-bg);
     }
 
     .move-choice.active {
@@ -640,8 +744,8 @@
       min-height: 36px;
       padding: 9px;
       border-radius: 8px;
-      background: #17212b;
-      color: #fff;
+      background: var(--formula-bg);
+      color: var(--formula-ink);
     }
 
     .formula-line code {
@@ -655,25 +759,25 @@
       min-height: 24px;
       padding: 3px 7px;
       border-radius: 999px;
-      background: #253141;
-      color: #eaf0f7;
+      background: var(--chip-bg);
+      color: var(--chip-ink);
       font-size: 12px;
       font-weight: 800;
     }
 
     .chip.warn {
       background: rgba(var(--accent-rgb), 0.18);
-      color: #ffd98a;
+      color: var(--warn-ink);
     }
 
     .chip.good {
       background: rgba(96, 211, 148, 0.16);
-      color: #91e7b8;
+      color: var(--good-ink);
     }
 
     .chip.bad {
       background: rgba(255, 122, 104, 0.16);
-      color: #ffaea3;
+      color: var(--bad-ink);
     }
 
     table {
@@ -696,7 +800,7 @@
 
     th {
       background: var(--surface-2);
-      color: #d9e2ec;
+      color: var(--label);
       font-size: 12px;
     }
 
@@ -714,7 +818,7 @@
       background: rgba(var(--accent-2-rgb), 0.08);
       border-radius: 6px;
       padding: 7px 8px;
-      color: #dbe5ef;
+      color: var(--note-ink);
       font-size: 13px;
       line-height: 1.45;
     }
@@ -1150,7 +1254,7 @@
     }
 
     .loading-message {
-      color: #d9e2ec;
+      color: var(--label);
       font-size: 15px;
       font-weight: 800;
       line-height: 1.5;
@@ -1168,7 +1272,7 @@
     }
 
     .loading.failed .loading-title {
-      color: #ffb5ab;
+      color: var(--danger-ink);
     }
 
     .error {
@@ -1176,7 +1280,7 @@
       border: 1px solid rgba(255, 122, 104, 0.35);
       border-radius: 8px;
       background: rgba(255, 122, 104, 0.10);
-      color: #ffb5ab;
+      color: var(--danger-ink);
       line-height: 1.5;
     }
 
@@ -1232,7 +1336,7 @@
         width: 100%;
       }
 
-      .theme-picker {
+      .appearance-controls {
         grid-column: 1;
         grid-row: 1;
         justify-self: end;
@@ -1301,23 +1405,19 @@
           <button id="shieldTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="shieldPanel">シールド量計算</button>
           <button id="healingTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="healingPanel">回復量計算</button>
         </div>
-        <div class="theme-picker" role="radiogroup" aria-label="画面の配色">
-          <span class="theme-picker-label">配色</span>
-          <label class="theme-option standard" title="標準">
-            <input type="radio" name="theme" value="standard" aria-label="標準" checked>
-            <span class="theme-swatch" aria-hidden="true"></span>
-          </label>
-          <label class="theme-option ocean" title="オーシャン">
-            <input type="radio" name="theme" value="ocean" aria-label="オーシャン">
-            <span class="theme-swatch" aria-hidden="true"></span>
-          </label>
-          <label class="theme-option forest" title="フォレスト">
-            <input type="radio" name="theme" value="forest" aria-label="フォレスト">
-            <span class="theme-swatch" aria-hidden="true"></span>
-          </label>
-          <label class="theme-option rose" title="ローズ">
-            <input type="radio" name="theme" value="rose" aria-label="ローズ">
-            <span class="theme-swatch" aria-hidden="true"></span>
+        <div class="appearance-controls">
+          <div class="mode-picker" role="group" aria-label="表示モード">
+            <button id="lightModeButton" class="mode-button" type="button" aria-pressed="false">ライト</button>
+            <button id="darkModeButton" class="mode-button" type="button" aria-pressed="true">ダーク</button>
+          </div>
+          <label class="theme-picker" for="themeSelect">
+            <span class="theme-picker-label">配色</span>
+            <select id="themeSelect" aria-label="配色">
+              <option value="standard">標準</option>
+              <option value="ocean">オーシャン</option>
+              <option value="forest">フォレスト</option>
+              <option value="rose">ローズ</option>
+            </select>
           </label>
         </div>
       </div>
@@ -2425,20 +2525,41 @@
 
     const el = {};
     const THEME_STORAGE_KEY = "uniteCalculatorTheme";
+    const MODE_STORAGE_KEY = "uniteCalculatorMode";
     const THEMES = ["standard", "ocean", "forest", "rose"];
+    const MODES = ["light", "dark"];
 
     function applyTheme(theme, persist = true) {
       const selectedTheme = THEMES.includes(theme) ? theme : "standard";
       document.documentElement.dataset.theme = selectedTheme;
-      (el.themeOptions || []).forEach((option) => {
-        option.checked = option.value === selectedTheme;
-      });
+      if (el.themeSelect) el.themeSelect.value = selectedTheme;
 
       if (persist) {
         try {
           localStorage.setItem(THEME_STORAGE_KEY, selectedTheme);
         } catch (error) {
           // Keep the active theme even when storage is unavailable.
+        }
+      }
+    }
+
+    function applyMode(mode, persist = true) {
+      const selectedMode = MODES.includes(mode) ? mode : "dark";
+      document.documentElement.dataset.mode = selectedMode;
+
+      if (el.lightModeButton && el.darkModeButton) {
+        const isLight = selectedMode === "light";
+        el.lightModeButton.classList.toggle("active", isLight);
+        el.darkModeButton.classList.toggle("active", !isLight);
+        el.lightModeButton.setAttribute("aria-pressed", String(isLight));
+        el.darkModeButton.setAttribute("aria-pressed", String(!isLight));
+      }
+
+      if (persist) {
+        try {
+          localStorage.setItem(MODE_STORAGE_KEY, selectedMode);
+        } catch (error) {
+          // Keep the active mode even when storage is unavailable.
         }
       }
     }
@@ -2495,6 +2616,7 @@
       [
         "loading", "loadingStatus", "loadingDetail", "retryLoadButton",
         "errorBox", "calculator", "damageTabButton", "shieldTabButton", "healingTabButton", "damagePanel", "shieldPanel", "healingPanel",
+        "lightModeButton", "darkModeButton", "themeSelect",
         "pokemonSelect", "levelRange", "levelValue",
         "moveChoices", "applyBuildButton", "clearItemsButton", "targetSelect",
         "targetLevelRange", "targetLevelValue", "targetDefense", "targetSpDefense",
@@ -2538,8 +2660,6 @@
       ].forEach((id) => {
         el[id] = document.getElementById(id);
       });
-
-      el.themeOptions = Array.from(document.querySelectorAll('input[name="theme"]'));
 
       for (let i = 0; i < 3; i += 1) {
         el[`itemSelect${i}`] = document.getElementById(`itemSelect${i}`);
@@ -5329,11 +5449,9 @@
       el.damageTabButton.addEventListener("click", () => selectCalculatorTab("damage"));
       el.shieldTabButton.addEventListener("click", () => selectCalculatorTab("shield"));
       el.healingTabButton.addEventListener("click", () => selectCalculatorTab("healing"));
-      el.themeOptions.forEach((option) => {
-        option.addEventListener("change", () => {
-          if (option.checked) applyTheme(option.value);
-        });
-      });
+      el.lightModeButton.addEventListener("click", () => applyMode("light"));
+      el.darkModeButton.addEventListener("click", () => applyMode("dark"));
+      el.themeSelect.addEventListener("change", () => applyTheme(el.themeSelect.value));
 
       el.pokemonSelect.addEventListener("change", () => {
         updateMoveOptions();
@@ -5510,6 +5628,7 @@
     async function init() {
       try {
         bindElements();
+        applyMode(document.documentElement.dataset.mode || "dark", false);
         applyTheme(document.documentElement.dataset.theme || "standard", false);
         wireEvents();
         await loadData();
