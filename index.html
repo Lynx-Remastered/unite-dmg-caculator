@@ -497,9 +497,13 @@
       text-overflow: ellipsis;
     }
 
-    .move-choice-grid {
-      display: grid;
-      gap: 6px;
+    .move-combobox {
+      position: relative;
+      min-width: 0;
+    }
+
+    .move-combobox.open {
+      z-index: 65;
     }
 
     .move-choice {
@@ -537,6 +541,47 @@
       width: 36px;
       height: 36px;
       object-fit: contain;
+    }
+
+    .move-combobox-trigger {
+      grid-template-columns: 40px minmax(0, 1fr) 18px;
+      cursor: pointer;
+    }
+
+    .move-combobox-chevron {
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      transition: transform 0.16s ease;
+    }
+
+    .move-combobox-trigger[aria-expanded="true"] .move-combobox-chevron {
+      transform: rotate(180deg);
+    }
+
+    .move-combobox-menu {
+      position: absolute;
+      z-index: 66;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      display: grid;
+      gap: 5px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-2);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+    }
+
+    .move-combobox-menu[hidden] {
+      display: none;
+    }
+
+    .move-combobox-option {
+      border-radius: 6px;
     }
 
     .move-choice-text {
@@ -1583,7 +1628,7 @@
 
             <div>
               <label>技</label>
-              <div id="moveChoices" class="move-choice-grid" role="radiogroup" aria-label="技"></div>
+              <div id="moveChoices" class="move-combobox" aria-label="技"></div>
             </div>
 
             <div class="button-row">
@@ -1927,7 +1972,7 @@
 
                 <div>
                   <label>シールド技</label>
-                  <div id="shieldMoveChoices" class="move-choice-grid" role="radiogroup" aria-label="シールド技"></div>
+                  <div id="shieldMoveChoices" class="move-combobox" aria-label="シールド技"></div>
                 </div>
 
                 <div class="button-row">
@@ -2124,7 +2169,7 @@
 
                 <div>
                   <label>回復技</label>
-                  <div id="healingMoveChoices" class="move-choice-grid" role="radiogroup" aria-label="回復技"></div>
+                  <div id="healingMoveChoices" class="move-combobox" aria-label="回復技"></div>
                 </div>
 
                 <label id="healingEffectRow" hidden>
@@ -3760,48 +3805,121 @@
       renderMoveChoices();
     }
 
+    function createMoveChoiceVisual(choice, noteText) {
+      const img = document.createElement("img");
+      img.src = choice.iconUrl || brokenImageUrl();
+      img.alt = "";
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = brokenImageUrl();
+      };
+
+      const text = document.createElement("span");
+      text.className = "move-choice-text";
+      const slot = document.createElement("span");
+      slot.className = "move-choice-slot";
+      slot.textContent = choice.slotLabel;
+      const name = document.createElement("span");
+      name.className = "move-choice-name";
+      name.textContent = jpMoveName(choice.displayName);
+      const note = document.createElement("span");
+      note.className = "move-choice-note";
+      note.textContent = noteText;
+      text.append(slot, name, note);
+      return [img, text];
+    }
+
+    function closeMoveComboboxes(except = null) {
+      document.querySelectorAll(".move-combobox").forEach((combobox) => {
+        if (combobox === except) return;
+        const trigger = combobox.querySelector(".move-combobox-trigger");
+        const menu = combobox.querySelector(".move-combobox-menu");
+        if (trigger) trigger.setAttribute("aria-expanded", "false");
+        if (menu) menu.hidden = true;
+        combobox.classList.remove("open");
+      });
+    }
+
+    function renderMoveCombobox({ container, choices, selectedSlot, ariaLabel, emptyMessage, noteFor, onSelect }) {
+      container.innerHTML = "";
+      container.classList.remove("open");
+      if (!choices.length) {
+        const message = document.createElement("div");
+        message.className = "effect-note";
+        message.textContent = emptyMessage;
+        container.appendChild(message);
+        return;
+      }
+
+      const selectedChoice = choices.find((choice) => choice.slotKey === selectedSlot && !choice.disabled)
+        || choices.find((choice) => !choice.disabled);
+      if (!selectedChoice) {
+        const message = document.createElement("div");
+        message.className = "effect-note";
+        message.textContent = emptyMessage;
+        container.appendChild(message);
+        return;
+      }
+
+      const trigger = document.createElement("button");
+      trigger.type = "button";
+      trigger.className = "move-choice move-combobox-trigger active";
+      trigger.setAttribute("role", "combobox");
+      trigger.setAttribute("aria-haspopup", "listbox");
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.setAttribute("aria-label", `${ariaLabel}: ${jpMoveName(selectedChoice.displayName)}`);
+      const triggerVisual = createMoveChoiceVisual(selectedChoice, noteFor(selectedChoice));
+      const chevron = document.createElement("span");
+      chevron.className = "move-combobox-chevron";
+      chevron.setAttribute("aria-hidden", "true");
+      chevron.textContent = "▼";
+      trigger.append(...triggerVisual, chevron);
+
+      const menu = document.createElement("div");
+      menu.className = "move-combobox-menu";
+      menu.setAttribute("role", "listbox");
+      menu.setAttribute("aria-label", `${ariaLabel}の選択肢`);
+      menu.hidden = true;
+
+      choices.forEach((choice) => {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = `move-choice move-combobox-option${choice.slotKey === selectedChoice.slotKey ? " active" : ""}`;
+        option.dataset.slot = choice.slotKey;
+        option.disabled = choice.disabled;
+        option.setAttribute("role", "option");
+        option.setAttribute("aria-selected", choice.slotKey === selectedChoice.slotKey ? "true" : "false");
+        option.append(...createMoveChoiceVisual(choice, noteFor(choice)));
+        option.addEventListener("click", () => {
+          closeMoveComboboxes();
+          onSelect(choice);
+        });
+        menu.appendChild(option);
+      });
+
+      trigger.addEventListener("click", () => {
+        const willOpen = menu.hidden;
+        closeMoveComboboxes(willOpen ? container : null);
+        menu.hidden = !willOpen;
+        trigger.setAttribute("aria-expanded", willOpen ? "true" : "false");
+        container.classList.toggle("open", willOpen);
+      });
+      container.append(trigger, menu);
+    }
+
     function renderMoveChoices() {
-      el.moveChoices.innerHTML = "";
-      state.moveChoices.forEach((choice) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = `move-choice${choice.slotKey === state.selectedMoveSlot ? " active" : ""}`;
-        button.dataset.slot = choice.slotKey;
-        button.disabled = choice.disabled;
-        button.setAttribute("role", "radio");
-        button.setAttribute("aria-checked", choice.slotKey === state.selectedMoveSlot ? "true" : "false");
-
-        const img = document.createElement("img");
-        img.src = choice.iconUrl || brokenImageUrl();
-        img.alt = "";
-        img.onerror = () => {
-          img.onerror = null;
-          img.src = brokenImageUrl();
-        };
-
-        const text = document.createElement("span");
-        text.className = "move-choice-text";
-
-        const slot = document.createElement("span");
-        slot.className = "move-choice-slot";
-        slot.textContent = choice.slotLabel;
-
-        const name = document.createElement("span");
-        name.className = "move-choice-name";
-        name.textContent = jpMoveName(choice.displayName);
-
-        const note = document.createElement("span");
-        note.className = "move-choice-note";
-        note.textContent = choice.disabled ? "ダメージ式なし" : choice.minLevel > 1 ? `Lv${choice.minLevel}以降` : "計算可";
-
-        text.append(slot, name, note);
-        button.append(img, text);
-        button.addEventListener("click", () => {
+      renderMoveCombobox({
+        container: el.moveChoices,
+        choices: state.moveChoices,
+        selectedSlot: state.selectedMoveSlot,
+        ariaLabel: "技",
+        emptyMessage: "現在のレベルで計算できる技がありません。",
+        noteFor: (choice) => choice.disabled ? "ダメージ式なし" : choice.minLevel > 1 ? `Lv${choice.minLevel}以降` : "計算可",
+        onSelect: (choice) => {
           state.selectedMoveSlot = choice.slotKey;
           renderMoveChoices();
           updateAll();
-        });
-        el.moveChoices.appendChild(button);
+        }
       });
     }
 
@@ -3969,53 +4087,18 @@
     }
 
     function renderShieldMoveChoices() {
-      el.shieldMoveChoices.innerHTML = "";
-
-      if (!state.shieldMoveChoices.length) {
-        const message = document.createElement("div");
-        message.className = "effect-note";
-        message.textContent = "現在のレベルで計算できるシールド技がありません。";
-        el.shieldMoveChoices.appendChild(message);
-        return;
-      }
-
-      state.shieldMoveChoices.forEach((choice) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = `move-choice${choice.slotKey === state.selectedShieldMoveSlot ? " active" : ""}`;
-        button.dataset.slot = choice.slotKey;
-        button.disabled = choice.disabled;
-        button.setAttribute("role", "radio");
-        button.setAttribute("aria-checked", choice.slotKey === state.selectedShieldMoveSlot ? "true" : "false");
-
-        const img = document.createElement("img");
-        img.src = choice.iconUrl || brokenImageUrl();
-        img.alt = "";
-        img.onerror = () => {
-          img.onerror = null;
-          img.src = brokenImageUrl();
-        };
-
-        const text = document.createElement("span");
-        text.className = "move-choice-text";
-        const slot = document.createElement("span");
-        slot.className = "move-choice-slot";
-        slot.textContent = choice.slotLabel;
-        const name = document.createElement("span");
-        name.className = "move-choice-name";
-        name.textContent = jpMoveName(choice.displayName);
-        const note = document.createElement("span");
-        note.className = "move-choice-note";
-        note.textContent = choice.disabled ? `Lv${choice.minLevel}以降` : "計算可";
-
-        text.append(slot, name, note);
-        button.append(img, text);
-        button.addEventListener("click", () => {
+      renderMoveCombobox({
+        container: el.shieldMoveChoices,
+        choices: state.shieldMoveChoices,
+        selectedSlot: state.selectedShieldMoveSlot,
+        ariaLabel: "シールド技",
+        emptyMessage: "現在のレベルで計算できるシールド技がありません。",
+        noteFor: (choice) => choice.disabled ? `Lv${choice.minLevel}以降` : "計算可",
+        onSelect: (choice) => {
           state.selectedShieldMoveSlot = choice.slotKey;
           renderShieldMoveChoices();
           updateShieldAll();
-        });
-        el.shieldMoveChoices.appendChild(button);
+        }
       });
     }
 
@@ -4109,54 +4192,20 @@
     }
 
     function renderHealingMoveChoices() {
-      el.healingMoveChoices.innerHTML = "";
-      if (!state.healingMoveChoices.length) {
-        const message = document.createElement("div");
-        message.className = "effect-note";
-        message.textContent = "現在のレベルで計算できる回復技がありません。";
-        el.healingMoveChoices.appendChild(message);
-        return;
-      }
-
-      state.healingMoveChoices.forEach((choice) => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = `move-choice${choice.slotKey === state.selectedHealingMoveSlot ? " active" : ""}`;
-        button.dataset.slot = choice.slotKey;
-        button.disabled = choice.disabled;
-        button.setAttribute("role", "radio");
-        button.setAttribute("aria-checked", choice.slotKey === state.selectedHealingMoveSlot ? "true" : "false");
-
-        const img = document.createElement("img");
-        img.src = choice.iconUrl || brokenImageUrl();
-        img.alt = "";
-        img.onerror = () => {
-          img.onerror = null;
-          img.src = brokenImageUrl();
-        };
-
-        const text = document.createElement("span");
-        text.className = "move-choice-text";
-        const slot = document.createElement("span");
-        slot.className = "move-choice-slot";
-        slot.textContent = choice.slotLabel;
-        const name = document.createElement("span");
-        name.className = "move-choice-name";
-        name.textContent = jpMoveName(choice.displayName);
-        const note = document.createElement("span");
-        note.className = "move-choice-note";
-        note.textContent = choice.disabled ? `Lv${choice.minLevel}以降` : choice.effectGroups.length > 1 ? `${choice.effectGroups.length}種類の回復効果` : jpMoveLabel(choice.variantLabel);
-
-        text.append(slot, name, note);
-        button.append(img, text);
-        button.addEventListener("click", () => {
+      renderMoveCombobox({
+        container: el.healingMoveChoices,
+        choices: state.healingMoveChoices,
+        selectedSlot: state.selectedHealingMoveSlot,
+        ariaLabel: "回復技",
+        emptyMessage: "現在のレベルで計算できる回復技がありません。",
+        noteFor: (choice) => choice.disabled ? `Lv${choice.minLevel}以降` : choice.effectGroups.length > 1 ? `${choice.effectGroups.length}種類の回復効果` : jpMoveLabel(choice.variantLabel),
+        onSelect: (choice) => {
           state.selectedHealingMoveSlot = choice.slotKey;
           state.selectedHealingEffectKey = defaultHealingEffectKey(choice);
           renderHealingMoveChoices();
           updateHealingEffectOptions();
           updateHealingAll();
-        });
-        el.healingMoveChoices.appendChild(button);
+        }
       });
     }
 
@@ -5783,9 +5832,15 @@
         if (!(event.target instanceof Element) || !event.target.closest(".held-item-picker")) {
           closeHeldItemPickers();
         }
+        if (!(event.target instanceof Element) || !event.target.closest(".move-combobox")) {
+          closeMoveComboboxes();
+        }
       });
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeHeldItemPickers();
+        if (event.key === "Escape") {
+          closeHeldItemPickers();
+          closeMoveComboboxes();
+        }
       });
       el.damageTabButton.addEventListener("click", () => selectCalculatorTab("damage"));
       el.shieldTabButton.addEventListener("click", () => selectCalculatorTab("shield"));
