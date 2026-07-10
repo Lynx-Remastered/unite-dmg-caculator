@@ -998,6 +998,160 @@
       border-bottom: 0;
     }
 
+    .ranking-controls {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .ranking-single-hit {
+      box-sizing: border-box;
+      height: 36px;
+      min-height: 36px;
+      align-self: end;
+      justify-content: flex-start;
+      gap: 5px;
+      padding: 4px 8px;
+    }
+
+    .ranking-single-hit input {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ranking-summary {
+      margin-top: 8px;
+    }
+
+    .ranking-table-wrap {
+      overflow-x: auto;
+      padding: 0 14px 14px;
+    }
+
+    .ranking-table {
+      min-width: 860px;
+      table-layout: fixed;
+    }
+
+    .ranking-table th {
+      position: relative;
+      user-select: none;
+    }
+
+    .ranking-col-resizer {
+      position: absolute;
+      top: 0;
+      right: -4px;
+      z-index: 3;
+      width: 8px;
+      height: 100%;
+      cursor: col-resize;
+      touch-action: none;
+    }
+
+    .ranking-col-resizer::after {
+      content: "";
+      position: absolute;
+      top: 20%;
+      right: 3px;
+      width: 1px;
+      height: 60%;
+      background: rgba(var(--accent-2-rgb), 0.35);
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+
+    .ranking-table th:hover .ranking-col-resizer::after,
+    .ranking-col-resizer:hover::after,
+    body.ranking-column-resizing .ranking-col-resizer::after {
+      opacity: 1;
+    }
+
+    body.ranking-column-resizing {
+      cursor: col-resize;
+      user-select: none;
+    }
+
+    .ranking-rank {
+      width: 54px;
+      color: var(--accent-2);
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .ranking-pokemon,
+    .ranking-move {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .ranking-pokemon img,
+    .ranking-move img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .ranking-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .ranking-note {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .ranking-number {
+      font-weight: 900;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .ranking-assumption {
+      display: grid;
+      gap: 5px;
+      min-width: 86px;
+    }
+
+    .ranking-item-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 26px;
+    }
+
+    .ranking-item-icons img,
+    .ranking-item-empty {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--surface-2);
+    }
+
+    .ranking-item-icons img {
+      object-fit: contain;
+    }
+
+    .ranking-item-empty {
+      display: grid;
+      place-items: center;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
     .item-effects {
       display: grid;
       gap: 6px;
@@ -1505,13 +1659,14 @@
       .pokemon-picker,
       .condition-row,
       .tab-bar,
-      .button-row {
+      .button-row,
+      .ranking-controls {
         grid-template-columns: 1fr;
       }
 
       .tab-bar {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 4px;
       }
 
@@ -1593,6 +1748,7 @@
       <div class="calculator-toolbar">
         <div class="tab-bar" role="tablist" aria-label="計算種別">
           <button id="damageTabButton" class="tab-button active" type="button" role="tab" aria-selected="true" aria-controls="damagePanel">ダメージ計算</button>
+          <button id="rankingTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="rankingPanel">ダメージランキング</button>
           <button id="shieldTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="shieldPanel">シールド量計算</button>
           <button id="healingTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="healingPanel">回復量計算</button>
         </div>
@@ -1793,6 +1949,17 @@
               <span>はかいカウンタ（計算前）</span>
               <input id="yveltalMarkStacks" type="number" min="0" max="5" value="0">
             </div>
+            <label id="conditionSylveonHyperVoice" class="condition-row" hidden>
+              <span>ハイパーボイスの距離</span>
+              <select id="sylveonHyperVoiceRange">
+                <option value="near">近距離</option>
+                <option value="far">遠距離</option>
+              </select>
+            </label>
+            <label id="conditionDamageVariant" class="condition-row" hidden>
+              <span>技の条件</span>
+              <select id="damageVariantSelect"></select>
+            </label>
             <div id="defenseEffectControls" class="defense-effect-controls" hidden>
               <span class="defense-effect-heading">防御・特防への効果</span>
               <div id="defenseEffectList" class="condition-grid"></div>
@@ -1993,6 +2160,95 @@
       </div>
       </section>
 
+      <section id="rankingPanel" class="tab-panel" role="tabpanel" aria-labelledby="rankingTabButton" hidden>
+        <div class="stack">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>ランキング条件</h2>
+            </div>
+            <div class="panel-body stack">
+              <div class="ranking-controls">
+                <label>
+                  攻撃側レベル
+                  <div class="range-row">
+                    <input id="rankingLevelRange" type="range" min="1" max="15" value="15">
+                    <span id="rankingLevelValue" class="range-value">15</span>
+                  </div>
+                </label>
+                <label>
+                  相手ポケモン
+                  <select id="rankingTargetSelect"></select>
+                </label>
+                <label>
+                  相手レベル
+                  <div class="range-row">
+                    <input id="rankingTargetLevelRange" type="range" min="1" max="15" value="15">
+                    <span id="rankingTargetLevelValue" class="range-value">15</span>
+                  </div>
+                </label>
+                <label>
+                  技カテゴリ
+                  <select id="rankingSlotFilter">
+                    <option value="all">すべて</option>
+                    <option value="move">技1・技2・ユナイト技</option>
+                    <option value="basic">通常攻撃</option>
+                    <option value="boosted">強化攻撃</option>
+                    <option value="move1">技1</option>
+                    <option value="move2">技2</option>
+                    <option value="unite">ユナイト技</option>
+                  </select>
+                </label>
+                <label>
+                  表示件数
+                  <select id="rankingLimitSelect">
+                    <option value="25">上位25件</option>
+                    <option value="50" selected>上位50件</option>
+                    <option value="100">上位100件</option>
+                    <option value="9999">全件</option>
+                  </select>
+                </label>
+                <label class="check-row ranking-single-hit">
+                  <span>単発</span>
+                  <input id="rankingSingleHit" type="checkbox">
+                </label>
+              </div>
+              <div id="rankingSummary" class="effect-note ranking-summary">ランキングを集計しています。</div>
+            </div>
+          </section>
+
+          <section class="panel result-panel">
+            <div class="result-head">
+              <h2>技一回分ダメージランキング</h2>
+            </div>
+            <div class="ranking-table-wrap">
+              <table class="ranking-table">
+                <colgroup>
+                  <col data-ranking-column="rank">
+                  <col data-ranking-column="pokemon">
+                  <col data-ranking-column="move">
+                  <col data-ranking-column="hits">
+                  <col data-ranking-column="raw">
+                  <col data-ranking-column="reduced">
+                  <col data-ranking-column="assumption">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>順位<span class="ranking-col-resizer" data-ranking-column="rank"></span></th>
+                    <th>ポケモン<span class="ranking-col-resizer" data-ranking-column="pokemon"></span></th>
+                    <th>技<span class="ranking-col-resizer" data-ranking-column="move"></span></th>
+                    <th>ヒット<span class="ranking-col-resizer" data-ranking-column="hits"></span></th>
+                    <th>防御前<span class="ranking-col-resizer" data-ranking-column="raw"></span></th>
+                    <th>防御込み<span class="ranking-col-resizer" data-ranking-column="reduced"></span></th>
+                    <th>前提<span class="ranking-col-resizer" data-ranking-column="assumption"></span></th>
+                  </tr>
+                </thead>
+                <tbody id="rankingBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+
       <section id="shieldPanel" class="tab-panel" role="tabpanel" aria-labelledby="shieldTabButton" hidden>
         <div class="app-shell">
           <div class="stack">
@@ -2125,7 +2381,7 @@
                     <input id="manualShieldFlat" type="number" value="0" step="1">
                   </label>
                   <label>
-                    回数/対象数
+                    <span id="shieldCountLabel">回数/対象数</span>
                     <input id="shieldCount" type="number" min="1" max="20" value="1" step="1">
                   </label>
                 </div>
@@ -2540,7 +2796,7 @@
       "Rapid Fire Scarf": { name: "れんだスカーフ", effect: "通常攻撃で隠し段階をため、一定段階で通常攻撃速度が上がります。" },
       "Razor Claw": { name: "するどいツメ", effect: "わざ使用後の次の通常攻撃に追加ダメージを付けます。近接ポケモンなら相手の移動速度も下げます。" },
       "Rescue Hood": { name: "レスキューフード", effect: "味方に与えるHP回復効果とシールド効果が11/14/17%上がります。自分への効果には適用されません。" },
-      "Resonant Guard": { name: "きょうめいガード", effect: "相手ポケモンにダメージを与えると、自分と近くの味方1体にシールドを付与します。" },
+      "Resonant Guard": { name: "きょうめいガード", effect: "相手ポケモンに技でダメージを与えると、自分と近くの味方1体にシールドを付与します。通常攻撃・強化攻撃では発動しません。" },
       "Rocky Helmet": { name: "ゴツゴツメット", effect: "一定以上のダメージを受けると、近くの相手に最大HPに応じた攻撃系ダメージを与えます。" },
       "Rusted Sword": { name: "くちたけん", effect: "ザシアン用の専用持ち物です。" },
       "Scope Lens": { name: "ピントレンズ", effect: "通常攻撃が急所に当たったとき、攻撃に応じた追加ダメージを与えます。" },
@@ -2578,12 +2834,23 @@
       ["Damage", "ダメージ"],
       ["Basic", "通常攻撃"],
       ["Boosted", "強化攻撃"],
+      ["Subsequent Hits", "後続ヒット"],
+      ["Subsequent Punches", "後続パンチ"],
+      ["Additional", "追加"],
+      ["First Flame", "最初の炎"],
+      ["First Star", "最初の星"],
+      ["First Leaf", "最初の葉"],
+      ["Burn", "やけど"],
+      ["Ticks", "回"],
+      ["Tick", "回"],
       ["First Hit", "1段目"],
       ["Second Hit", "2段目"],
       ["Third Hit", "3段目"],
       ["Final Hit", "最終段"],
       ["Full", "フルヒット"],
       ["Reduced", "軽減"],
+      ["Near", "近距離"],
+      ["Far", "遠距離"],
       ["Interrupted Attack", "割り込み攻撃"],
       ["Backstab", "背面ヒット"],
       ["Initial", "初段"],
@@ -2596,7 +2863,55 @@
       ["Above", "以上"],
       ["Below", "以下"],
       ["No Charge", "チャージなし"],
-      ["Max Charge", "最大チャージ"]
+      ["Uncharged", "未チャージ"],
+      ["Fully Charged", "最大チャージ"],
+      ["Min Charge", "最小チャージ"],
+      ["Low Charge", "低チャージ"],
+      ["Mid Charge", "中チャージ"],
+      ["High Charge", "高チャージ"],
+      ["1st Level Charge", "1段階チャージ"],
+      ["2nd Level Charge", "2段階チャージ"],
+      ["3rd Level Charge", "3段階チャージ"],
+      ["4th Level Charge", "4段階チャージ"],
+      ["5th Level Charge", "5段階チャージ"],
+      ["Max Charge", "最大チャージ"],
+      ["No Gauge", "ゲージなし"],
+      ["Full Gauge", "ゲージ満タン"],
+      ["Point Blank", "至近距離"],
+      ["Medium Distance", "中距離"],
+      ["Max Distance", "最大距離"],
+      ["Melee Range", "近距離"],
+      ["Max Range", "最大距離"],
+      ["Close Range", "近距離"],
+      ["Long Range", "遠距離"],
+      ["Closest", "最近距離"],
+      ["Mid range", "中距離"],
+      ["Furthest range", "最遠距離"],
+      ["Close", "近距離"],
+      ["Mid", "中距離"],
+      ["Inner Ring", "内側"],
+      ["Outer Ring", "外側"],
+      ["Frozen Target", "凍結中の相手"],
+      ["Frozen Enemies", "凍結中の相手"],
+      ["Unfrozen Enemies", "凍結していない相手"],
+      ["During Rapid Spin", "高速スピン中"],
+      ["No Retreat Formation", "背水の陣中"],
+      ["Dispatch formation", "分散の陣中"],
+      ["Column group", "縦列の陣"],
+      ["Shield Stance", "シールドフォルム"],
+      ["Torrent", "げきりゅう中"],
+      ["Mega", "メガシンカ中"],
+      ["Above", "以上"],
+      ["Below", "以下"],
+      ["Between", "範囲内"],
+      ["Fang Marks", "キバマーク"],
+      ["Fang Mark", "キバマーク"],
+      ["Coin Marks", "コインマーク"],
+      ["Coin Mark", "コインマーク"],
+      ["Huge Claw In Dark Pulse", "ダークパルス中の巨大なツメ"],
+      ["Huge Claw", "巨大なツメ"],
+      ["In Dark Pulse", "ダークパルス中"],
+      ["A Pokémon has Bad Dreams", "悪夢中のポケモンがいる"]
     ];
 
     const ABILITY_JA = {
@@ -2674,9 +2989,6 @@
       ],
       Slowbro: [
         { id: "oblivious", label: "どんかんの段階", maxStacks: 5, spDefenseReductionPercent: 4 }
-      ],
-      Sylveon: [
-        { id: "hyper-voice", label: "ハイパーボイスの段階", minLevel: 4, maxStacks: 4, spDefenseReductionPercent: 20 }
       ],
       Talonflame: [
         { id: "flame-charge", label: "ニトロチャージ+命中後", minLevel: 11, maxStacks: 1, defensePenetrationFlat: (level) => 3 * (level - 1) + 60 }
@@ -2849,7 +3161,9 @@
       shieldMoveChoices: [],
       healingMoveEntries: [],
       healingMoveChoices: [],
+      rankingRows: [],
       selectedMoveSlot: "basic",
+      selectedDamageVariantKey: "",
       selectedShieldMoveSlot: "",
       selectedHealingMoveSlot: "",
       selectedHealingEffectKey: "all",
@@ -2861,6 +3175,25 @@
     const el = {};
     const THEME_STORAGE_KEY = "uniteCalculatorTheme";
     const MODE_STORAGE_KEY = "uniteCalculatorMode";
+    const RANKING_COLUMN_STORAGE_KEY = "uniteCalculatorRankingColumnWidths";
+    const RANKING_COLUMN_DEFAULT_WIDTHS = {
+      rank: 58,
+      pokemon: 150,
+      move: 280,
+      hits: 72,
+      raw: 92,
+      reduced: 104,
+      assumption: 118
+    };
+    const RANKING_COLUMN_MIN_WIDTHS = {
+      rank: 46,
+      pokemon: 110,
+      move: 180,
+      hits: 56,
+      raw: 72,
+      reduced: 84,
+      assumption: 86
+    };
     const THEMES = ["standard", "ocean", "forest", "rose"];
     const MODES = ["light", "dark"];
 
@@ -3070,7 +3403,8 @@
     function bindElements() {
       [
         "loading", "loadingStatus", "loadingDetail", "retryLoadButton",
-        "errorBox", "calculator", "damageTabButton", "shieldTabButton", "healingTabButton", "damagePanel", "shieldPanel", "healingPanel",
+        "errorBox", "calculator", "damageTabButton", "rankingTabButton", "shieldTabButton", "healingTabButton",
+        "damagePanel", "rankingPanel", "shieldPanel", "healingPanel",
         "lightModeButton", "darkModeButton", "themeSelect",
         "pokemonSelect", "levelRange", "levelValue",
         "moveChoices", "applyBuildButton", "clearItemsButton", "targetSelect",
@@ -3082,7 +3416,8 @@
         "manualDefenseReductionPercent", "manualSpDefenseReductionPercent", "manualDefenseReductionFlat", "manualSpDefenseReductionFlat",
         "manualDefenseIgnorePercent", "manualSpDefenseIgnorePercent", "manualDefensePenetrationFlat", "manualSpDefensePenetrationFlat",
         "defenseEffectControls", "defenseEffectList", "defenseEffectNote",
-        "conditionYveltalMarks", "yveltalMarkStacks",
+        "conditionYveltalMarks", "yveltalMarkStacks", "conditionSylveonHyperVoice", "sylveonHyperVoiceRange",
+        "conditionDamageVariant", "damageVariantSelect",
         "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc",
         "chargingCharmProc", "razorClawProc", "energyAmpProc",
@@ -3101,7 +3436,7 @@
         "shieldConditionAccelBracer", "shieldAccelBracerStacks",
         "shieldConditionDriveLens", "shieldDriveLensStacks",
         "shieldManualAttack", "shieldManualSpAttack", "shieldManualHp", "manualShieldPercent",
-        "manualShieldFlat", "shieldCount", "shieldSelfAmount", "shieldSelfAmountSub", "shieldAllyAmount", "shieldAllyAmountSub",
+        "manualShieldFlat", "shieldCount", "shieldCountLabel", "shieldSelfAmount", "shieldSelfAmountSub", "shieldAllyAmount", "shieldAllyAmountSub",
         "shieldAttackStat", "shieldSpAttackStat", "shieldHpStat", "shieldFormulaText",
         "shieldBreakdownBody", "shieldItemEffects", "shieldLearnChipRow",
         "healingPokemonSelect", "healingPokemonImage", "healingPokemonImageName",
@@ -3115,7 +3450,9 @@
         "healingManualAttack", "healingManualSpAttack",
         "manualHealingPercent", "manualHealingFlat", "healingCount",
         "healingSelfAmount", "healingSelfAmountSub", "healingAllyAmount", "healingAllyAmountSub", "healingAttackStat", "healingSpAttackStat",
-        "healingFormulaText", "healingBreakdownBody", "healingItemEffects", "healingLearnChipRow"
+        "healingFormulaText", "healingBreakdownBody", "healingItemEffects", "healingLearnChipRow",
+        "rankingLevelRange", "rankingLevelValue", "rankingTargetSelect", "rankingTargetLevelRange",
+        "rankingTargetLevelValue", "rankingSlotFilter", "rankingLimitSelect", "rankingSingleHit", "rankingSummary", "rankingBody"
       ].forEach((id) => {
         el[id] = document.getElementById(id);
       });
@@ -3150,18 +3487,23 @@
     }
 
     function selectCalculatorTab(tabName) {
+      const rankingActive = tabName === "ranking";
       const shieldActive = tabName === "shield";
       const healingActive = tabName === "healing";
-      state.activeTab = shieldActive ? "shield" : healingActive ? "healing" : "damage";
-      el.damagePanel.hidden = shieldActive || healingActive;
+      state.activeTab = rankingActive ? "ranking" : shieldActive ? "shield" : healingActive ? "healing" : "damage";
+      el.damagePanel.hidden = rankingActive || shieldActive || healingActive;
+      el.rankingPanel.hidden = !rankingActive;
       el.shieldPanel.hidden = !shieldActive;
       el.healingPanel.hidden = !healingActive;
-      el.damageTabButton.classList.toggle("active", !shieldActive && !healingActive);
+      el.damageTabButton.classList.toggle("active", !rankingActive && !shieldActive && !healingActive);
+      el.rankingTabButton.classList.toggle("active", rankingActive);
       el.shieldTabButton.classList.toggle("active", shieldActive);
       el.healingTabButton.classList.toggle("active", healingActive);
-      el.damageTabButton.setAttribute("aria-selected", shieldActive || healingActive ? "false" : "true");
+      el.damageTabButton.setAttribute("aria-selected", rankingActive || shieldActive || healingActive ? "false" : "true");
+      el.rankingTabButton.setAttribute("aria-selected", rankingActive ? "true" : "false");
       el.shieldTabButton.setAttribute("aria-selected", shieldActive ? "true" : "false");
       el.healingTabButton.setAttribute("aria-selected", healingActive ? "true" : "false");
+      if (rankingActive) updateDamageRanking();
       if (shieldActive) updateShieldAll();
       if (healingActive) updateHealingAll();
     }
@@ -3243,20 +3585,456 @@
         || null;
     }
 
+    function normalizedMovePartLabel(label) {
+      return String(label || "").trim().replace(/\s+/g, " ");
+    }
+
+    function entriesForMovePartLabels(entries, labels) {
+      const wanted = new Set(labels.map(normalizedMovePartLabel));
+      return entries.filter((entry) => wanted.has(normalizedMovePartLabel(entry.label)));
+    }
+
+    function isDarkraiShadowClaw(pokemon, choice) {
+      return pokemon?.name === "Darkrai" && choice?.displayName === "Shadow Claw";
+    }
+
+    function damageVariantKeyFromLabel(label) {
+      return normalizedMovePartLabel(label).toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 48) || "variant";
+    }
+
+    function damageVariantLabelFromEntry(entry) {
+      let text = jpMoveLabel(entry.label || "条件");
+      text = text.replace(/^ダメージ\s*[-:：]?\s*/i, "");
+      text = text.replace(/^ダメージ\s*\((.+)\)$/i, "$1");
+      text = text.replace(/^\((.+)\)$/i, "$1");
+      return text.trim() || jpMoveLabel(entry.label || "条件");
+    }
+
+    function variantOption(key, label, entries) {
+      const seen = new Set();
+      return {
+        key,
+        label,
+        entries: entries.filter((entry) => {
+          const id = `${entry.partKey}:${normalizedMovePartLabel(entry.label)}`;
+          if (seen.has(id)) return false;
+          seen.add(id);
+          return true;
+        })
+      };
+    }
+
+    function scaledDamageEntry(entry, key, label, damageScale, hitCount = 1, hitNote = "") {
+      return {
+        ...entry,
+        label,
+        partKey: `${entry.partKey}-${key}`,
+        basePartKey: `${entry.basePartKey}-${key}`,
+        damageScale,
+        hitCountOverride: hitCount,
+        hitNoteOverride: hitNote
+      };
+    }
+
+    function progressiveDamageEntries(entry, key, scales, labelPrefix) {
+      return scales.map((scale, index) => scaledDamageEntry(
+        entry,
+        `${key}-${index + 1}`,
+        `${labelPrefix}${index + 1}ヒット目`,
+        scale,
+        1,
+        `${index + 1}ヒット目: ${formatNumber(scale * 100, 0)}%`
+      ));
+    }
+
+    function specificDamageVariantOptionsForChoice(pokemon, choice, entries, level) {
+      if (isDarkraiShadowClaw(pokemon, choice)) {
+        return [
+          variantOption("normal", "通常", entriesForMovePartLabels(entries, ["Damage", "Damage - Huge Claw"])),
+          variantOption("bad-dreams", "悪夢中", entriesForMovePartLabels(entries, ["Damage", "Damage - Huge Claw (A Pokémon has Bad Dreams)"])),
+          variantOption("dark-pulse", "ダークパルス中", entriesForMovePartLabels(entries, ["Damage - In Dark Pulse", "Damage - Huge Claw In Dark Pulse"])),
+          variantOption("dark-pulse-bad-dreams", "ダークパルス中・悪夢中", entriesForMovePartLabels(entries, ["Damage - In Dark Pulse", "Damage - Huge Claw In Dark Pulse (A Pokémon has Bad Dreams)"]))
+        ].filter((variant) => variant.entries.length);
+      }
+
+      if (pokemon?.name === "Leafeon" && choice?.displayName === "Emerald Two-Step") {
+        const initial = entriesForMovePartLabels(entries, ["Damage (Initial leap)"]);
+        return [
+          ["closest", "2段目: 最近距離", "Damage (Second Leap - Closest)"],
+          ["mid", "2段目: 中距離", "Damage (Second Leap - Mid range)"],
+          ["furthest", "2段目: 最遠距離", "Damage (Second Leap - Furthest range)"]
+        ].map(([key, label, secondLabel]) => (
+          variantOption(key, label, [...initial, ...entriesForMovePartLabels(entries, [secondLabel])])
+        )).filter((variant) => variant.entries.length > initial.length);
+      }
+
+      if (pokemon?.name === "Espeon" && choice?.displayName === "Stored Power") {
+        const first = entriesForMovePartLabels(entries, ["Damage - First Hit"]);
+        const subsequent = entriesForMovePartLabels(entries, ["Damage - Subsequent Hits"]);
+        const additional = entriesForMovePartLabels(entries, ["Damage - Additional"]);
+        const storedPowerEntries = (totalHits, includeAdditional) => [
+          ...first.map((entry) => ({ ...entry, hitCountOverride: 1 })),
+          ...subsequent.map((entry) => ({
+            ...entry,
+            hitCountOverride: totalHits - 1,
+            hitNoteOverride: `${totalHits - 1}ヒット（初撃を除く）`
+          })),
+          ...(includeAdditional ? additional : [])
+        ];
+        const variants = [
+          variantOption("stored-power-5", "通常（5発）", storedPowerEntries(5, false)),
+          variantOption("stored-power-8", "みらいよち強化（8発）", storedPowerEntries(8, false))
+        ];
+        if (additional.length) {
+          variants.push(
+            variantOption("stored-power-5-low-hp", "通常（5発）・相手HP50%未満", storedPowerEntries(5, true)),
+            variantOption("stored-power-8-low-hp", "みらいよち強化（8発）・相手HP50%未満", storedPowerEntries(8, true))
+          );
+        }
+        return variants.filter((variant) => variant.entries.length >= 2);
+      }
+
+      if (pokemon?.name === "Meowth" && choice?.displayName === "Fury Swipes") {
+        const first = entriesForMovePartLabels(entries, ["Damage - First Hit"]);
+        const subsequent = entriesForMovePartLabels(entries, ["Damage - Subsequent Hits"]);
+        const furySwipesEntries = (totalHits) => [
+          ...first.map((entry) => ({ ...entry, hitCountOverride: 1 })),
+          ...subsequent.map((entry) => ({
+            ...entry,
+            hitCountOverride: totalHits - 1,
+            hitNoteOverride: `${totalHits - 1}ヒット（初撃を除く）`
+          }))
+        ];
+        return [
+          variantOption("fury-swipes-2", "通常（2回）", furySwipesEntries(2)),
+          variantOption("fury-swipes-5", "コイン3以上（5回）", furySwipesEntries(5))
+        ].filter((variant) => variant.entries.length >= 2);
+      }
+
+      if (pokemon?.name === "Leafeon" && choice?.displayName === "Razor Leaf") {
+        const outgoing = entriesForMovePartLabels(entries, ["Damage (Outgoing - First Leaf)"])[0];
+        const earlyReturn = entriesForMovePartLabels(entries, ["Damage (Manual return first Leaf if <1s)"])[0];
+        const strongReturn = entriesForMovePartLabels(entries, ["Damage (Automatic return first Leaf or Manual return first Leaf if after 1s)"])[0];
+        const fanEntries = (entry, key, firstLabel) => entry ? [
+          { ...entry, label: firstLabel, hitCountOverride: 1, hitNoteOverride: "最初の1枚" },
+          scaledDamageEntry(entry, `${key}-subsequent`, "後続の葉（30%）", 0.3, 4, "4ヒット（最初の1枚を除く）")
+        ] : [];
+        const outgoingFan = fanEntries(outgoing, "razor-leaf-outgoing", "往路・最初の葉");
+        return [
+          variantOption("razor-leaf-outgoing", "往路のみ（5枚）", outgoingFan),
+          variantOption("razor-leaf-early-return", "往路＋手動帰還1秒未満（各5枚）", [...outgoingFan, ...fanEntries(earlyReturn, "razor-leaf-early", "手動帰還1秒未満・最初の葉")]),
+          variantOption("razor-leaf-strong-return", "往路＋1秒以上の帰還（各5枚）", [...outgoingFan, ...fanEntries(strongReturn, "razor-leaf-strong", "1秒以上の帰還・最初の葉")])
+        ].filter((variant) => variant.entries.length);
+      }
+
+      if (pokemon?.name === "Latios" && choice?.displayName === "Dragon Pulse") {
+        const boosted = entriesForMovePartLabels(entries, ["Damage - Boosted Attack"]);
+        const projectile = entriesForMovePartLabels(entries, ["Damage - Projectile (per Projectile)"])[0];
+        if (projectile) {
+          const projectileScales = [1, 0.85, 0.7, 0.55, 0.4, 0.25];
+          const dragonPulseEntries = (count) => [
+            ...boosted,
+            ...progressiveDamageEntries(projectile, `dragon-pulse-${count}`, projectileScales.slice(0, count), "テレキネシス弾")
+          ];
+          return [
+            variantOption("dragon-pulse-0", "エオンパワー0（弾なし）", boosted),
+            variantOption("dragon-pulse-25", "エオンパワー25（2発）", dragonPulseEntries(2)),
+            variantOption("dragon-pulse-50", "エオンパワー50（3発）", dragonPulseEntries(3)),
+            variantOption("dragon-pulse-75", "エオンパワー75（4発）", dragonPulseEntries(4)),
+            variantOption("dragon-pulse-100", "エオンパワー100（6発）", dragonPulseEntries(6))
+          ].filter((variant) => variant.entries.length);
+        }
+      }
+
+      if (pokemon?.name === "Latios" && choice?.displayName === "Draco Meteor") {
+        const comet = entries.find((entry) => /Damage\s*-\s*per Comet/i.test(String(entry.label || "")));
+        if (comet) {
+          const dracoMeteorEntries = (count) => [
+            { ...comet, label: "1発目", hitCountOverride: 1 },
+            scaledDamageEntry(comet, `draco-meteor-${count}`, "後続のりゅうせい（50%）", 0.5, count - 1, `${count - 1}ヒット（1発目を除く）`)
+          ];
+          return [
+            variantOption("draco-meteor-0", "エオンパワー0（2発）", dracoMeteorEntries(2)),
+            variantOption("draco-meteor-25", "エオンパワー25（3発）", dracoMeteorEntries(3)),
+            variantOption("draco-meteor-50", "エオンパワー50（4発）", dracoMeteorEntries(4)),
+            variantOption("draco-meteor-75", "エオンパワー75（5発）", dracoMeteorEntries(5)),
+            variantOption("draco-meteor-100", "エオンパワー100（6発）", dracoMeteorEntries(6))
+          ];
+        }
+      }
+
+      if (pokemon?.name === "Scyther" && choice?.displayName === "Green Illusion Dive") {
+        const hit = entries.find((entry) => /Damage\s*-\s*Initial, Dash, & Copy Dash/i.test(String(entry.label || "")));
+        if (hit) {
+          const fullHits = (count, key, label) => ({
+            ...hit,
+            label,
+            partKey: `${hit.partKey}-${key}`,
+            basePartKey: `${hit.basePartKey}-${key}`,
+            hitCountOverride: count,
+            hitNoteOverride: `${count}ヒット（減衰なし）`
+          });
+          const reducedCopies = scaledDamageEntry(hit, "copy-reduced", "2体目以降の分身（30%）", 0.3, 4, "分身4体（最初の1体を除く）");
+          return [
+            variantOption("green-illusion-initial", "初撃のみ", [fullHits(1, "initial", "初撃")]),
+            variantOption("green-illusion-copies", "初撃＋分身5体", [fullHits(2, "initial-copy", "初撃＋最初の分身"), reducedCopies]),
+            variantOption("green-illusion-second-use", "初撃＋再発動＋分身5体", [fullHits(3, "initial-dash-copy", "初撃＋再発動＋最初の分身"), reducedCopies])
+          ];
+        }
+      }
+
+      if (pokemon?.name === "Typhlosion" && choice?.displayName === "Eruption") {
+        const perHit = entries.find((entry) => /Damage\s*-\s*per Hit/i.test(String(entry.label || "")));
+        if (perHit) {
+          return [
+            variantOption("eruption-3", "通常（3発）", progressiveDamageEntries(perHit, "eruption-normal", [1, 0.8, 0.6], "")),
+            variantOption("eruption-4", "最大ふんかゲージ（4発）", progressiveDamageEntries(perHit, "eruption-peak", [1, 0.8, 0.6, 0.6], ""))
+          ];
+        }
+      }
+
+      return [];
+    }
+
+    function damageVariantCategory(entry) {
+      const label = normalizedMovePartLabel(entry.label);
+      if (!label) return "";
+      if (/(additional|bonus|proc|exiting|same target|secondary target|against wild|against player|damage boost|replacement|under .*buff)/i.test(label)) {
+        return "";
+      }
+      if (/(?:1st|2nd|3rd|4th|5th) Level Charge|Low Charge|Mid Charge|High Charge|Min Charge|Max Charge|Uncharged|Fully Charged|<=\s*\d+\s*Energy Charged|\d+\s*-\s*\d+\s*Energy Charged|\d+\s*-\s*\d+\s*Charges/i.test(label)) {
+        return "charge";
+      }
+      if (/Stage\s*\d/i.test(label)) return "stage";
+      if (/No Gauge|Full Gauge/i.test(label)) return "gauge";
+      if (/Above .*HP|Between .*HP|Below .*HP/i.test(label)) return "hp";
+      if (/\d+\s*Fang Marks?|Less Than .*Coin Marks?|\d+\s*Coin Marks?/i.test(label)) return "stacks";
+      if (/Close Range|Long Range|Point Blank|Medium Distance|Max Distance|Melee Range|Max Range|\bClose\b|\bMid\b|\bFar\b|Closest|Mid range|Furthest range|Center|Conal|Side|Inner Ring|Outer Ring/i.test(label)) {
+        return "range";
+      }
+      if (/Frozen Target|Frozen Enemies|Unfrozen Enemies/i.test(label)) return "status";
+      if (/\bTorrent\b/i.test(label)) return "torrent";
+      if (/\bMega\b/i.test(label)) return "mega";
+      if (/During Rapid Spin|No Retreat Formation|Dispatch formation|Column group|Shield Stance/i.test(label)) return "mode";
+      if (/Full .*Hits|Reduced .*Hits/i.test(label)) return "hit-choice";
+      if (/Exploding Flame level\s*\d/i.test(label)) return "level";
+      return "";
+    }
+
+    function isVariantDamageCandidateEntry(entry) {
+      const label = normalizedMovePartLabel(entry.label);
+      if (!label) return false;
+      if (/(heal|healing|shield|max hp|defense|sp\.?\s*def|spdef|attack speed|movement speed|cooldown|cdr|increase|reduction)/i.test(label)) {
+        return false;
+      }
+      return Boolean(damageVariantCategory(entry))
+        || isAutoIncludedDamageEntry(entry)
+        || /(damage|hit|slash|burn|dot|tick|wave|bolt|projectile|quill|star|seed|leaf|flame|comet|meteor|punch|kick|slap|shuriken|blade|pulse|shockwave|whirlpool|stream|field|flurry|eruption)/i.test(label);
+    }
+
+    function isSharedDamageVariantEntry(entry) {
+      const label = normalizedMovePartLabel(entry.label);
+      if (!label || damageVariantCategory(entry)) return false;
+      if (/(additional|bonus|proc|exiting|same target|secondary target|replacement|boosted|basic \[|main target|under .*buff)/i.test(label)) {
+        return false;
+      }
+      return /^Damage$/i.test(label)
+        || /^Damage\s*-\s*(Burn|Poison|DoT|Area|Vortex|Heatwave)/i.test(label)
+        || /^Charging Damage$/i.test(label);
+    }
+
+    function genericDamageVariantOptionsForChoice(choice, entries) {
+      const candidates = entries.filter(isVariantDamageCandidateEntry);
+      const groups = new Map();
+      candidates.forEach((entry) => {
+        const category = damageVariantCategory(entry);
+        if (!category) return;
+        if (!groups.has(category)) groups.set(category, []);
+        groups.get(category).push(entry);
+      });
+
+      const usableGroups = [...groups.entries()].filter(([, groupEntries]) => groupEntries.length);
+      if (usableGroups.length !== 1) return [];
+
+      const [category, groupEntries] = usableGroups[0];
+      const plainBase = candidates.find((entry) => /^Damage$/i.test(normalizedMovePartLabel(entry.label)));
+      if (groupEntries.length < 2 && !plainBase) return [];
+
+      const groupSet = new Set(groupEntries);
+      const shared = candidates.filter((entry) => !groupSet.has(entry) && isSharedDamageVariantEntry(entry));
+      const sharedWithoutPlainBase = shared.filter((entry) => entry !== plainBase);
+      const variants = [];
+
+      if (groupEntries.length === 1 && plainBase) {
+        variants.push(variantOption(`${category}-normal`, "通常", [...sharedWithoutPlainBase, plainBase]));
+      }
+
+      groupEntries.forEach((entry) => {
+        variants.push(variantOption(
+          `${category}-${damageVariantKeyFromLabel(entry.label)}`,
+          damageVariantLabelFromEntry(entry),
+          [...(groupEntries.length === 1 ? sharedWithoutPlainBase : shared), entry]
+        ));
+      });
+
+      return variants.filter((variant) => variant.entries.length);
+    }
+
+    function damageVariantOptionsForChoice(pokemon, choice, level, activeEntries = null) {
+      if (!choice || !choice.entries.length) return [];
+      const entries = activeEntries || activeEntriesForLevel(choice.entries, level);
+      const specific = specificDamageVariantOptionsForChoice(pokemon, choice, entries, level);
+      if (specific.length) return specific;
+      return genericDamageVariantOptionsForChoice(choice, entries);
+    }
+
+    function subsequentDamageScale(notes) {
+      const text = String(notes || "");
+      const marker = text.search(/subsequent|hits? after the first/i);
+      if (marker < 0) return 0;
+      const segment = text.slice(marker, marker + 220);
+      const percentMatch = segment.match(/(\d+(?:\.\d+)?)%/);
+      if (!percentMatch) return 0;
+      const percent = number(percentMatch[1], 0) / 100;
+      if (percent <= 0) return 0;
+      return /%\s*(?:less|reduced)/i.test(segment) ? Math.max(0, 1 - percent) : percent;
+    }
+
+    function reducedSubsequentDamageEntries(entries, level) {
+      if (entries.some((entry) => entry.damageScale !== undefined)) return entries;
+      if (entries.some((entry) => /Subsequent Hits/i.test(String(entry.label || "")))) return entries;
+      const anchor = entries.find((entry) => {
+        const label = String(entry.label || "");
+        return isAutoIncludedDamageEntry(entry)
+          && !/(burn|dot|tick)/i.test(label)
+          && !/,/.test(label)
+          && /(first|initial|per flame|^damage$)/i.test(label);
+      });
+      if (!anchor) return entries;
+
+      const contextText = anchor.contextText || anchor.notes;
+      const scale = subsequentDamageScale(contextText);
+      if (!(scale > 0 && scale < 1)) return entries;
+      const countInfo = inferHitCountFromText(contextText, false);
+      let totalHits = countInfo.count;
+      if (level >= number(anchor.enhancedMinLevel, 99)
+        && /number of (?:flames|hits|projectiles|stars).*by one/i.test(String(anchor.enhancedNotes || ""))) {
+        totalHits += 1;
+      }
+      if (totalHits <= 1) return entries;
+
+      const first = { ...anchor, hitCountOverride: 1, hitNoteOverride: "初撃" };
+      const subsequent = scaledDamageEntry(
+        anchor,
+        "reduced-subsequent",
+        `後続ヒット（${formatNumber(scale * 100, 0)}%）`,
+        scale,
+        totalHits - 1,
+        `${totalHits - 1}ヒット（初撃を除く）`
+      );
+      return entries.flatMap((entry) => entry === anchor ? [first, subsequent] : [entry]);
+    }
+
+    function damageSequenceEntries(pokemon, choice, level, entries) {
+      if (pokemon?.name === "Crustle" && choice?.displayName === "Stealth Rock") {
+        const perTick = entries.find((entry) => /Damage\s*\(\d+ Ticks\)/i.test(String(entry.label || "")));
+        if (perTick) {
+          const count = level >= number(perTick.enhancedMinLevel, 99) ? 10 : 8;
+          return progressiveDamageEntries(
+            perTick,
+            "stealth-rock",
+            Array.from({ length: count }, (_, index) => 1 + index * 0.15),
+            ""
+          );
+        }
+      }
+
+      if (pokemon?.name === "Miraidon" && choice?.displayName === "Bright Future Meteor Storm") {
+        const meteor = entries.find((entry) => /per meteorite/i.test(String(entry.label || "")));
+        if (meteor) {
+          return progressiveDamageEntries(meteor, "meteor-storm", [1, 1.2, 1.4, 1.6, 1.8], "");
+        }
+      }
+
+      if (pokemon?.name === "Tyranitar" && choice?.displayName === "Sand Tomb") {
+        const count = level >= 13 ? 16 : 12;
+        return entries.map((entry) => /AoE\s*\(per Tick\)/i.test(String(entry.label || "")) ? {
+          ...entry,
+          hitCountOverride: count,
+          hitNoteOverride: `${count}ヒット（0.5秒ごと）`
+        } : entry);
+      }
+
+      if (pokemon?.name === "Duraludon" && choice?.displayName === "Revolving Ruin") {
+        return entries.map((entry) => /Burning Ring\s*\(per Tick\)/i.test(String(entry.label || "")) ? {
+          ...entry,
+          hitCountOverride: 20,
+          hitNoteOverride: "20ヒット（10秒間・0.5秒ごと）"
+        } : entry);
+      }
+
+      if (pokemon?.name === "Ho-Oh" && choice?.displayName === "Sky Attack") {
+        return entries.map((entry) => /Damage\s*\(Ground\)/i.test(String(entry.label || "")) ? {
+          ...entry,
+          hitCountOverride: 9,
+          hitNoteOverride: "9ヒット（4.5秒間・0.5秒ごと）"
+        } : entry);
+      }
+
+      return reducedSubsequentDamageEntries(entries, level);
+    }
+
+    function entriesWithHitInfo(entries, pokemon = null, choice = null, level = 1) {
+      const profiledEntries = damageSequenceEntries(pokemon, choice, level, entries);
+      return profiledEntries.map((entry) => {
+        const hitInfo = inferHitInfo(entry);
+        const hitCountOverride = number(entry.hitCountOverride, 0);
+        return {
+          ...entry,
+          hitCount: hitCountOverride > 0 ? hitCountOverride : hitInfo.count,
+          hitNote: entry.hitNoteOverride || hitInfo.note
+        };
+      });
+    }
+
+    function selectedDamageVariantOption(pokemon, choice, level, activeEntries) {
+      const variants = damageVariantOptionsForChoice(pokemon, choice, level, activeEntries);
+      if (!variants.length) return null;
+      if (!variants.some((variant) => variant.key === state.selectedDamageVariantKey)) {
+        state.selectedDamageVariantKey = variants[0].key;
+      }
+      return variants.find((variant) => variant.key === state.selectedDamageVariantKey) || variants[0];
+    }
+
     function selectedMoveParts(choice = selectedMoveChoice()) {
       if (!choice || !choice.entries.length) return [];
       const level = number(el.levelRange.value, 15);
+      const pokemon = selectedPokemon();
       const activeEntries = activeEntriesForLevel(choice.entries, level);
-      const damageEntries = activeEntries.filter(isAutoIncludedDamageEntry);
+      const damageVariant = selectedDamageVariantOption(pokemon, choice, level, activeEntries);
+      if (damageVariant) return entriesWithHitInfo(damageVariant.entries, pokemon, choice, level);
+
+      const isSylveonHyperVoice = selectedPokemon()?.name === "Sylveon"
+        && choice.displayName === "Hyper Voice";
+      const hyperVoiceRange = el.sylveonHyperVoiceRange?.value === "far" ? /Far/i : /Near/i;
+      const damageEntries = isSylveonHyperVoice
+        ? activeEntries.filter((entry) => hyperVoiceRange.test(String(entry.label || "")))
+        : activeEntries.filter(isAutoIncludedDamageEntry);
       const usableEntries = damageEntries.length ? damageEntries : activeEntries.slice(0, 1);
-      return usableEntries.map((entry) => {
-        const hitInfo = inferHitInfo(entry);
-        return {
-          ...entry,
-          hitCount: hitInfo.count,
-          hitNote: hitInfo.note
-        };
-      });
+      return entriesWithHitInfo(usableEntries, pokemon, choice, level);
+    }
+
+    function enhancedEntryIsAdditive(entry, regularEntries) {
+      const regular = regularEntries.find((candidate) => candidate.basePartKey === entry.basePartKey);
+      if (!regular) return true;
+      const enhancedLabel = normalizedMovePartLabel(entry.label).toLowerCase();
+      const regularLabel = normalizedMovePartLabel(regular.label).toLowerCase();
+      if (enhancedLabel === regularLabel) return false;
+      return /(additional|bonus|extra|dot|burn|heal|healing|shield|execute|mark)/i.test(enhancedLabel)
+        && !/(additional|bonus|extra|dot|burn|heal|healing|shield|execute|mark)/i.test(regularLabel);
     }
 
     function activeEntriesForLevel(entries, level) {
@@ -3265,16 +4043,19 @@
       const enhancedEntries = available.filter((entry) => entry.enhanced);
       if (!enhancedEntries.length) return regularEntries;
 
-      const enhancedByPart = new Map(enhancedEntries.map((entry) => [entry.basePartKey, entry]));
+      const additiveEnhancedEntries = enhancedEntries.filter((entry) => enhancedEntryIsAdditive(entry, regularEntries));
+      const replacementEnhancedEntries = enhancedEntries.filter((entry) => !additiveEnhancedEntries.includes(entry));
+      const enhancedByPart = new Map(replacementEnhancedEntries.map((entry) => [entry.basePartKey, entry]));
       const selected = [];
       regularEntries.forEach((entry) => {
         selected.push(enhancedByPart.get(entry.basePartKey) || entry);
       });
-      enhancedEntries.forEach((entry) => {
+      replacementEnhancedEntries.forEach((entry) => {
         if (!regularEntries.some((regular) => regular.basePartKey === entry.basePartKey)) {
           selected.push(entry);
         }
       });
+      selected.push(...additiveEnhancedEntries);
       return Array.from(new Map(selected.map((entry) => [entry.partKey, entry])).values());
     }
 
@@ -3527,6 +4308,14 @@
         "なし"
       );
 
+      fillOptions(
+        el.rankingTargetSelect,
+        pokemonRows,
+        (pokemon) => pokemon.name,
+        (pokemon) => jpPokemonName(pokemon),
+        "なし"
+      );
+
       const shieldPokemonRows = pokemonRows;
       fillOptions(
         el.shieldPokemonSelect,
@@ -3579,6 +4368,7 @@
       const firstPokemon = pokemonRows.find((pokemon) => pokemon.name === "Pikachu") || pokemonRows[0];
       if (firstPokemon) el.pokemonSelect.value = firstPokemon.name;
       el.targetSelect.value = firstPokemon ? firstPokemon.name : "";
+      el.rankingTargetSelect.value = firstPokemon ? firstPokemon.name : "";
       const firstShieldPokemon = shieldPokemonRows.find((pokemon) => pokemon.name === "Blastoise") || shieldPokemonRows[0];
       if (firstShieldPokemon) el.shieldPokemonSelect.value = firstShieldPokemon.name;
       const firstHealingPokemon = healingPokemonRows.find((pokemon) => pokemon.name === "Blissey") || healingPokemonRows[0];
@@ -3596,6 +4386,7 @@
       updateAll();
       updateShieldAll();
       updateHealingAll();
+      updateDamageRanking();
     }
 
     function getRsbField(rsb, prefix, key) {
@@ -3681,15 +4472,23 @@
 
     function inferHitInfo(entry) {
       const label = String(entry.label || "");
-      const notes = String(entry.notes || "");
+      const notes = String(entry.contextText || entry.notes || "");
       const labelCount = inferHitCountFromText(label, true);
       if (labelCount.count > 1) return labelCount;
+
+      if (/\b(?:first|initial|second|third|fourth|fifth|final)\s+(?:hit|flame|star|wave|bolt|pulse|projectile|punch|kick|slash|leaf|seed|meteorite)\b/i.test(label)) {
+        return { count: 1, note: "" };
+      }
 
       if (!/\bper\b|hit|tick|wave|bolt|pulse|shockwave|projectile|quill|star|seed|leaf|flame|comet|meteor|shuriken|blade|slash|punch|kick|slap/i.test(label)) {
         return { count: 1, note: "" };
       }
 
       const textCount = inferHitCountFromText(notes, false);
+      if (textCount.count > 1 && /subsequent/i.test(label)) {
+        const count = Math.max(1, textCount.count - 1);
+        return { count, note: `${formatNumber(count, 0)}ヒット（初撃を除く）` };
+      }
       if (textCount.count > 1) return textCount;
       return { count: 1, note: "" };
     }
@@ -3714,7 +4513,7 @@
 
     function inferHitCountFromText(value, preferLabel) {
       const text = normalizeCountWords(String(value || ""));
-      const units = "(?:hits?|ticks?|blades?|shards?|stars?|leaves|leaf|seeds?|waves?|bolts?|pulses?|shockwaves?|quills?|slaps?|punches?|kicks?|flames?|projectiles?|shuriken|comets?|meteorites?|creams?|copies|targets?|diagonals?|times)";
+      const units = "(?:hits?|ticks?|attacks?|blades?|shards?|stars?|leaves|leaf|seeds?|waves?|bolts?|pulses?|shockwaves?|quills?|slaps?|punches?|kicks?|flames?|projectiles?|shuriken|comets?|meteorites?|creams?|copies|targets?|diagonals?|times)";
       const checks = [
         { regex: /\((?:[^)]*?)(\d+)\s+max[^)]*\)/i, group: 1, suffix: "最大" },
         { regex: new RegExp(`\\\((?:[^)]*?)(\\d+)\\s*-\\s*(\\d+)\\s*${units}[^)]*\\\)`, "i"), group: 2, suffix: "最大" },
@@ -3722,6 +4521,7 @@
         { regex: /\((?:[^)]*?)(\d+)\s*(?:x|×)[^)]*\)/i, group: 1 },
         { regex: new RegExp(`\\\((?:[^)]*?)(\\d+)\\s*${units}[^)]*\\\)`, "i"), group: 1 },
         { regex: new RegExp(`\\bfirst\\s+(\\d+)\\s+${units}\\b`, "i"), group: 1 },
+        { regex: new RegExp(`\\b(?:at least|minimum of)\\s+(\\d+)\\s+${units}\\b`, "i"), group: 1, suffix: "最少" },
         { regex: new RegExp(`\\b(?:up to|maximum of|max(?:imum)?)\\s+(\\d+)\\s+${units}\\b`, "i"), group: 1, suffix: "最大" },
         { regex: new RegExp(`\\b(\\d+)\\s+${units}\\b`, "i"), group: 1 }
       ];
@@ -3777,25 +4577,6 @@
       return `https://d275t8dp8rxb42.cloudfront.net/skills/${folder}/${file}.png`;
     }
 
-    function recommendedBuild(pokemon) {
-      return pokemon && Array.isArray(pokemon.builds)
-        ? pokemon.builds.find((entry) => Array.isArray(entry.held_items) || Array.isArray(entry.upgrade) || Array.isArray(entry.basic))
-        : null;
-    }
-
-    function pickSlotNode(skill, level, pokemon, upgradeIndex) {
-      if (!skill) return null;
-      const upgrades = Array.isArray(skill.upgrades) ? skill.upgrades : [];
-      if (!upgrades.length) return skill;
-
-      const firstUpgradeLevel = Math.min(...upgrades.map((upgrade) => number(upgrade.level1, 99)));
-      if (level < firstUpgradeLevel) return skill;
-
-      const build = recommendedBuild(pokemon);
-      const preferredName = build && Array.isArray(build.upgrade) ? build.upgrade[upgradeIndex] : "";
-      return upgrades.find((upgrade) => upgrade.name === preferredName) || upgrades[0] || skill;
-    }
-
     function addRsbEntries(entries, rsb, ownerName, groupName, minLevel, suffix, meta = {}) {
       if (!rsb) return;
 
@@ -3844,6 +4625,9 @@
           dmgType,
           minLevel: enhanced ? number(meta.enhancedMinLevel, minLevel) : number(minLevel, 1),
           notes,
+          contextText: [rsb.true_desc, rsb.notes, rsb.rsb_info].filter(Boolean).join(" "),
+          enhancedNotes: [rsb.enhanced_true_desc, rsb.enhanced_notes, rsb.enhanced_rsb_info].filter(Boolean).join(" "),
+          enhancedMinLevel: number(meta.enhancedMinLevel, minLevel),
           enhanced,
           partKey: prefix.key || "base",
           basePartKey: prefix.key.replace(/^enhanced_?/, "") || "base",
@@ -3860,7 +4644,6 @@
       state.moveEntries = [];
       state.moveChoices = [];
       if (!pokemon) return;
-      const level = number(el.levelRange.value, 15);
       const skills = pokemon.skills || [];
       const basic = skills.find((skill) => skill.ability === "Basic");
       const move1 = skills.find((skill) => skill.ability === "Move 1");
@@ -3920,26 +4703,28 @@
         iconName: "Attack"
       });
 
-      const move1Node = pickSlotNode(move1, level, pokemon, 0);
-      createChoice({
-        slotKey: "move1",
-        slotLabel: "技1",
-        node: move1Node,
-        rsb: move1Node && move1Node.rsb,
-        groupName: "Move 1",
-        minLevel: move1Node && (move1Node.level1 || move1Node.level || 1),
-        hideWhenNoDamage: true
+      [move1, ...((move1 && move1.upgrades) || [])].filter(Boolean).forEach((node, index) => {
+        createChoice({
+          slotKey: `move1-${index}`,
+          slotLabel: "技1",
+          node,
+          rsb: node.rsb,
+          groupName: "Move 1",
+          minLevel: node.level1 || node.level || 1,
+          hideWhenNoDamage: true
+        });
       });
 
-      const move2Node = pickSlotNode(move2, level, pokemon, 1);
-      createChoice({
-        slotKey: "move2",
-        slotLabel: "技2",
-        node: move2Node,
-        rsb: move2Node && move2Node.rsb,
-        groupName: "Move 2",
-        minLevel: move2Node && (move2Node.level1 || move2Node.level || 1),
-        hideWhenNoDamage: true
+      [move2, ...((move2 && move2.upgrades) || [])].filter(Boolean).forEach((node, index) => {
+        createChoice({
+          slotKey: `move2-${index}`,
+          slotLabel: "技2",
+          node,
+          rsb: node.rsb,
+          groupName: "Move 2",
+          minLevel: node.level1 || node.level || 1,
+          hideWhenNoDamage: true
+        });
       });
 
       createChoice({
@@ -4076,6 +4861,429 @@
       });
     }
 
+    function damageChoicesForPokemon(pokemon, level) {
+      const choices = [];
+      if (!pokemon) return choices;
+      const skills = pokemon.skills || [];
+      const basic = skills.find((skill) => skill.ability === "Basic");
+      const move1 = skills.find((skill) => skill.ability === "Move 1");
+      const move2 = skills.find((skill) => skill.ability === "Move 2");
+      const unite = skills.find((skill) => skill.ability === "Unite Move");
+
+      const createChoice = ({ slotKey, slotLabel, node, rsb, groupName, minLevel, iconName, hideWhenNoDamage = false }) => {
+        if (!node || !rsb) return;
+        const displayName = slotKey === "basic" ? "通常攻撃" : slotKey === "boosted" ? "強化攻撃" : node.name || slotLabel;
+        const iconUrl = skillIconUrl(pokemon.name, iconName || node.name || "Attack");
+        const entries = [];
+        addRsbEntries(entries, rsb, displayName, groupName || node.ability || "", minLevel || node.level1 || node.level || 1, "", {
+          slotKey,
+          slotLabel,
+          displayName,
+          iconUrl,
+          enhancedMinLevel: node.level2 || minLevel || node.level1 || node.level || 1
+        });
+        if (!entries.length && hideWhenNoDamage) return;
+        entries.forEach((entry, index) => {
+          entry.id = `${slotKey}-${index}`;
+          entry.slotKey = slotKey;
+          entry.slotLabel = slotLabel;
+          entry.displayName = displayName;
+          entry.iconUrl = iconUrl;
+        });
+        const learnLevel = entries.length
+          ? Math.min(...entries.map((entry) => number(entry.minLevel, minLevel || 1)))
+          : number(minLevel || node.level1 || node.level || 1, 1);
+        choices.push({
+          slotKey,
+          slotLabel,
+          displayName,
+          iconUrl,
+          minLevel: learnLevel,
+          entries,
+          disabled: entries.length === 0 || level < learnLevel
+        });
+      };
+
+      createChoice({ slotKey: "basic", slotLabel: "通常", node: basic, rsb: basic && basic.rsb, groupName: "Basic", minLevel: 1, iconName: "Attack" });
+      createChoice({ slotKey: "boosted", slotLabel: "通常強化", node: basic, rsb: basic && basic.boosted_rsb, groupName: "Basic", minLevel: 1, iconName: "Attack" });
+      [move1, ...((move1 && move1.upgrades) || [])].filter(Boolean).forEach((node, index) => {
+        createChoice({ slotKey: `move1-${index}`, slotLabel: "技1", node, rsb: node.rsb, groupName: "Move 1", minLevel: node.level1 || node.level || 1, hideWhenNoDamage: true });
+      });
+      [move2, ...((move2 && move2.upgrades) || [])].filter(Boolean).forEach((node, index) => {
+        createChoice({ slotKey: `move2-${index}`, slotLabel: "技2", node, rsb: node.rsb, groupName: "Move 2", minLevel: node.level1 || node.level || 1, hideWhenNoDamage: true });
+      });
+      createChoice({ slotKey: "unite", slotLabel: "ユナイト技", node: unite, rsb: unite && unite.rsb, groupName: "Unite Move", minLevel: unite && unite.level || 1, hideWhenNoDamage: true });
+      return choices;
+    }
+
+    function rankingPartsForChoice(pokemon, choice, level, rangeVariant = "") {
+      if (!choice || !choice.entries.length || level < number(choice.minLevel, 1)) return [];
+      const activeEntries = activeEntriesForLevel(choice.entries, level);
+      const isSylveonHyperVoice = pokemon && pokemon.name === "Sylveon" && choice.displayName === "Hyper Voice";
+      const damageEntries = isSylveonHyperVoice && rangeVariant
+        ? activeEntries.filter((entry) => (rangeVariant === "far" ? /Far/i : /Near/i).test(String(entry.label || "")))
+        : activeEntries.filter(isAutoIncludedDamageEntry);
+      const usableEntries = damageEntries.length ? damageEntries : activeEntries.slice(0, 1);
+      return entriesWithHitInfo(usableEntries, pokemon, choice, level);
+    }
+
+    function rankingVariantsForChoice(pokemon, choice, level) {
+      if (!choice || !choice.entries.length || level < number(choice.minLevel, 1)) return [];
+      const activeEntries = activeEntriesForLevel(choice.entries, level);
+      const damageVariants = damageVariantOptionsForChoice(pokemon, choice, level, activeEntries);
+      if (damageVariants.length) {
+        return damageVariants.map((variant) => ({
+          key: variant.key,
+          label: variant.label,
+          parts: entriesWithHitInfo(variant.entries, pokemon, choice, level)
+        })).filter((variant) => variant.parts.length);
+      }
+
+      if (pokemon && pokemon.name === "Sylveon" && choice.displayName === "Hyper Voice") {
+        return [
+          { key: "near", label: "近距離", parts: rankingPartsForChoice(pokemon, choice, level, "near") },
+          { key: "far", label: "遠距離", parts: rankingPartsForChoice(pokemon, choice, level, "far") }
+        ].filter((variant) => variant.parts.length);
+      }
+      const parts = rankingPartsForChoice(pokemon, choice, level);
+      return parts.length ? [{ key: "", label: "", parts }] : [];
+    }
+
+    function recommendedDamageItemRows(pokemon) {
+      const build = pokemon && Array.isArray(pokemon.builds) ? pokemon.builds.find((entry) => Array.isArray(entry.held_items)) : null;
+      const wikiItems = pokemon ? DAMAGE_RECOMMENDED_ITEMS[pokemon.name] : null;
+      const itemNames = (wikiItems || (build ? build.held_items : []) || []).slice(0, 3);
+      return itemNames.map((name, slot) => {
+        const item = state.heldItems.find((entry) => entry.name === name);
+        return item ? { item, level: 40, slot } : null;
+      }).filter(Boolean);
+    }
+
+    function hasItemInRows(itemRows, itemName) {
+      return itemRows.some((entry) => entry.item.name === itemName);
+    }
+
+    function effectTierForRows(itemRows, itemName) {
+      const row = itemRows.find((entry) => entry.item.name === itemName);
+      if (!row) return 0;
+      const raw = row.level < 10 ? row.item.level1 : row.level < 20 ? row.item.level10 : row.item.level20;
+      return number(String(raw || "").replace("%", ""), 0);
+    }
+
+    function computeRankingAttackerStats(pokemon, level, itemRows) {
+      const baseStats = pokemon ? pokemonStats(pokemon.name, level) : null;
+      const baseAttack = number(baseStats && baseStats.attack, 0);
+      const baseSpAttack = number(baseStats && baseStats.sp_attack, 0);
+      const emblemPreset = emblemPresetFromBuild(pokemon);
+      const emblem = emblemBonusesFromSummary(emblemPreset, baseAttack, baseSpAttack);
+      const bonuses = { attackFlat: 0, spAttackFlat: 0, critRate: 0, critDamage: 0 };
+
+      itemRows.forEach(({ item, level: itemLevel }) => {
+        (item.stats || []).forEach((stat) => {
+          const value = itemLevelValue(itemLevel, stat);
+          const label = stat.label;
+          if (label === "Attack") bonuses.attackFlat += value;
+          if (label === "Sp. Attack") bonuses.spAttackFlat += value;
+          if (label === "Critical-Hit Rate") bonuses.critRate += value;
+          if (label === "Critical-Hit Damage Modifier") bonuses.critDamage += value;
+        });
+      });
+
+      let attackFlat = bonuses.attackFlat + emblem.attackFlat;
+      let spAttackFlat = bonuses.spAttackFlat + emblem.spAttackFlat;
+      let attackPercent = 0;
+      let spAttackPercent = 0;
+      if (hasItemInRows(itemRows, "Wise Glasses")) spAttackPercent += effectTierForRows(itemRows, "Wise Glasses");
+
+      const attackBeforePercent = baseAttack + attackFlat;
+      const spAttackBeforePercent = baseSpAttack + spAttackFlat;
+      return {
+        attack: attackBeforePercent * (1 + attackPercent / 100) + emblem.attackSetBonus,
+        spAttack: spAttackBeforePercent * (1 + spAttackPercent / 100) + emblem.spAttackSetBonus,
+        attackFlat,
+        spAttackFlat,
+        attackPercent,
+        spAttackPercent,
+        emblem,
+        emblemPreset,
+        critDamageMultiplier: 2 + bonuses.critDamage / 100
+      };
+    }
+
+    function rankingIntrinsicDefenseModifiers(pokemonName, moveName, part) {
+      const modifiers = emptyDefenseModifiers();
+      const label = String(part && part.label || "");
+      if ((pokemonName === "Absol" && moveName === "Feint")
+        || (pokemonName === "Armarouge" && moveName === "Psyshock")
+        || (pokemonName === "Ceruledge" && moveName === "Phantom Force")
+        || (pokemonName === "Azumarill" && moveName === "Aqua Tail" && /Long Range/i.test(label))
+        || (pokemonName === "Tyranitar" && moveName === "Sand Tomb" && /AoE|Tick/i.test(label))
+        || (pokemonName === "Tyranitar" && moveName === "Ancient Power" && /Second Hit/i.test(label))) {
+        if (pokemonName === "Armarouge") modifiers.spDefenseIgnorePercent = 35;
+        else modifiers.defenseIgnorePercent = 100;
+      }
+      if (pokemonName === "Inteleon" && moveName === "Snipe Shot") {
+        modifiers.spDefenseIgnorePercent = /Far/i.test(label) ? 25 : /Mid/i.test(label) ? 20 : 15;
+      }
+      return modifiers;
+    }
+
+    function rankingDefenseSequenceState(pokemonName, moveName, level) {
+      const effects = [];
+      const add = (key, perStack, maxStacks, appliesTo = "") => {
+        effects.push({ key, perStack, maxStacks, initial: 0, current: 0, appliesTo });
+      };
+      if (pokemonName === "Sylveon" && moveName === "Hyper Voice") add("spDefenseReductionPercent", 20, 4, "SpAtk");
+      if (pokemonName === "Gardevoir" && moveName === "Psychic") add("spDefenseReductionPercent", 20, 3, "SpAtk");
+      if (pokemonName === "Mr.Mime" && moveName === "Psychic") add("spDefenseReductionPercent", 5, 8, "SpAtk");
+      if (pokemonName === "Venusaur" && moveName === "Sludge Bomb") add("spDefenseReductionPercent", 50, 1, "SpAtk");
+      if (pokemonName === "Chandelure") add("spDefenseIgnorePercent", 5, 6, "SpAtk");
+      if (pokemonName === "Raichu" && moveName === "Stored Power" && level >= 11) add("spDefenseReductionPercent", 10, 3, "SpAtk");
+      return effects;
+    }
+
+    function rankingBaseDefenseModifiers(pokemon, itemRows) {
+      const modifiers = emptyDefenseModifiers();
+      if (hasItemInRows(itemRows, "Slick Spoon")) {
+        modifiers.spDefenseIgnorePercent += effectTierForRows(itemRows, "Slick Spoon");
+      }
+      if (pokemon && pokemon.name === "Mega-Gyarados") {
+        modifiers.defenseIgnorePercent += 30;
+      }
+      return modifiers;
+    }
+
+    function rankingDefenseDetails(type, targetDefense, targetSpDefense, modifiers) {
+      const isPhysical = String(type).trim() === "Atk";
+      const base = isPhysical ? targetDefense : targetSpDefense;
+      const reductionPercent = Math.min(100, Math.max(0, isPhysical ? modifiers.defenseReductionPercent : modifiers.spDefenseReductionPercent));
+      const reductionFlat = Math.max(0, isPhysical ? modifiers.defenseReductionFlat : modifiers.spDefenseReductionFlat);
+      const ignorePercent = Math.min(100, Math.max(0, isPhysical ? modifiers.defenseIgnorePercent : modifiers.spDefenseIgnorePercent));
+      const penetrationFlat = Math.max(0, isPhysical ? modifiers.defensePenetrationFlat : modifiers.spDefensePenetrationFlat);
+      const afterReduction = (base - reductionFlat) * (1 - reductionPercent / 100);
+      const afterPenetration = afterReduction - penetrationFlat;
+      const effective = Math.max(-599, afterPenetration * (1 - ignorePercent / 100));
+      return { base, effective };
+    }
+
+    function calculateRankingDamage({ pokemon, choice, parts, level, stats, itemRows, targetDefense, targetSpDefense, singleHit = false }) {
+      const sequenceState = rankingDefenseSequenceState(pokemon.name, choice.displayName, level);
+      const yveltalDamageActive = pokemon.name === "Yveltal";
+      const yveltalAppliesMarks = yveltalDamageActive && choice.slotKey !== "basic";
+      let yveltalMarks = 0;
+      let totalRaw = 0;
+      let totalReduced = 0;
+      let totalHits = 0;
+      let bestSingleRaw = 0;
+      let bestSingleReduced = 0;
+
+      parts.forEach((part) => {
+        const moveStat = String(part.dmgType).trim() === "Atk" ? stats.attack : stats.spAttack;
+        const statComponent = Math.floor(part.ratio * moveStat / 100);
+        const levelComponent = part.slider * (level - 1);
+        const formulaBase = Math.max(0, Math.floor(statComponent + levelComponent + part.base));
+        const damageScale = Math.max(0, number(part.damageScale, 1));
+        const perHitBase = Math.max(0, Math.floor(formulaBase * damageScale));
+        const hitCount = Math.max(1, number(part.hitCount, 1));
+        totalHits += hitCount;
+
+        for (let hitIndex = 0; hitIndex < hitCount; hitIndex += 1) {
+          const markMultiplier = yveltalDamageActive ? 1 + yveltalMarks * 0.03 : 1;
+          const afterMultiplier = Math.max(0, Math.floor(perHitBase * markMultiplier));
+          totalRaw += afterMultiplier;
+          const modifiers = rankingBaseDefenseModifiers(pokemon, itemRows);
+          addDefenseModifiers(modifiers, rankingIntrinsicDefenseModifiers(pokemon.name, choice.displayName, part));
+          addDefenseModifiers(modifiers, sequenceDefenseModifiers(sequenceState));
+          const defense = rankingDefenseDetails(part.dmgType, targetDefense, targetSpDefense, modifiers);
+          const reduced = Math.floor(afterMultiplier * 600 / (600 + defense.effective));
+          totalReduced += reduced;
+          if (reduced > bestSingleReduced || (reduced === bestSingleReduced && afterMultiplier > bestSingleRaw)) {
+            bestSingleRaw = afterMultiplier;
+            bestSingleReduced = reduced;
+          }
+          if (yveltalAppliesMarks) yveltalMarks = Math.min(5, yveltalMarks + 1);
+          advanceDefenseSequence(sequenceState, part.dmgType);
+        }
+      });
+
+      if (singleHit) {
+        return { totalRaw: bestSingleRaw, totalReduced: bestSingleReduced, totalHits: bestSingleReduced > 0 || bestSingleRaw > 0 ? 1 : 0 };
+      }
+      return { totalRaw, totalReduced, totalHits };
+    }
+
+    function rankingSlotMatches(choice, filter) {
+      if (filter === "all") return true;
+      if (filter === "move") return choice.slotKey.startsWith("move1") || choice.slotKey.startsWith("move2") || choice.slotKey === "unite";
+      if (filter === "basic") return choice.slotKey === "basic";
+      if (filter === "boosted") return choice.slotKey === "boosted";
+      if (filter === "move1") return choice.slotKey.startsWith("move1");
+      if (filter === "move2") return choice.slotKey.startsWith("move2");
+      if (filter === "unite") return choice.slotKey === "unite";
+      return true;
+    }
+
+    function loadRankingColumnWidths() {
+      let stored = {};
+      try {
+        stored = JSON.parse(localStorage.getItem(RANKING_COLUMN_STORAGE_KEY) || "{}") || {};
+      } catch (_) {
+        stored = {};
+      }
+      return Object.fromEntries(Object.entries(RANKING_COLUMN_DEFAULT_WIDTHS).map(([key, width]) => {
+        const minWidth = RANKING_COLUMN_MIN_WIDTHS[key] || 48;
+        return [key, clamp(number(stored[key], width), minWidth, 720)];
+      }));
+    }
+
+    function saveRankingColumnWidths(widths) {
+      try {
+        localStorage.setItem(RANKING_COLUMN_STORAGE_KEY, JSON.stringify(widths));
+      } catch (_) {
+        // Ignore storage failures; resizing still works for the current page.
+      }
+    }
+
+    function applyRankingColumnWidths(widths = loadRankingColumnWidths()) {
+      const table = document.querySelector(".ranking-table");
+      if (!table) return;
+      let totalWidth = 0;
+      Object.entries(RANKING_COLUMN_DEFAULT_WIDTHS).forEach(([key, defaultWidth]) => {
+        const width = clamp(number(widths[key], defaultWidth), RANKING_COLUMN_MIN_WIDTHS[key] || 48, 720);
+        const col = table.querySelector(`col[data-ranking-column="${key}"]`);
+        if (col) col.style.width = `${width}px`;
+        totalWidth += width;
+      });
+      const tableWidth = Math.max(860, totalWidth);
+      table.style.width = `${tableWidth}px`;
+      table.style.minWidth = `${tableWidth}px`;
+    }
+
+    function updateRankingColumnWidth(column, width) {
+      if (!RANKING_COLUMN_DEFAULT_WIDTHS[column]) return;
+      const widths = loadRankingColumnWidths();
+      widths[column] = clamp(number(width, RANKING_COLUMN_DEFAULT_WIDTHS[column]), RANKING_COLUMN_MIN_WIDTHS[column] || 48, 720);
+      saveRankingColumnWidths(widths);
+      applyRankingColumnWidths(widths);
+    }
+
+    function wireRankingColumnResizers() {
+      applyRankingColumnWidths();
+      document.querySelectorAll(".ranking-col-resizer").forEach((handle) => {
+        handle.addEventListener("pointerdown", (event) => {
+          const column = handle.dataset.rankingColumn;
+          if (!column || !RANKING_COLUMN_DEFAULT_WIDTHS[column]) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const widths = loadRankingColumnWidths();
+          const startX = event.clientX;
+          const startWidth = widths[column] || RANKING_COLUMN_DEFAULT_WIDTHS[column];
+          document.body.classList.add("ranking-column-resizing");
+
+          const onPointerMove = (moveEvent) => {
+            updateRankingColumnWidth(column, startWidth + moveEvent.clientX - startX);
+          };
+          const onPointerUp = () => {
+            document.body.classList.remove("ranking-column-resizing");
+            document.removeEventListener("pointermove", onPointerMove);
+          };
+
+          document.addEventListener("pointermove", onPointerMove);
+          document.addEventListener("pointerup", onPointerUp, { once: true });
+        });
+      });
+    }
+
+    function updateDamageRanking() {
+      if (!el.rankingBody) return;
+      const level = number(el.rankingLevelRange.value, 15);
+      const targetLevel = number(el.rankingTargetLevelRange.value, 15);
+      el.rankingLevelValue.textContent = level;
+      el.rankingTargetLevelValue.textContent = targetLevel;
+      const targetPokemon = state.pokemon.find((pokemon) => pokemon.name === el.rankingTargetSelect.value);
+      const targetStats = targetPokemon ? pokemonStats(targetPokemon.name, targetLevel) : null;
+      const targetDefense = number(targetStats && targetStats.defense, 0);
+      const targetSpDefense = number(targetStats && targetStats.sp_defense, 0);
+      const filter = el.rankingSlotFilter.value;
+      const limit = number(el.rankingLimitSelect.value, 50);
+      const singleHit = Boolean(el.rankingSingleHit.checked);
+      const rows = [];
+
+      state.pokemon.filter((pokemon) => !pokemon.exclude_stats).forEach((pokemon) => {
+        const itemRows = recommendedDamageItemRows(pokemon);
+        const stats = computeRankingAttackerStats(pokemon, level, itemRows);
+        damageChoicesForPokemon(pokemon, level)
+          .filter((choice) => !choice.disabled && rankingSlotMatches(choice, filter))
+          .forEach((choice) => {
+            rankingVariantsForChoice(pokemon, choice, level).forEach((variant) => {
+              const result = calculateRankingDamage({
+                pokemon,
+                choice,
+                parts: variant.parts,
+                level,
+                stats,
+                itemRows,
+                targetDefense,
+                targetSpDefense,
+                singleHit
+              });
+              rows.push({
+                pokemon,
+                choice,
+                variant,
+                itemRows,
+                totalRaw: result.totalRaw,
+                totalReduced: result.totalReduced,
+                totalHits: result.totalHits
+              });
+            });
+          });
+      });
+
+      rows.sort((a, b) => b.totalReduced - a.totalReduced || b.totalRaw - a.totalRaw || jpPokemonName(a.pokemon).localeCompare(jpPokemonName(b.pokemon), "ja"));
+      state.rankingRows = rows;
+      const visibleRows = rows.slice(0, limit);
+      if (!visibleRows.length) {
+        el.rankingBody.innerHTML = `<tr><td colspan="7">現在の条件で表示できる技がありません。</td></tr>`;
+      } else {
+        el.rankingBody.innerHTML = visibleRows.map((row, index) => {
+          const moveName = `${jpMoveName(row.choice.displayName)}${row.variant.label ? `（${row.variant.label}）` : ""}`;
+          const moveNote = singleHit ? "1ヒット想定" : "1回分・全ヒット想定";
+          const itemIcons = row.itemRows.length
+            ? row.itemRows.map((entry) => `<img src="${escapeHtml(heldItemIconUrl(entry.item.name))}" alt="${escapeHtml(jpItemName(entry.item))}" title="${escapeHtml(jpItemName(entry.item))}" onerror="this.onerror=null;this.src='${escapeHtml(brokenImageUrl())}';">`).join("")
+            : `<span class="ranking-item-empty" title="持ち物なし">なし</span>`;
+          return `<tr>
+            <td class="ranking-rank">${index + 1}</td>
+            <td>
+              <div class="ranking-pokemon">
+                <img src="${escapeHtml(pokemonThumbUrl(row.pokemon.name))}" alt="">
+                <span class="ranking-name">${escapeHtml(jpPokemonName(row.pokemon))}</span>
+              </div>
+            </td>
+            <td>
+              <div class="ranking-move">
+                <img src="${escapeHtml(row.choice.iconUrl || brokenImageUrl())}" alt="">
+                <span><span class="ranking-name">${escapeHtml(moveName)}</span><span class="ranking-note">${escapeHtml(moveNote)}</span></span>
+              </div>
+            </td>
+            <td class="ranking-number">${formatNumber(row.totalHits, 0)}</td>
+            <td class="ranking-number">${formatNumber(row.totalRaw, 0)}</td>
+            <td class="ranking-number">${formatNumber(row.totalReduced, 0)}</td>
+            <td>
+              <div class="ranking-assumption">
+                <span class="ranking-item-icons" aria-label="持ち物">${itemIcons}</span>
+              </div>
+            </td>
+          </tr>`;
+        }).join("");
+      }
+
+      const targetText = targetPokemon
+        ? `Lv${targetLevel}（防御${formatNumber(targetDefense, 0)} / 特防${formatNumber(targetSpDefense, 0)}）`
+        : "相手なし（防御0 / 特防0）";
+      el.rankingSummary.textContent = `攻撃側Lv${level} / 相手: ${targetText} / ${singleHit ? "単発（最大1ヒット）" : "技1回分"} / 推奨持ち物Lv40を使用 / 条件付き追加ダメージ・急所は未反映 / ${formatNumber(visibleRows.length, 0)}件表示（全${formatNumber(rows.length, 0)}件）`;
+    }
+
     function updateShieldMoveOptions() {
       const pokemon = selectedShieldPokemon();
       state.shieldMoveEntries = [];
@@ -4094,8 +5302,10 @@
       const unite = skills.find((skill) => skill.ability === "Unite Move");
 
       const createChoice = ({ slotKey, slotLabel, node, rsb, groupName, minLevel, iconName }) => {
-        if (!node || !rsb) return;
-        const displayName = slotKey === "basic" ? "通常攻撃" : slotKey === "boosted" ? "強化攻撃" : node.name || slotLabel;
+        const fireSpinAttackTrigger = pokemon.name === "Armarouge" && (slotKey === "basic" || slotKey === "boosted");
+        if (!node || (!rsb && !fireSpinAttackTrigger)) return;
+        const baseDisplayName = slotKey === "basic" ? "通常攻撃" : slotKey === "boosted" ? "強化攻撃" : node.name || slotLabel;
+        const displayName = fireSpinAttackTrigger ? `${baseDisplayName}（ほのおのうず中）` : baseDisplayName;
         const iconUrl = skillIconUrl(pokemon.name, iconName || node.name || "Attack");
         const entries = [];
         addRsbEntries(entries, rsb, displayName, groupName || node.ability || "", minLevel || node.level1 || node.level || 1, "", {
@@ -4110,7 +5320,27 @@
         const itemShieldEntries = [];
         const choiceMinLevel = number(minLevel || node.level1 || node.level || 1, 1);
 
-        if (hasShieldItem("Resonant Guard") && damageEntries.length) {
+        if (fireSpinAttackTrigger) {
+          shieldEntries.push({
+            id: `shield-${slotKey}-fire-spin-trigger`,
+            ownerName: displayName,
+            groupName: "Basic",
+            label: "Shield - ほのおのうず発動中",
+            ratio: 20,
+            slider: 0,
+            base: 24,
+            dmgType: "SpAtk",
+            minLevel: 5,
+            enhanced: false,
+            targetScope: "self",
+            conditionalSource: "fire-spin",
+            partKey: "fire-spin-trigger",
+            basePartKey: "fire-spin-trigger"
+          });
+        }
+
+        const canTriggerResonantGuard = slotKey !== "basic" && slotKey !== "boosted" && damageEntries.length > 0;
+        if (hasShieldItem("Resonant Guard") && canTriggerResonantGuard) {
           itemShieldEntries.push({
             id: `shield-${slotKey}-resonant-guard`,
             ownerName: displayName,
@@ -5114,6 +6344,33 @@
       return rows;
     }
 
+    function updateDamageVariantControls() {
+      const pokemon = selectedPokemon();
+      const choice = selectedMoveChoice();
+      const level = number(el.levelRange.value, 15);
+      const variants = damageVariantOptionsForChoice(pokemon, choice, level);
+      if (!variants.length) {
+        el.conditionDamageVariant.hidden = true;
+        el.damageVariantSelect.innerHTML = "";
+        state.selectedDamageVariantKey = "";
+        return;
+      }
+
+      el.conditionDamageVariant.hidden = false;
+      if (!variants.some((variant) => variant.key === state.selectedDamageVariantKey)) {
+        state.selectedDamageVariantKey = variants[0].key;
+      }
+      const currentKey = state.selectedDamageVariantKey;
+      el.damageVariantSelect.replaceChildren(...variants.map((variant) => {
+        const option = document.createElement("option");
+        option.value = variant.key;
+        option.textContent = variant.label;
+        option.selected = variant.key === currentKey;
+        return option;
+      }));
+      el.damageVariantSelect.value = currentKey;
+    }
+
     function updateConditionVisibility() {
       const names = selectedItemNames();
       const map = {
@@ -5131,6 +6388,9 @@
         document.getElementById(id).hidden = !names.has(itemName);
       });
       el.conditionYveltalMarks.hidden = selectedPokemon()?.name !== "Yveltal";
+      el.conditionSylveonHyperVoice.hidden = !(selectedPokemon()?.name === "Sylveon"
+        && selectedMoveChoice()?.displayName === "Hyper Voice");
+      updateDamageVariantControls();
       renderDefenseEffectControls();
     }
 
@@ -5226,8 +6486,8 @@
       return 0;
     }
 
-    function selectedEmblemBonuses(baseAttack, baseSpAttack) {
-      const summary = state.emblemFallback || summarizeEmblemRows(selectedEmblemRows());
+    function emblemBonusesFromSummary(summary, baseAttack, baseSpAttack) {
+      summary = summary || {};
       const equippedCount = clamp(number(summary.equippedCount, 0), 0, EMBLEM_SLOT_COUNT);
       const colorCounts = Object.fromEntries(state.emblemSets.map((set) => [set.name, 0]));
       Object.entries(summary.colorCounts || {}).forEach(([color, count]) => {
@@ -5280,6 +6540,10 @@
         flatStats,
         lines
       };
+    }
+
+    function selectedEmblemBonuses(baseAttack, baseSpAttack) {
+      return emblemBonusesFromSummary(state.emblemFallback || summarizeEmblemRows(selectedEmblemRows()), baseAttack, baseSpAttack);
     }
 
     function renderEmblemSummary(emblem) {
@@ -5643,7 +6907,7 @@
       if (pokemonName === "Azumarill" && moveName === "Aqua Tail") notes.push("アクアテール: 遠距離ヒットは防御を100%無視");
       if (pokemonName === "Tyranitar" && moveName === "Sand Tomb") notes.push("すなじごく: 砂塵の継続ダメージは防御を100%無視");
       if (pokemonName === "Tyranitar" && moveName === "Ancient Power") notes.push("げんしのちから: 2段目は防御を100%無視");
-      if (pokemonName === "Sylveon" && moveName === "Hyper Voice") notes.push("ハイパーボイス: 命中ごとに特防-20%（最大80%）");
+      if (pokemonName === "Sylveon" && moveName === "Hyper Voice") notes.push("ハイパーボイス: 6ヒット、命中ごとに特防-20%（最大80%）");
       if (pokemonName === "Gardevoir" && moveName === "Psychic") notes.push("サイコキネシス: 命中ごとに特防-20%（最大60%）");
       if (pokemonName === "Mr.Mime" && moveName === "Psychic") notes.push("サイコキネシス: 命中ごとに特防-5%（最大40%）");
       if (pokemonName === "Venusaur" && moveName === "Sludge Bomb") notes.push("ヘドロばくだん: 初段後の継続ダメージに特防-50%");
@@ -5764,7 +7028,15 @@
       const parts = selectedShieldParts(choice);
       const level = number(el.shieldLevelRange.value, 15);
       const stats = computeShieldStats();
-      const count = clamp(number(el.shieldCount.value, 1), 1, 20);
+      const fireSpinAttackTrigger = parts.some((part) => part.conditionalSource === "fire-spin");
+      const maxCount = fireSpinAttackTrigger ? 6 : 20;
+      el.shieldCount.max = String(maxCount);
+      el.shieldCount.disabled = fireSpinAttackTrigger;
+      el.shieldCountLabel.textContent = fireSpinAttackTrigger ? "シールド獲得回数（自動）" : "回数/対象数";
+      el.shieldCount.value = fireSpinAttackTrigger
+        ? "6"
+        : String(clamp(number(el.shieldCount.value, 1), 1, maxCount));
+      const count = number(el.shieldCount.value, 1);
       const hasRescueHood = hasShieldItem("Rescue Hood");
       const rescueHoodPercent = hasRescueHood
         ? shieldEffectTierFor("Rescue Hood")
@@ -5810,8 +7082,18 @@
       });
 
       const baseShield = results.reduce((sum, result) => sum + result.value, 0);
-      const selfPerApplication = Math.max(0, Math.floor(baseShield * selfShieldMultiplier + shieldFlat));
-      const allyPerApplication = Math.max(0, Math.floor(baseShield * allyShieldMultiplier + shieldFlat));
+      const selfBaseShield = results
+        .filter((result) => result.part.targetScope !== "ally")
+        .reduce((sum, result) => sum + result.value, 0);
+      const allyBaseShield = results
+        .filter((result) => result.part.targetScope !== "self")
+        .reduce((sum, result) => sum + result.value, 0);
+      const selfPerApplication = selfBaseShield > 0
+        ? Math.max(0, Math.floor(selfBaseShield * selfShieldMultiplier + shieldFlat))
+        : 0;
+      const allyPerApplication = allyBaseShield > 0
+        ? Math.max(0, Math.floor(allyBaseShield * allyShieldMultiplier + shieldFlat))
+        : 0;
       const selfTotalShield = selfPerApplication * count;
       const allyTotalShield = allyPerApplication * count;
       const moveTitle = `${choice.slotLabel}${choice.displayName ? ` - ${jpMoveName(choice.displayName)}` : ""}`;
@@ -5854,7 +7136,9 @@
       const rows = [
         ["計算対象", `${moveTitle} / ${results.length > 1 ? "複数項目を合算" : jpMoveLabel(results[0].part.label)}`],
         ...partRows,
-        ["基礎シールド", formatNumber(baseShield, 0)],
+        ["基礎シールド", selfBaseShield === allyBaseShield
+          ? formatNumber(baseShield, 0)
+          : `自分 ${formatNumber(selfBaseShield, 0)} / 味方 ${formatNumber(allyBaseShield, 0)}`],
         ["自分: シールド補正", `×${formatNumber(selfShieldMultiplier, 3)} / 固定 ${formatNumber(shieldFlat, 1)}`],
         ["自分: 1回あたり", formatNumber(selfPerApplication, 0)],
         ["自分: 合計シールド", formatNumber(selfTotalShield, 0)],
@@ -5864,6 +7148,13 @@
         ["味方: 合計シールド", formatNumber(allyTotalShield, 0)],
         ["回数/対象数", formatNumber(count, 0)],
       ];
+
+      if (fireSpinAttackTrigger) {
+        rows.splice(1, 0,
+          ["計算前提", "ほのおのうず発動後、継続ダメージと通常攻撃（強化含む）がすべて命中し、上限6回分のシールドを獲得"],
+          ["付与対象", "自分のみ（味方へのシールドは発生しない）"]
+        );
+      }
 
       if (stats.hpFlat || stats.attackFlat || stats.attackPercent || stats.spAttackFlat || stats.spAttackPercent) {
         rows.splice(1, 0, ["能力補正", `最大HP +${formatNumber(stats.hpFlat, 0)} / 攻撃 +${formatNumber(stats.attackFlat, 1)} / 攻撃 +${formatNumber(stats.attackPercent, 1)}% / 特攻 +${formatNumber(stats.spAttackFlat, 1)} / 特攻 +${formatNumber(stats.spAttackPercent, 1)}%`]);
@@ -6058,7 +7349,9 @@
         const levelComponent = part.slider * (level - 1);
         const baseComponent = part.base;
         const hitCount = Math.max(1, number(part.hitCount, 1));
-        const perHitBase = Math.max(0, Math.floor(statComponent + levelComponent + baseComponent));
+        const formulaBase = Math.max(0, Math.floor(statComponent + levelComponent + baseComponent));
+        const damageScale = Math.max(0, number(part.damageScale, 1));
+        const perHitBase = Math.max(0, Math.floor(formulaBase * damageScale));
         const perHitAfterCrit = el.criticalHit.checked ? Math.floor(perHitBase * stats.critDamageMultiplier) : perHitBase;
         const yveltalHitDamages = [];
         let totalAfterCrit = 0;
@@ -6066,6 +7359,7 @@
         let totalReduced = 0;
         let perHitAfterMultiplier = 0;
         const effectiveDefenses = [];
+        const reducedHitDamages = [];
 
         for (let hitIndex = 0; hitIndex < hitCount; hitIndex += 1) {
           const markMultiplier = yveltalDamageActive ? 1 + yveltalMarks * 0.03 : 1;
@@ -6078,7 +7372,9 @@
           const hitDefenseModifiers = addDefenseModifiers(intrinsicDefenseModifiers(part), sequenceDefenseModifiers(defenseSequenceState));
           const hitDefense = targetDefenseDetails(part.dmgType, hitDefenseModifiers);
           effectiveDefenses.push(hitDefense.effective);
-          totalReduced += Math.floor(afterMultiplier * 600 / (600 + hitDefense.effective));
+          const reducedHitDamage = Math.floor(afterMultiplier * 600 / (600 + hitDefense.effective));
+          reducedHitDamages.push(reducedHitDamage);
+          totalReduced += reducedHitDamage;
           if (yveltalAppliesMarks) yveltalMarks = Math.min(5, yveltalMarks + 1);
           advanceDefenseSequence(defenseSequenceState, part.dmgType);
         }
@@ -6090,6 +7386,8 @@
           statComponent,
           levelComponent,
           baseComponent,
+          formulaBase,
+          damageScale,
           hitCount,
           perHitBase,
           perHitAfterCrit,
@@ -6098,7 +7396,8 @@
           totalAfterCrit,
           totalRaw,
           totalReduced,
-          effectiveDefenses
+          effectiveDefenses,
+          reducedHitDamages
         };
       });
 
@@ -6128,7 +7427,10 @@
         const hitText = hasYveltalAdjustment
           ? ` / はかい補正 ${result.yveltalHitDamages.join(" + ")} = ${formatNumber(result.totalAfterCrit, 0)}`
           : result.hitCount > 1 ? ` × ${formatNumber(result.hitCount, 0)}ヒット = ${formatNumber(result.totalAfterCrit, 0)}` : "";
-        el.formulaText.textContent = `${moveTitle}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (Lv${level} - 1) + ${result.part.base} = ${result.perHitBase}${hitText}（各ヒットで小数点以下は切り捨て）`;
+        const scaleText = result.damageScale !== 1
+          ? ` = ${result.formulaBase} × ${formatNumber(result.damageScale * 100, 1)}% = ${result.perHitBase}`
+          : ` = ${result.perHitBase}`;
+        el.formulaText.textContent = `${moveTitle}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (Lv${level} - 1) + ${result.part.base}${scaleText}${hitText}（各ヒットで小数点以下は切り捨て）`;
       } else {
         const totalHits = moveResults.reduce((sum, result) => sum + result.hitCount, 0);
         el.formulaText.textContent = `${moveTitle}: ${moveResults.length}項目 / ${formatNumber(totalHits, 0)}ヒットを合算（各ヒットで小数点以下は切り捨て）`;
@@ -6155,9 +7457,15 @@
           ? ` / はかい補正 ${result.yveltalHitDamages.join(" + ")}`
           : "";
         const critText = el.criticalHit.checked ? ` / 急所後 ${result.perHitAfterCrit}` : "";
+        const reducedHitsText = result.hitCount > 1 && new Set(result.effectiveDefenses).size > 1
+          ? ` / 防御後 ${result.reducedHitDamages.join(" + ")} = ${formatNumber(result.totalReduced, 0)}`
+          : "";
+        const scaleText = result.damageScale !== 1
+          ? ` = ${result.formulaBase} × ${formatNumber(result.damageScale * 100, 1)}% = ${result.perHitBase}`
+          : ` = ${result.perHitBase}`;
         return [
           `技本体 ${index + 1}`,
-          `${jpMoveLabel(result.part.label)}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (${level} - 1) + ${result.part.base} = ${result.perHitBase}${critText}${hitText}${markText} -> 防御前 ${formatNumber(result.totalRaw, 0)} / 防御後 ${formatNumber(result.totalReduced, 0)}`
+          `${jpMoveLabel(result.part.label)}: ${result.typeLabel}${formatNumber(result.moveStat, 1)} × ${result.part.ratio}% + ${result.part.slider} × (${level} - 1) + ${result.part.base}${scaleText}${critText}${hitText}${markText} -> 防御前 ${formatNumber(result.totalRaw, 0)} / 防御後 ${formatNumber(result.totalReduced, 0)}${reducedHitsText}`
         ];
       });
 
@@ -6236,11 +7544,13 @@
         }
       });
       el.damageTabButton.addEventListener("click", () => selectCalculatorTab("damage"));
+      el.rankingTabButton.addEventListener("click", () => selectCalculatorTab("ranking"));
       el.shieldTabButton.addEventListener("click", () => selectCalculatorTab("shield"));
       el.healingTabButton.addEventListener("click", () => selectCalculatorTab("healing"));
       el.lightModeButton.addEventListener("click", () => applyMode("light"));
       el.darkModeButton.addEventListener("click", () => applyMode("dark"));
       el.themeSelect.addEventListener("change", () => applyTheme(el.themeSelect.value));
+      wireRankingColumnResizers();
 
       el.pokemonSelect.addEventListener("change", () => {
         updateMoveOptions();
@@ -6320,13 +7630,23 @@
         });
       });
 
+      ["rankingLevelRange", "rankingTargetSelect", "rankingTargetLevelRange", "rankingSlotFilter", "rankingLimitSelect", "rankingSingleHit"].forEach((id) => {
+        el[id].addEventListener("input", updateDamageRanking);
+        el[id].addEventListener("change", updateDamageRanking);
+      });
+
+      el.damageVariantSelect.addEventListener("change", () => {
+        state.selectedDamageVariantKey = el.damageVariantSelect.value;
+        updateAll();
+      });
+
       [
         "manualAttack", "manualSpAttack", "manualDamagePercent", "manualExtraDamage",
         "manualDefenseReductionPercent", "manualSpDefenseReductionPercent", "manualDefenseReductionFlat", "manualSpDefenseReductionFlat",
         "manualDefenseIgnorePercent", "manualSpDefenseIgnorePercent", "manualDefensePenetrationFlat", "manualSpDefensePenetrationFlat",
         "criticalHit", "attackWeightStacks", "spAtkSpecsStacks", "weaknessPolicyStacks",
         "accelBracerStacks", "driveLensStacks", "choiceSpecsProc", "chargingCharmProc",
-        "razorClawProc", "energyAmpProc", "yveltalMarkStacks", "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff"
+        "razorClawProc", "energyAmpProc", "yveltalMarkStacks", "sylveonHyperVoiceRange", "regiBuffSelect", "regidragoBuff", "groudonBuff", "rayquazaBuff"
       ].forEach((id) => {
         el[id].addEventListener("input", updateAll);
         el[id].addEventListener("change", updateAll);
