@@ -1576,6 +1576,120 @@
       font-size: 11px;
     }
 
+    .balance-shell {
+      display: grid;
+      grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .balance-timeline {
+      display: grid;
+      gap: 0;
+    }
+
+    .balance-entry {
+      position: relative;
+      padding: 14px 16px 16px 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .balance-entry:first-child {
+      border-top: 0;
+    }
+
+    .balance-entry::before {
+      content: "";
+      position: absolute;
+      top: 19px;
+      left: 10px;
+      width: 7px;
+      height: 7px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      background: var(--surface);
+    }
+
+    .balance-entry-head,
+    .balance-change-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .balance-entry-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .balance-date,
+    .balance-source-link {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .balance-changes {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .balance-change {
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .balance-change:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .balance-change-name {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .balance-badge {
+      flex: 0 0 auto;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .balance-badge.buff { color: #54d99a; border-color: rgba(84, 217, 154, 0.45); }
+    .balance-badge.nerf { color: #ff8b7b; border-color: rgba(255, 139, 123, 0.45); }
+    .balance-badge.bugfix { color: #6fc9ff; border-color: rgba(111, 201, 255, 0.45); }
+    .balance-badge.rework { color: #d7a8ff; border-color: rgba(215, 168, 255, 0.45); }
+    .balance-badge.new { color: #ffd166; border-color: rgba(255, 209, 102, 0.45); }
+
+    .balance-detail-list {
+      display: grid;
+      gap: 4px;
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      color: var(--label);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .balance-detail-list li::before {
+      content: "・";
+      color: var(--accent);
+    }
+
+    .balance-empty {
+      padding: 24px 16px;
+      color: var(--muted);
+      text-align: center;
+    }
+
     .loading {
       min-height: 420px;
       display: grid;
@@ -1637,7 +1751,8 @@
 
     @media (max-width: 980px) {
       .app-shell,
-      .result-layout {
+      .result-layout,
+      .balance-shell {
         grid-template-columns: 1fr;
       }
 
@@ -1751,6 +1866,7 @@
           <button id="rankingTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="rankingPanel">ダメージランキング</button>
           <button id="shieldTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="shieldPanel">シールド量計算</button>
           <button id="healingTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="healingPanel">回復量計算</button>
+          <button id="balanceTabButton" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="balancePanel">バランス調整</button>
         </div>
         <div class="appearance-controls">
           <div class="mode-picker" role="group" aria-label="表示モード">
@@ -2639,6 +2755,36 @@
           </div>
         </div>
       </section>
+
+      <section id="balancePanel" class="tab-panel" role="tabpanel" aria-labelledby="balanceTabButton" hidden>
+        <div class="balance-shell">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>ポケモン選択</h2>
+            </div>
+            <div class="panel-body stack">
+              <div class="pokemon-picker">
+                <label>
+                  ポケモン
+                  <select id="balancePokemonSelect"></select>
+                </label>
+                <div class="pokemon-preview" aria-live="polite">
+                  <img id="balancePokemonImage" alt="" width="72" height="66">
+                  <span id="balancePokemonImageName">未選択</span>
+                </div>
+              </div>
+              <div id="balanceSummary" class="effect-note">調整履歴を読み込んでいます。</div>
+            </div>
+          </section>
+
+          <section class="panel result-panel">
+            <div class="result-head">
+              <h2 id="balancePokemonHeading">バランス調整履歴</h2>
+            </div>
+            <div id="balanceTimeline" class="balance-timeline" aria-live="polite"></div>
+          </section>
+        </div>
+      </section>
     </section>
 
     <footer class="source site-footer">
@@ -2650,6 +2796,7 @@
       メダルの日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a><br>
       技の日本語名: <a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a> / <a href="https://gamewith.jp/pokemon-unite/article/show/284186" target="_blank" rel="noreferrer">GameWith</a>（2026年7月6日取得）<br>
       防御・特防計算: <a href="https://wikiwiki.jp/poke-unite/%E3%83%90%E3%83%88%E3%83%AB%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E4%BB%95%E6%A7%98" target="_blank" rel="noreferrer">ポケモンユナイトWiki*</a>（2026年7月7日取得）<br>
+      バランス調整履歴: <a href="https://unite-db.com/patch-notes" target="_blank" rel="noreferrer">UniteDB パッチノート</a>（2026年7月16日取得）<br>
       式: 計算値 = 能力値 × 倍率 + レベル補正 + 固定値（小数点以下は切り捨て）
     </footer>
   </main>
@@ -2662,7 +2809,8 @@
       emblems: ["./data/emblems.json"],
       emblemSets: ["./data/emblem_sets.json"],
       emblemNamesJa: ["./data/emblem_names_ja.json"],
-      moveNamesJa: ["./data/move_names_ja.json"]
+      moveNamesJa: ["./data/move_names_ja.json"],
+      patchNotes: ["./data/patch_notes.json"]
     };
 
     const DATA_FETCH_TIMEOUT_MS = 15000;
@@ -3151,6 +3299,7 @@
       emblemSets: [],
       emblemNamesJa: {},
       moveNamesJa: {},
+      patchNotes: { patches: [] },
       emblemFallback: null,
       emblemSelections: Array.from({ length: 10 }, () => ({ pokedex: "", grade: "" })),
       activeEmblemSlot: null,
@@ -3269,6 +3418,172 @@
     function jpMoveName(name) {
       if (name === "Attack") return "通常攻撃";
       return state.moveNamesJa[name] || name || "技";
+    }
+
+    const PATCH_STATUS_JA = {
+      buff: "強化",
+      nerf: "弱体化",
+      adjustment: "調整",
+      bugfix: "不具合修正",
+      rework: "仕様変更",
+      new: "新規追加"
+    };
+
+    const PATCH_FIELD_JA = {
+      ratio: "倍率",
+      slider: "レベル補正",
+      base: "固定値",
+      bas: "固定値",
+      perlevel: "1レベルごとの補正",
+      scale: "倍率",
+      damage: "ダメージ",
+      healing: "回復量",
+      heal: "回復量",
+      shield: "シールド量",
+      cooldown: "待ち時間",
+      cooldownreduced: "待ち時間を短縮",
+      cooldownincreased: "待ち時間を延長",
+      cooldownreduction: "待ち時間短縮率",
+      hp: "HP",
+      attack: "攻撃",
+      atk: "攻撃",
+      specialattack: "特攻",
+      spatk: "特攻",
+      spa: "特攻",
+      defense: "防御",
+      def: "防御",
+      specialdefense: "特防",
+      spdef: "特防",
+      spd: "特防",
+      attackspeed: "攻撃速度",
+      movementspeed: "移動速度",
+      movementspeedincrease: "移動速度上昇",
+      movementspeedreduction: "移動速度低下",
+      damagereduction: "ダメージ軽減",
+      additionaldamage: "追加ダメージ",
+      duration: "持続時間",
+      range: "範囲",
+      slow: "移動速度低下",
+      effect: "効果",
+      neweffect: "追加効果",
+      unitecharge: "ユナイト技の必要量",
+      energyrequired: "必要エナジー",
+      energyneeded: "必要エナジー",
+      energyrequirementdecreased: "必要エナジーを減少",
+      energyrequirementincreased: "必要エナジーを増加",
+      criticalchance: "急所率",
+      lifesteal: "HP吸収",
+      notes: "内容",
+      note: "内容",
+      bugfix: "不具合修正",
+      effectadded: "追加効果",
+      mechanichange: "仕様変更",
+      moveslearnedlevels: "技の習得レベル"
+    };
+
+    function normalizedPatchField(value) {
+      return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+    }
+
+    function jpPatchField(value) {
+      const raw = String(value || "").trim();
+      const normalized = normalizedPatchField(raw);
+      if (PATCH_FIELD_JA[normalized]) return PATCH_FIELD_JA[normalized];
+      const levelMatch = raw.match(/^(?:Level|Lvl|Lv)\s*(\d+)$/i);
+      if (levelMatch) return `Lv${levelMatch[1]}`;
+      if (/^Damage\b/i.test(raw)) return `ダメージ${/First/i.test(raw) ? "・初撃" : /Second/i.test(raw) ? "・2撃目" : /Third/i.test(raw) ? "・3撃目" : /Boosted/i.test(raw) ? "・強化攻撃" : /Additional/i.test(raw) ? "・追加" : ""}`;
+      if (/^Healing\b/i.test(raw)) return "回復量";
+      if (/^Shield\b/i.test(raw)) return "シールド量";
+      if (/Cooldown/i.test(raw)) return /increase/i.test(raw) ? "待ち時間を延長" : /decrease|reduce/i.test(raw) ? "待ち時間を短縮" : "待ち時間";
+      if (/Movement Speed/i.test(raw)) return "移動速度";
+      if (/Attack Speed/i.test(raw)) return "攻撃速度";
+      if (/Damage Reduction/i.test(raw)) return "ダメージ軽減";
+      if (/Energy|Charge/i.test(raw)) return "必要量";
+      return "調整値";
+    }
+
+    function jpPatchMoveName(value) {
+      const raw = String(value || "").replace(/\\?\[[^\]]+\]/g, "").replace(/[:：\s]+$/g, "").trim();
+      const plus = /\+$/.test(raw) ? "+" : "";
+      const cleaned = raw.replace(/^Unite Move:\s*/i, "").replace(/\+$/, "").trim();
+      const generic = {
+        "General Adjustments": "全般",
+        "Natural Stats": "能力値",
+        "Stat Changes": "能力値",
+        "Stats": "能力値",
+        "Progression": "成長・習得レベル",
+        "Auto Attack": "通常攻撃",
+        "Auto Attacks": "通常攻撃",
+        "Boosted Attack": "強化攻撃",
+        "Boosted Attacks": "強化攻撃",
+        "BUGFIXES": "不具合修正"
+      };
+      if (generic[cleaned]) return `${generic[cleaned]}${plus}`;
+      const translated = state.moveNamesJa[cleaned] || state.moveNamesJa[raw];
+      return translated && !hasUntranslatedPatchText(translated) ? `${translated.replace(/\+$/, "")}${plus}` : plus ? `技・特性${plus}` : "技・特性";
+    }
+
+    function hasUntranslatedPatchText(value) {
+      return /[A-Za-z]/.test(String(value || "").replace(/\b(?:HP|Lv)(?=\d|\b)/gi, ""));
+    }
+
+    function translatePatchTokens(value) {
+      return String(value || "")
+        .replace(/->|→/g, " → ")
+        .replace(/Target Missing HP/gi, "相手の減少HP")
+        .replace(/Target Max HP/gi, "相手の最大HP")
+        .replace(/Max HP/gi, "最大HP")
+        .replace(/Damage Dealt/gi, "与えたダメージ")
+        .replace(/Wild Pok[eé]mon/gi, "野生ポケモン")
+        .replace(/Sp\.\s*Atk|SpAtk|SpA\b/gi, "特攻")
+        .replace(/Sp\.\s*Def|SpDef|SpD\b/gi, "特防")
+        .replace(/\bAtk\b/gi, "攻撃")
+        .replace(/\bDef\b/gi, "防御")
+        .replace(/\b(?:Level|Lvl|Lv)\s*(\d+)/gi, "Lv$1")
+        .replace(/\bper second\b/gi, "1秒ごと")
+        .replace(/\bper hit\b/gi, "1ヒットごと")
+        .replace(/\bper tick\b/gi, "1回ごと")
+        .replace(/\bper stack\b/gi, "1段階ごと")
+        .replace(/\bunchanged\b/gi, "変更なし")
+        .replace(/(\d+(?:\.\d+)?)s\b/gi, "$1秒")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function patchStatusFallback(status) {
+      if (status === "buff") return "効果を強化";
+      if (status === "nerf") return "効果を弱体化";
+      if (status === "bugfix") return "不具合を修正";
+      if (status === "rework") return "効果・挙動の仕様を変更";
+      if (status === "new") return "新しい効果を追加";
+      return "効果・挙動を調整";
+    }
+
+    function jpPatchDetail(line, status) {
+      const raw = String(line || "").trim();
+      if (!raw) return "";
+      if (/fixed (?:a |an )?bug|bug ?fix/i.test(raw)) return "不具合を修正";
+      const colonIndex = raw.indexOf(":");
+      const field = colonIndex >= 0 ? raw.slice(0, colonIndex) : "";
+      const value = colonIndex >= 0 ? raw.slice(colonIndex + 1).trim() : raw;
+      const fieldJa = field ? jpPatchField(field) : "";
+      const translatedValue = translatePatchTokens(value);
+      if (hasUntranslatedPatchText(translatedValue)) {
+        return fieldJa ? `${fieldJa}: ${patchStatusFallback(status)}` : patchStatusFallback(status);
+      }
+      let translated = fieldJa ? (translatedValue ? `${fieldJa}: ${translatedValue}` : fieldJa) : translatedValue;
+      if (!hasUntranslatedPatchText(translated)) return translated;
+
+      if (/\s(?:->|→)\s/.test(raw)) {
+        const sides = raw.split(/\s*(?:->|→)\s*/).map((side) => translatePatchTokens(side));
+        const numericSides = sides.map((side) => {
+          if (!hasUntranslatedPatchText(side)) return side;
+          const parts = side.match(/[+-]?\d+(?:\.\d+)?%?|最大HP|相手の最大HP|攻撃|特攻|防御|特防|\d+(?:\.\d+)?秒/g);
+          return parts ? parts.join(" ") : "変更値";
+        });
+        return `${fieldJa || "調整値"}: ${numericSides.join(" → ")}`;
+      }
+      return patchStatusFallback(status);
     }
 
     function pokemonThumbUrl(name) {
@@ -3403,8 +3718,8 @@
     function bindElements() {
       [
         "loading", "loadingStatus", "loadingDetail", "retryLoadButton",
-        "errorBox", "calculator", "damageTabButton", "rankingTabButton", "shieldTabButton", "healingTabButton",
-        "damagePanel", "rankingPanel", "shieldPanel", "healingPanel",
+        "errorBox", "calculator", "damageTabButton", "rankingTabButton", "shieldTabButton", "healingTabButton", "balanceTabButton",
+        "damagePanel", "rankingPanel", "shieldPanel", "healingPanel", "balancePanel",
         "lightModeButton", "darkModeButton", "themeSelect",
         "pokemonSelect", "levelRange", "levelValue",
         "moveChoices", "applyBuildButton", "clearItemsButton", "targetSelect",
@@ -3452,7 +3767,8 @@
         "healingSelfAmount", "healingSelfAmountSub", "healingAllyAmount", "healingAllyAmountSub", "healingAttackStat", "healingSpAttackStat",
         "healingFormulaText", "healingBreakdownBody", "healingItemEffects", "healingLearnChipRow",
         "rankingLevelRange", "rankingLevelValue", "rankingTargetSelect", "rankingTargetLevelRange",
-        "rankingTargetLevelValue", "rankingSlotFilter", "rankingLimitSelect", "rankingSingleHit", "rankingSummary", "rankingBody"
+        "rankingTargetLevelValue", "rankingSlotFilter", "rankingLimitSelect", "rankingSingleHit", "rankingSummary", "rankingBody",
+        "balancePokemonSelect", "balancePokemonImage", "balancePokemonImageName", "balanceSummary", "balancePokemonHeading", "balanceTimeline"
       ].forEach((id) => {
         el[id] = document.getElementById(id);
       });
@@ -3490,22 +3806,27 @@
       const rankingActive = tabName === "ranking";
       const shieldActive = tabName === "shield";
       const healingActive = tabName === "healing";
-      state.activeTab = rankingActive ? "ranking" : shieldActive ? "shield" : healingActive ? "healing" : "damage";
-      el.damagePanel.hidden = rankingActive || shieldActive || healingActive;
+      const balanceActive = tabName === "balance";
+      state.activeTab = rankingActive ? "ranking" : shieldActive ? "shield" : healingActive ? "healing" : balanceActive ? "balance" : "damage";
+      el.damagePanel.hidden = rankingActive || shieldActive || healingActive || balanceActive;
       el.rankingPanel.hidden = !rankingActive;
       el.shieldPanel.hidden = !shieldActive;
       el.healingPanel.hidden = !healingActive;
-      el.damageTabButton.classList.toggle("active", !rankingActive && !shieldActive && !healingActive);
+      el.balancePanel.hidden = !balanceActive;
+      el.damageTabButton.classList.toggle("active", !rankingActive && !shieldActive && !healingActive && !balanceActive);
       el.rankingTabButton.classList.toggle("active", rankingActive);
       el.shieldTabButton.classList.toggle("active", shieldActive);
       el.healingTabButton.classList.toggle("active", healingActive);
-      el.damageTabButton.setAttribute("aria-selected", rankingActive || shieldActive || healingActive ? "false" : "true");
+      el.balanceTabButton.classList.toggle("active", balanceActive);
+      el.damageTabButton.setAttribute("aria-selected", rankingActive || shieldActive || healingActive || balanceActive ? "false" : "true");
       el.rankingTabButton.setAttribute("aria-selected", rankingActive ? "true" : "false");
       el.shieldTabButton.setAttribute("aria-selected", shieldActive ? "true" : "false");
       el.healingTabButton.setAttribute("aria-selected", healingActive ? "true" : "false");
+      el.balanceTabButton.setAttribute("aria-selected", balanceActive ? "true" : "false");
       if (rankingActive) updateDamageRanking();
       if (shieldActive) updateShieldAll();
       if (healingActive) updateHealingAll();
+      if (balanceActive) updateBalanceTimeline();
     }
 
     function number(value, fallback = 0) {
@@ -3658,6 +3979,47 @@
           variantOption("dark-pulse", "ダークパルス中", entriesForMovePartLabels(entries, ["Damage - In Dark Pulse", "Damage - Huge Claw In Dark Pulse"])),
           variantOption("dark-pulse-bad-dreams", "ダークパルス中・悪夢中", entriesForMovePartLabels(entries, ["Damage - In Dark Pulse", "Damage - Huge Claw In Dark Pulse (A Pokémon has Bad Dreams)"]))
         ].filter((variant) => variant.entries.length);
+      }
+
+      if (pokemon?.name === "Metagross" && choice?.displayName === "Meteor Mash") {
+        const charging = entriesForMovePartLabels(entries, ["Charging Damage"])[0];
+        const punchTiers = [
+          ["1-2", "1～2蓄積", "Punch Damage (1-2 Charges)"],
+          ["3-4", "3～4蓄積", "Punch Damage (3-4 Charges)"],
+          ["5-6", "5～6蓄積", "Punch Damage (5-6 Charges)"],
+          ["7-8", "7～8蓄積", "Punch Damage (7-8 Charges)"]
+        ];
+        const variants = [];
+
+        punchTiers.forEach(([key, tierLabel, punchLabel]) => {
+          const punch = entriesForMovePartLabels(entries, [punchLabel])[0];
+          if (!punch) return;
+          const punchEntry = {
+            ...punch,
+            label: `派生パンチ（${tierLabel}）`,
+            hitCountOverride: 1,
+            hitNoteOverride: "次の通常攻撃で発生する追加ダメージ"
+          };
+          variants.push(variantOption(`meteor-mash-${key}-punch`, `${tierLabel} / 派生パンチのみ`, [punchEntry]));
+          if (!charging) return;
+
+          for (let hitCount = 1; hitCount <= 4; hitCount += 1) {
+            const chargingEntry = {
+              ...charging,
+              label: "溜め攻撃",
+              partKey: `${charging.partKey}-meteor-mash-${key}-${hitCount}`,
+              basePartKey: `${charging.basePartKey}-meteor-mash-${key}-${hitCount}`,
+              hitCountOverride: hitCount,
+              hitNoteOverride: `${hitCount}ヒット（1体には最大4ヒット）`
+            };
+            variants.push(variantOption(
+              `meteor-mash-${key}-charging-${hitCount}`,
+              `${tierLabel} / 溜め${hitCount}ヒット＋派生パンチ`,
+              [chargingEntry, punchEntry]
+            ));
+          }
+        });
+        return variants;
       }
 
       if (pokemon?.name === "Leafeon" && choice?.displayName === "Emerald Two-Step") {
@@ -4266,6 +4628,94 @@
       updatePokemonPreview(el.targetSelect, el.targetImage, el.targetImageName);
       updatePokemonPreview(el.shieldPokemonSelect, el.shieldPokemonImage, el.shieldPokemonImageName);
       updatePokemonPreview(el.healingPokemonSelect, el.healingPokemonImage, el.healingPokemonImageName);
+      updatePokemonPreview(el.balancePokemonSelect, el.balancePokemonImage, el.balancePokemonImageName);
+    }
+
+    function jpPatchDate(value) {
+      const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return match ? `${match[1]}年${number(match[2])}月${number(match[3])}日` : value;
+    }
+
+    function balanceHistoryForPokemon(pokemonName) {
+      return (state.patchNotes.patches || []).flatMap((patch) => {
+        const entry = (patch.pokemon || []).find((pokemon) => pokemon.name === pokemonName);
+        return entry ? [{ ...patch, changes: entry.changes || [] }] : [];
+      }).sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function updateBalanceTimeline() {
+      if (!el.balancePokemonSelect || !el.balanceTimeline) return;
+      updatePokemonPreview(el.balancePokemonSelect, el.balancePokemonImage, el.balancePokemonImageName);
+      const pokemonName = el.balancePokemonSelect.value;
+      const displayName = pokemonDisplayName(pokemonName) || "ポケモン";
+      const history = balanceHistoryForPokemon(pokemonName);
+      el.balancePokemonHeading.textContent = `${displayName}のバランス調整履歴`;
+      el.balanceTimeline.replaceChildren();
+
+      if (!history.length) {
+        const empty = document.createElement("div");
+        empty.className = "balance-empty";
+        empty.textContent = "抽出できる調整履歴はありません。";
+        el.balanceTimeline.appendChild(empty);
+        el.balanceSummary.textContent = "UniteDBのリリースノート内に対象データがありません。";
+        return;
+      }
+
+      const latestDate = history[0].date;
+      const oldestDate = history[history.length - 1].date;
+      el.balanceSummary.textContent = `${history.length}件 / ${jpPatchDate(oldestDate)}～${jpPatchDate(latestDate)} / 新しい順`;
+
+      history.forEach((patch) => {
+        const article = document.createElement("article");
+        article.className = "balance-entry";
+        const header = document.createElement("div");
+        header.className = "balance-entry-head";
+        const title = document.createElement("h3");
+        title.className = "balance-entry-title";
+        title.textContent = `バージョン ${patch.version}`;
+        const date = document.createElement("time");
+        date.className = "balance-date";
+        date.dateTime = patch.date;
+        date.textContent = jpPatchDate(patch.date);
+        header.append(title, date);
+
+        const changes = document.createElement("div");
+        changes.className = "balance-changes";
+        (patch.changes || []).forEach((change) => {
+          const changeBlock = document.createElement("section");
+          changeBlock.className = "balance-change";
+          const changeHead = document.createElement("div");
+          changeHead.className = "balance-change-head";
+          const moveName = document.createElement("span");
+          moveName.className = "balance-change-name";
+          moveName.textContent = jpPatchMoveName(change.move);
+          const badge = document.createElement("span");
+          const status = PATCH_STATUS_JA[change.status] ? change.status : "adjustment";
+          badge.className = `balance-badge ${status}`;
+          badge.textContent = PATCH_STATUS_JA[status];
+          changeHead.append(moveName, badge);
+
+          const detailList = document.createElement("ul");
+          detailList.className = "balance-detail-list";
+          const details = [...new Set((change.details || []).map((line) => jpPatchDetail(line, status)).filter(Boolean))];
+          (details.length ? details : [patchStatusFallback(status)]).forEach((detail) => {
+            const item = document.createElement("li");
+            item.textContent = detail;
+            detailList.appendChild(item);
+          });
+          changeBlock.append(changeHead, detailList);
+          changes.appendChild(changeBlock);
+        });
+
+        const source = document.createElement("a");
+        source.className = "balance-source-link";
+        source.href = state.patchNotes.source || "https://unite-db.com/patch-notes";
+        source.target = "_blank";
+        source.rel = "noreferrer";
+        source.textContent = "UniteDBのリリースノートを確認";
+        article.append(header, changes, source);
+        el.balanceTimeline.appendChild(article);
+      });
     }
 
     function fillOptions(select, rows, getValue, getLabel, placeholder) {
@@ -4332,6 +4782,17 @@
         (pokemon) => jpPokemonName(pokemon)
       );
 
+      const balancePokemonNames = new Set((state.patchNotes.patches || []).flatMap((patch) => (
+        (patch.pokemon || []).map((pokemon) => pokemon.name)
+      )));
+      const balancePokemonRows = pokemonRows.filter((pokemon) => balancePokemonNames.has(pokemon.name));
+      fillOptions(
+        el.balancePokemonSelect,
+        balancePokemonRows,
+        (pokemon) => pokemon.name,
+        (pokemon) => jpPokemonName(pokemon)
+      );
+
       const itemRows = state.heldItems
         .slice()
         .sort((a, b) => jpItemName(a).localeCompare(jpItemName(b), "ja"));
@@ -4373,6 +4834,8 @@
       if (firstShieldPokemon) el.shieldPokemonSelect.value = firstShieldPokemon.name;
       const firstHealingPokemon = healingPokemonRows.find((pokemon) => pokemon.name === "Blissey") || healingPokemonRows[0];
       if (firstHealingPokemon) el.healingPokemonSelect.value = firstHealingPokemon.name;
+      const firstBalancePokemon = balancePokemonRows.find((pokemon) => pokemon.name === "Pikachu") || balancePokemonRows[0];
+      if (firstBalancePokemon) el.balancePokemonSelect.value = firstBalancePokemon.name;
 
       updateMoveOptions();
       applyRecommendedBuild();
@@ -4387,6 +4850,7 @@
       updateShieldAll();
       updateHealingAll();
       updateDamageRanking();
+      updateBalanceTimeline();
     }
 
     function getRsbField(rsb, prefix, key) {
@@ -4932,7 +5396,10 @@
       const activeEntries = activeEntriesForLevel(choice.entries, level);
       const damageVariants = damageVariantOptionsForChoice(pokemon, choice, level, activeEntries);
       if (damageVariants.length) {
-        return damageVariants.map((variant) => ({
+        const rankingDamageVariants = pokemon?.name === "Metagross" && choice?.displayName === "Meteor Mash"
+          ? damageVariants.filter((variant) => /-punch$|-charging-4$/.test(variant.key))
+          : damageVariants;
+        return rankingDamageVariants.map((variant) => ({
           key: variant.key,
           label: variant.label,
           parts: entriesWithHitInfo(variant.entries, pokemon, choice, level)
@@ -7547,6 +8014,7 @@
       el.rankingTabButton.addEventListener("click", () => selectCalculatorTab("ranking"));
       el.shieldTabButton.addEventListener("click", () => selectCalculatorTab("shield"));
       el.healingTabButton.addEventListener("click", () => selectCalculatorTab("healing"));
+      el.balanceTabButton.addEventListener("click", () => selectCalculatorTab("balance"));
       el.lightModeButton.addEventListener("click", () => applyMode("light"));
       el.darkModeButton.addEventListener("click", () => applyMode("dark"));
       el.themeSelect.addEventListener("change", () => applyTheme(el.themeSelect.value));
@@ -7590,6 +8058,7 @@
       });
       el.healingApplyBuildButton.addEventListener("click", applyRecommendedHealingBuild);
       el.healingClearItemsButton.addEventListener("click", clearHealingItems);
+      el.balancePokemonSelect.addEventListener("change", updateBalanceTimeline);
 
       for (let i = 0; i < 3; i += 1) {
         el[`itemSelect${i}`].addEventListener("change", updateAll);
@@ -7726,6 +8195,7 @@
       const emblemSets = await fetchJson("emblem_sets.json", DATA_SOURCES.emblemSets, "メダル色効果データ");
       const emblemNamesJa = await fetchJson("emblem_names_ja.json", DATA_SOURCES.emblemNamesJa, "メダル日本語名データ");
       const moveNamesJa = await fetchJson("move_names_ja.json", DATA_SOURCES.moveNamesJa, "技の日本語名データ");
+      const patchNotes = await fetchJson("patch_notes.json", DATA_SOURCES.patchNotes, "バランス調整履歴");
 
       state.pokemon = pokemon;
       state.stats = stats;
@@ -7734,6 +8204,7 @@
       state.emblemSets = emblemSets;
       state.emblemNamesJa = emblemNamesJa;
       state.moveNamesJa = moveNamesJa;
+      state.patchNotes = patchNotes;
     }
 
     async function init() {
