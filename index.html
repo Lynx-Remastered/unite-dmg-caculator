@@ -2252,18 +2252,18 @@
 
       .calculator-toolbar {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 2px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 2px 8px;
       }
 
       .calculator-navigation {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 1;
         width: 100%;
       }
 
       .appearance-controls {
-        grid-column: 1;
+        grid-column: 2;
         grid-row: 1;
         justify-self: end;
         min-height: 30px;
@@ -2271,8 +2271,8 @@
       }
 
       .feedback-trigger {
-        grid-column: 1;
-        grid-row: 3;
+        grid-column: 1 / -1;
+        grid-row: 2;
         width: 100%;
         margin: 4px 0 8px;
       }
