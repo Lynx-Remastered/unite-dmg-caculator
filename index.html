@@ -10,8 +10,18 @@
       try {
         const theme = localStorage.getItem("uniteCalculatorTheme");
         const mode = localStorage.getItem("uniteCalculatorMode");
-        if (["standard", "ocean", "forest", "rose"].includes(theme)) {
-          document.documentElement.dataset.theme = theme;
+        const legacyThemes = {
+          standard: "charmander",
+          ocean: "squirtle",
+          forest: "bulbasaur",
+          rose: "charmander"
+        };
+        const selectedTheme = legacyThemes[theme] || theme || "charmander";
+        if (["charmander", "squirtle", "bulbasaur"].includes(selectedTheme)) {
+          document.documentElement.dataset.theme = selectedTheme;
+          if (theme && theme !== selectedTheme) {
+            localStorage.setItem("uniteCalculatorTheme", selectedTheme);
+          }
         }
         document.documentElement.dataset.mode = ["light", "dark"].includes(mode) ? mode : "dark";
       } catch (error) {
@@ -23,30 +33,30 @@
   <style>
     :root {
       color-scheme: dark;
-      --bg: #121212;
-      --bg-top: #121212;
-      --surface: #1e1e1e;
-      --surface-2: #272727;
-      --surface-3: #181818;
-      --line: rgba(255, 255, 255, 0.12);
+      --bg: #17110f;
+      --bg-top: #241610;
+      --surface: #241b18;
+      --surface-2: #30231d;
+      --surface-3: #1d1512;
+      --line: rgba(255, 181, 124, 0.20);
       --ink: rgba(255, 255, 255, 0.87);
       --muted: rgba(255, 255, 255, 0.60);
-      --accent: #bb86fc;
-      --accent-2: #03dac6;
-      --accent-rgb: 187, 134, 252;
-      --accent-2-rgb: 3, 218, 198;
-      --accent-border: #9a67ea;
+      --accent: #ff8a3d;
+      --accent-2: #6ecbfa;
+      --accent-rgb: 255, 138, 61;
+      --accent-2-rgb: 110, 203, 250;
+      --accent-border: #df681d;
       --accent-ink: #000000;
-      --link: #80cbc4;
+      --link: #80d3fc;
       --danger: #cf6679;
       --success: #a5d6a7;
-      --input-bg: #181818;
+      --input-bg: #1b1310;
       --shadow: 0 10px 28px rgba(0, 0, 0, 0.48);
       --label: rgba(255, 255, 255, 0.87);
       --hover-bg: rgba(255, 255, 255, 0.08);
-      --formula-bg: #242424;
+      --formula-bg: #2d211c;
       --formula-ink: rgba(255, 255, 255, 0.87);
-      --chip-bg: rgba(255, 255, 255, 0.12);
+      --chip-bg: rgba(255, 138, 61, 0.16);
       --chip-ink: rgba(255, 255, 255, 0.87);
       --warn-ink: #ffe082;
       --good-ink: #a5d6a7;
@@ -57,63 +67,71 @@
       font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    :root[data-theme="ocean"] {
-      --accent: #90caf9;
-      --accent-2: #ffe082;
-      --accent-rgb: 144, 202, 249;
-      --accent-2-rgb: 255, 224, 130;
-      --accent-border: #64b5f6;
+    :root[data-theme="squirtle"] {
+      --bg: #0d171d;
+      --bg-top: #10232e;
+      --surface: #17252d;
+      --surface-2: #20343f;
+      --surface-3: #111e25;
+      --line: rgba(132, 209, 247, 0.20);
+      --accent: #78c9f4;
+      --accent-2: #d7a16a;
+      --accent-rgb: 120, 201, 244;
+      --accent-2-rgb: 215, 161, 106;
+      --accent-border: #43a8d4;
       --accent-ink: #06131d;
-      --link: #90caf9;
+      --link: #8bd5fa;
+      --input-bg: #101b21;
+      --formula-bg: #1c2d37;
+      --chip-bg: rgba(120, 201, 244, 0.16);
     }
 
-    :root[data-theme="forest"] {
-      --accent: #a5d6a7;
-      --accent-2: #ffe082;
-      --accent-rgb: 165, 214, 167;
-      --accent-2-rgb: 255, 224, 130;
-      --accent-border: #81c784;
+    :root[data-theme="bulbasaur"] {
+      --bg: #0e1812;
+      --bg-top: #13251a;
+      --surface: #19271e;
+      --surface-2: #22362a;
+      --surface-3: #121e16;
+      --line: rgba(119, 215, 132, 0.20);
+      --accent: #77d784;
+      --accent-2: #f19ab1;
+      --accent-rgb: 119, 215, 132;
+      --accent-2-rgb: 241, 154, 177;
+      --accent-border: #45b85a;
       --accent-ink: #081509;
-      --link: #a5d6a7;
-    }
-
-    :root[data-theme="rose"] {
-      --accent: #f48fb1;
-      --accent-2: #80deea;
-      --accent-rgb: 244, 143, 177;
-      --accent-2-rgb: 128, 222, 234;
-      --accent-border: #f06292;
-      --accent-ink: #210711;
-      --link: #f48fb1;
+      --link: #8add91;
+      --input-bg: #101a13;
+      --formula-bg: #1d3023;
+      --chip-bg: rgba(119, 215, 132, 0.16);
     }
 
     :root[data-mode="light"] {
       color-scheme: light;
-      --bg: #edf1f5;
-      --bg-top: #f8fafc;
+      --bg: #f7eee8;
+      --bg-top: #fff9f4;
       --surface: #ffffff;
-      --surface-2: #e8eef4;
-      --surface-3: #f5f8fa;
-      --line: #c5d0db;
-      --ink: #17212b;
-      --muted: #5b6b7b;
-      --accent: #e0a126;
-      --accent-2: #087f79;
-      --accent-rgb: 224, 161, 38;
-      --accent-2-rgb: 8, 127, 121;
-      --accent-border: #b77b0f;
-      --accent-ink: #211805;
-      --link: #006f69;
+      --surface-2: #f2dfd1;
+      --surface-3: #fcf5ef;
+      --line: #d9bda9;
+      --ink: #2a1d17;
+      --muted: #715b4e;
+      --accent: #c94f0a;
+      --accent-2: #167da8;
+      --accent-rgb: 201, 79, 10;
+      --accent-2-rgb: 22, 125, 168;
+      --accent-border: #9f3b05;
+      --accent-ink: #ffffff;
+      --link: #0b678e;
       --danger: #b42318;
       --success: #137547;
       --input-bg: #ffffff;
-      --shadow: 0 10px 28px rgba(33, 47, 61, 0.12);
-      --label: #344454;
-      --hover-bg: #edf3f6;
-      --formula-bg: #e5ebf1;
-      --formula-ink: #17212b;
-      --chip-bg: #dce5ed;
-      --chip-ink: #243444;
+      --shadow: 0 10px 28px rgba(71, 43, 27, 0.13);
+      --label: #4b382d;
+      --hover-bg: #f9eadf;
+      --formula-bg: #f0dfd3;
+      --formula-ink: #2a1d17;
+      --chip-bg: #f2d7c4;
+      --chip-ink: #402a1e;
       --warn-ink: #825400;
       --good-ink: #0f6b3e;
       --bad-ink: #a33225;
@@ -121,52 +139,52 @@
       --danger-ink: #a33225;
     }
 
-    :root[data-mode="light"][data-theme="ocean"] {
-      --bg: #e9f1f7;
-      --bg-top: #f6fafc;
+    :root[data-mode="light"][data-theme="squirtle"] {
+      --bg: #eaf4f9;
+      --bg-top: #f7fcff;
       --surface: #ffffff;
-      --surface-2: #dfebf3;
-      --surface-3: #f1f7fa;
-      --line: #b8cad8;
-      --accent: #1976c9;
-      --accent-2: #b66f00;
-      --accent-rgb: 25, 118, 201;
-      --accent-2-rgb: 182, 111, 0;
-      --accent-border: #0f5f9f;
+      --surface-2: #dcecf4;
+      --surface-3: #f1f8fb;
+      --line: #b4cdd9;
+      --ink: #172a34;
+      --muted: #526d7b;
+      --accent: #0b709f;
+      --accent-2: #8d572c;
+      --accent-rgb: 11, 112, 159;
+      --accent-2-rgb: 141, 87, 44;
+      --accent-border: #075777;
       --accent-ink: #ffffff;
-      --link: #005ea8;
+      --link: #08658e;
+      --label: #304b59;
+      --hover-bg: #e5f1f7;
+      --formula-bg: #dfeef5;
+      --formula-ink: #172a34;
+      --chip-bg: #d2e9f4;
+      --chip-ink: #173b4d;
     }
 
-    :root[data-mode="light"][data-theme="forest"] {
-      --bg: #ebf2ee;
-      --bg-top: #f7faf8;
+    :root[data-mode="light"][data-theme="bulbasaur"] {
+      --bg: #ebf5ed;
+      --bg-top: #f7fcf8;
       --surface: #ffffff;
-      --surface-2: #e1ece6;
-      --surface-3: #f2f7f4;
-      --line: #bdcfc5;
-      --accent: #16844f;
-      --accent-2: #a96800;
-      --accent-rgb: 22, 132, 79;
-      --accent-2-rgb: 169, 104, 0;
-      --accent-border: #0e683d;
+      --surface-2: #dcecdf;
+      --surface-3: #f1f8f2;
+      --line: #b7ceb9;
+      --ink: #192b1d;
+      --muted: #536c58;
+      --accent: #19723a;
+      --accent-2: #ad3458;
+      --accent-rgb: 25, 114, 58;
+      --accent-2-rgb: 173, 52, 88;
+      --accent-border: #10582b;
       --accent-ink: #ffffff;
-      --link: #087344;
-    }
-
-    :root[data-mode="light"][data-theme="rose"] {
-      --bg: #f4edf1;
-      --bg-top: #fbf8fa;
-      --surface: #ffffff;
-      --surface-2: #eee2e9;
-      --surface-3: #faf4f7;
-      --line: #d7c1cd;
-      --accent: #c23d73;
-      --accent-2: #087f79;
-      --accent-rgb: 194, 61, 115;
-      --accent-2-rgb: 8, 127, 121;
-      --accent-border: #9f2858;
-      --accent-ink: #ffffff;
-      --link: #a51f57;
+      --link: #176a36;
+      --label: #344d39;
+      --hover-bg: #e4f1e6;
+      --formula-bg: #dfeee2;
+      --formula-ink: #192b1d;
+      --chip-bg: #d4ead8;
+      --chip-ink: #204329;
     }
 
     * {
@@ -391,30 +409,30 @@
       padding: 3px 2px 5px;
     }
 
-    .mode-picker {
-      display: inline-flex;
-      align-items: center;
+    .mode-toggle-button {
+      display: grid;
+      width: 34px;
+      min-height: 30px;
       padding: 2px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
+      place-items: center;
+      border-color: var(--line);
       background: var(--surface-3);
-    }
-
-    .mode-button {
-      min-height: 28px;
-      padding: 4px 8px;
-      border: 0;
-      border-radius: 4px;
-      background: transparent;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .mode-button.active {
-      background: var(--surface-2);
       color: var(--ink);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .mode-toggle-button:hover {
+      border-color: var(--accent-2);
+      background: var(--hover-bg);
+    }
+
+    .mode-toggle-icon::before {
+      content: "🌙";
+    }
+
+    :root[data-mode="light"] .mode-toggle-icon::before {
+      content: "🌞";
     }
 
     .theme-picker {
@@ -522,7 +540,8 @@
 
     select,
     input[type="number"],
-    input[type="text"] {
+    input[type="text"],
+    textarea {
       width: 100%;
       min-height: 36px;
       border: 1px solid var(--line);
@@ -534,8 +553,15 @@
       font-size: 14px;
     }
 
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
     select:focus,
     input:focus,
+    textarea:focus,
     button:focus {
       outline: 3px solid rgba(var(--accent-2-rgb), 0.24);
       outline-offset: 1px;
@@ -2022,6 +2048,180 @@
       line-height: 1.5;
     }
 
+    .feedback-trigger {
+      flex: 0 0 auto;
+      min-height: 34px;
+      border-color: rgba(var(--accent-2-rgb), 0.72);
+      background: rgba(var(--accent-2-rgb), 0.12);
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .feedback-trigger:hover {
+      border-color: var(--accent-2);
+      background: rgba(var(--accent-2-rgb), 0.20);
+    }
+
+    .feedback-dialog {
+      width: min(720px, calc(100% - 24px));
+      max-height: calc(100dvh - 24px);
+      margin: auto;
+      padding: 0;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.52);
+    }
+
+    .feedback-dialog::backdrop {
+      background: rgba(3, 7, 12, 0.76);
+      backdrop-filter: blur(3px);
+    }
+
+    .feedback-form {
+      display: grid;
+    }
+
+    .feedback-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      padding: 20px 22px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(var(--accent-2-rgb), 0.10), transparent 58%);
+    }
+
+    .feedback-eyebrow {
+      margin: 0 0 5px;
+      color: var(--accent-2);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+    }
+
+    .feedback-head h2 {
+      margin: 0;
+      font-size: clamp(22px, 5vw, 30px);
+      line-height: 1.2;
+    }
+
+    .feedback-intro {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .dialog-close {
+      width: 40px;
+      min-height: 40px;
+      padding: 0;
+      border-color: var(--line);
+      background: var(--input-bg);
+      color: var(--ink);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .feedback-body {
+      display: grid;
+      gap: 16px;
+      padding: 20px 22px 22px;
+    }
+
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feedback-field-wide {
+      grid-column: 1 / -1;
+    }
+
+    .feedback-field-label {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .feedback-required {
+      color: var(--danger-ink);
+    }
+
+    .feedback-field-note {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .feedback-context {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-3);
+    }
+
+    .feedback-context > input {
+      flex: 0 0 auto;
+      width: 20px;
+      height: 20px;
+      margin: 1px 0 0;
+      accent-color: var(--accent-2);
+    }
+
+    .feedback-context strong,
+    .feedback-context span {
+      display: block;
+    }
+
+    .feedback-context strong {
+      margin-bottom: 3px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .feedback-context span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .feedback-notice {
+      margin: 0;
+      padding-left: 12px;
+      border-left: 3px solid var(--accent);
+      color: var(--note-ink);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .feedback-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+      gap: 10px;
+    }
+
+    .feedback-status {
+      min-height: 20px;
+      margin: -4px 0 0;
+      color: var(--success);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .feedback-status.is-error {
+      color: var(--danger-ink);
+    }
+
     @media (max-width: 980px) {
       .app-shell,
       .result-layout,
@@ -2044,7 +2244,9 @@
       .pokemon-picker,
       .condition-row,
       .button-row,
-      .ranking-controls {
+      .ranking-controls,
+      .feedback-grid,
+      .feedback-actions {
         grid-template-columns: 1fr;
       }
 
@@ -2066,6 +2268,19 @@
         justify-self: end;
         min-height: 30px;
         padding-bottom: 2px;
+      }
+
+      .feedback-trigger {
+        grid-column: 1;
+        grid-row: 3;
+        width: 100%;
+        margin: 4px 0 8px;
+      }
+
+      .feedback-head,
+      .feedback-body {
+        padding-left: 16px;
+        padding-right: 16px;
       }
 
       .calculator-view-title {
@@ -2141,20 +2356,19 @@
           </div>
         </div>
         <div class="appearance-controls">
-          <div class="mode-picker" role="group" aria-label="表示モード">
-            <button id="lightModeButton" class="mode-button" type="button" aria-pressed="false">ライト</button>
-            <button id="darkModeButton" class="mode-button" type="button" aria-pressed="true">ダーク</button>
-          </div>
+          <button id="modeToggleButton" class="mode-toggle-button" type="button" aria-label="ライトモードに切り替える" title="ライトモードに切り替える">
+            <span class="mode-toggle-icon" aria-hidden="true"></span>
+          </button>
           <label class="theme-picker" for="themeSelect">
             <span class="theme-picker-label">配色</span>
             <select id="themeSelect" aria-label="配色">
-              <option value="standard">マテリアル</option>
-              <option value="ocean">ブルー</option>
-              <option value="forest">グリーン</option>
-              <option value="rose">ピンク</option>
+              <option value="charmander">ヒトカゲ</option>
+              <option value="squirtle">ゼニガメ</option>
+              <option value="bulbasaur">フシギダネ</option>
             </select>
           </label>
         </div>
+        <button id="openFeedbackButton" class="feedback-trigger" type="button">要望・不具合を送る</button>
       </div>
 
       <section id="damagePanel" class="tab-panel app-shell" role="region" aria-labelledby="calculatorViewTitle">
@@ -3070,6 +3284,83 @@
     </footer>
   </main>
 
+  <dialog id="feedbackDialog" class="feedback-dialog" aria-labelledby="feedbackTitle" aria-describedby="feedbackIntro">
+    <form
+      id="feedbackForm"
+      class="feedback-form"
+      action="https://github.com/Lynx-Remastered/unite-dmg-caculator/issues/new"
+      method="get"
+      target="_blank"
+      rel="noopener"
+    >
+      <div class="feedback-head">
+        <div>
+          <p class="feedback-eyebrow">SITE FEEDBACK</p>
+          <h2 id="feedbackTitle">要望・不具合を送る</h2>
+          <p id="feedbackIntro" class="feedback-intro">入力内容をGitHub Issueにまとめて、開発者へ直接届けます。</p>
+        </div>
+        <button id="closeFeedbackButton" class="dialog-close" type="button" aria-label="フォームを閉じる">×</button>
+      </div>
+
+      <div class="feedback-body">
+        <div class="feedback-grid">
+          <label>
+            <span class="feedback-field-label">LINEでの表示名（任意）</span>
+            <input id="feedbackNickname" type="text" maxlength="40" autocomplete="nickname" placeholder="例: ユナイト太郎">
+          </label>
+
+          <label>
+            <span class="feedback-field-label">種別 <span class="feedback-required" aria-hidden="true">*</span></span>
+            <select id="feedbackType" required>
+              <option value="bug">不具合・計算ミス</option>
+              <option value="data">データの修正</option>
+              <option value="feature">新しい機能</option>
+              <option value="usability">使いやすさ・表示</option>
+              <option value="other">その他</option>
+            </select>
+          </label>
+
+          <label class="feedback-field-wide">
+            <span class="feedback-field-label">件名 <span class="feedback-required" aria-hidden="true">*</span></span>
+            <input id="feedbackSummary" type="text" required minlength="4" maxlength="80" placeholder="例: ピカチュウの10まんボルトの計算結果が合わない">
+          </label>
+
+          <label class="feedback-field-wide">
+            <span class="feedback-field-label">内容 <span class="feedback-required" aria-hidden="true">*</span></span>
+            <textarea id="feedbackDetails" required minlength="10" maxlength="1000" placeholder="どの画面で、何をしたときに、どんな問題が起きましたか？"></textarea>
+            <span class="feedback-field-note">数値の間違いは、正しいと考える値や参考元もあると助かります。</span>
+          </label>
+
+          <label class="feedback-field-wide">
+            どうなるとよいか（任意）
+            <textarea id="feedbackExpected" maxlength="600" placeholder="例: 同じ条件でゲーム内の値と一致してほしい"></textarea>
+          </label>
+        </div>
+
+        <label class="feedback-context">
+          <input id="feedbackIncludeContext" type="checkbox" checked>
+          <span>
+            <strong>現在の画面・計算条件を添付する</strong>
+            <span>選択中のポケモン、技、持ち物や計算結果などを自動で追加します。</span>
+          </span>
+        </label>
+
+        <p class="feedback-notice">
+          個人情報やLINEオープンチャットの招待URLは書かないでください。画像は次のGitHub画面で追加できます。投稿にはGitHubへのログインが必要です。
+        </p>
+
+        <input id="feedbackIssueTitle" type="hidden" name="title">
+        <input id="feedbackIssueBody" type="hidden" name="body">
+
+        <div class="feedback-actions">
+          <button id="copyFeedbackButton" class="secondary" type="button">内容をコピー</button>
+          <button type="submit">GitHubでIssueを作成</button>
+        </div>
+        <p id="feedbackStatus" class="feedback-status" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </dialog>
+
   <script>
     const DATA_SOURCES = {
       pokemon: ["./data/pokemon.json"],
@@ -3083,6 +3374,14 @@
     };
 
     const DATA_FETCH_TIMEOUT_MS = 15000;
+
+    const FEEDBACK_TYPES = {
+      bug: { label: "不具合・計算ミス", prefix: "[不具合]" },
+      data: { label: "データの修正", prefix: "[データ修正]" },
+      feature: { label: "新しい機能", prefix: "[機能要望]" },
+      usability: { label: "使いやすさ・表示", prefix: "[UI改善]" },
+      other: { label: "その他", prefix: "[その他]" }
+    };
 
     const POKEMON_JA = {
       "Absol": "アブソル",
@@ -3613,7 +3912,7 @@
       reduced: 84,
       assumption: 86
     };
-    const THEMES = ["standard", "ocean", "forest", "rose"];
+    const THEMES = ["charmander", "squirtle", "bulbasaur"];
     const MODES = ["light", "dark"];
     const CALCULATOR_VIEWS = {
       damage: { title: "ダメージ計算", buttonId: "damageTabButton", panelId: "damagePanel" },
@@ -3624,7 +3923,7 @@
     };
 
     function applyTheme(theme, persist = true) {
-      const selectedTheme = THEMES.includes(theme) ? theme : "standard";
+      const selectedTheme = THEMES.includes(theme) ? theme : "charmander";
       document.documentElement.dataset.theme = selectedTheme;
       if (el.themeSelect) el.themeSelect.value = selectedTheme;
 
@@ -3641,12 +3940,12 @@
       const selectedMode = MODES.includes(mode) ? mode : "dark";
       document.documentElement.dataset.mode = selectedMode;
 
-      if (el.lightModeButton && el.darkModeButton) {
+      if (el.modeToggleButton) {
         const isLight = selectedMode === "light";
-        el.lightModeButton.classList.toggle("active", isLight);
-        el.darkModeButton.classList.toggle("active", !isLight);
-        el.lightModeButton.setAttribute("aria-pressed", String(isLight));
-        el.darkModeButton.setAttribute("aria-pressed", String(!isLight));
+        const actionLabel = isLight ? "ダークモードに切り替える" : "ライトモードに切り替える";
+        el.modeToggleButton.setAttribute("aria-label", actionLabel);
+        el.modeToggleButton.setAttribute("title", actionLabel);
+        el.modeToggleButton.setAttribute("aria-pressed", String(isLight));
       }
 
       if (persist) {
@@ -4116,7 +4415,7 @@
         "errorBox", "calculator", "damageTabButton", "rankingTabButton", "shieldTabButton", "healingTabButton", "balanceTabButton",
         "calculatorNavigation", "navigationMenuButton", "navigationMenu", "calculatorViewTitle",
         "damagePanel", "rankingPanel", "shieldPanel", "healingPanel", "balancePanel",
-        "lightModeButton", "darkModeButton", "themeSelect",
+        "modeToggleButton", "themeSelect",
         "pokemonSelect", "levelRange", "levelValue",
         "moveChoices", "applyBuildButton", "clearItemsButton", "targetSelect",
         "targetLevelRange", "targetLevelValue", "targetDefense", "targetSpDefense",
@@ -4164,7 +4463,11 @@
         "rankingLevelRange", "rankingLevelValue", "rankingTargetSelect", "rankingTargetLevelRange",
         "rankingTargetLevelValue", "rankingSlotFilter", "rankingLimitSelect", "rankingSingleHit", "rankingSummary", "rankingBody",
         "balancePokemonSelect", "balanceSummary", "balanceFilterOptions", "balanceFilterStatus", "balanceFilterClearButton",
-        "balancePokemonHeading", "balanceTimeline"
+        "balancePokemonHeading", "balanceTimeline",
+        "openFeedbackButton", "closeFeedbackButton", "feedbackDialog",
+        "feedbackForm", "feedbackType", "feedbackNickname", "feedbackSummary",
+        "feedbackDetails", "feedbackExpected", "feedbackIncludeContext",
+        "feedbackIssueTitle", "feedbackIssueBody", "copyFeedbackButton", "feedbackStatus"
       ].forEach((id) => {
         el[id] = document.getElementById(id);
       });
@@ -8497,6 +8800,281 @@
         .replace(/"/g, "&quot;");
     }
 
+    function selectedOptionLabel(select) {
+      if (!select || select.selectedIndex < 0) return "未選択";
+      return select.options[select.selectedIndex].textContent.trim() || "未選択";
+    }
+
+    function feedbackItemsText(items) {
+      return items.length
+        ? items.map(({ item, level }) => `${jpItemName(item)} Lv${level}`).join(" / ")
+        : "なし";
+    }
+
+    function feedbackMoveText(choice, parts = []) {
+      if (!choice) return "未選択";
+      const title = `${choice.slotLabel || ""}${choice.displayName ? ` - ${jpMoveName(choice.displayName)}` : ""}`;
+      const labels = [...new Set(parts.map((part) => jpMoveLabel(part.label)).filter(Boolean))];
+      return labels.length ? `${title}（${labels.join(" + ")}）` : title;
+    }
+
+    function feedbackConditionSummary(numericFields = [], checkFields = [], manualFields = []) {
+      const conditions = [];
+
+      numericFields.forEach(([inputId, containerId, label]) => {
+        const input = el[inputId];
+        const container = document.getElementById(containerId);
+        const value = number(input && input.value, 0);
+        if (input && container && !container.hidden && value) conditions.push(`${label} ${value}`);
+      });
+
+      checkFields.forEach(([inputId, containerId, label]) => {
+        const input = el[inputId];
+        const container = containerId ? document.getElementById(containerId) : null;
+        if (input && input.checked && (!container || !container.hidden)) conditions.push(label);
+      });
+
+      manualFields.forEach(([inputId, label]) => {
+        const value = number(el[inputId] && el[inputId].value, 0);
+        if (value) conditions.push(`${label} ${value}`);
+      });
+
+      return conditions.length ? conditions.join(" / ") : "なし";
+    }
+
+    function feedbackDamageContext() {
+      const pokemon = selectedPokemon();
+      const move = selectedMove();
+      const conditions = feedbackConditionSummary(
+        [
+          ["attackWeightStacks", "conditionAttackWeight", "もうこうダンベル"],
+          ["spAtkSpecsStacks", "conditionSpAtkSpecs", "しんげきメガネ"],
+          ["weaknessPolicyStacks", "conditionWeaknessPolicy", "じゃくてんほけん"],
+          ["accelBracerStacks", "conditionAccelBracer", "アクセルリスト"],
+          ["driveLensStacks", "conditionDriveLens", "ドライブレンズ"],
+          ["yveltalMarkStacks", "conditionYveltalMarks", "はかいカウンタ"]
+        ],
+        [
+          ["criticalHit", "", "技本体を急所計算"],
+          ["choiceSpecsProc", "conditionChoiceSpecs", "こだわりメガネ追加ダメージ"],
+          ["chargingCharmProc", "conditionChargingCharm", "じゅうてんチャーム追加ダメージ"],
+          ["razorClawProc", "conditionRazorClaw", "するどいツメ追加ダメージ"],
+          ["energyAmpProc", "conditionEnergyAmp", "エナジーアンプ発動中"],
+          ["regidragoBuff", "", "レジドラゴ撃破バフ"],
+          ["groudonBuff", "", "グラードン撃破バフ"],
+          ["rayquazaBuff", "", "レックウザ撃破バフ"]
+        ],
+        [
+          ["manualAttack", "攻撃補正"],
+          ["manualSpAttack", "特攻補正"],
+          ["manualDamagePercent", "ダメージ%補正"],
+          ["manualExtraDamage", "固定ダメージ補正"]
+        ]
+      );
+
+      return [
+        `- 画面: ${CALCULATOR_VIEWS.damage.title}`,
+        `- 攻撃側: ${pokemon ? jpPokemonName(pokemon) : "未選択"} Lv${el.levelRange.value}`,
+        `- 技: ${move ? feedbackMoveText(move.choice, move.parts) : "未選択"}`,
+        `- 持ち物: ${feedbackItemsText(selectedItems())}`,
+        `- 条件: ${conditions}`,
+        `- 相手: ${selectedOptionLabel(el.targetSelect)} Lv${el.targetLevelRange.value}（防御 ${el.targetDefense.value} / 特防 ${el.targetSpDefense.value}）`,
+        `- 計算結果: 基礎ダメージ ${el.rawDamage.textContent} / 防御込み推定 ${el.finalDamage.textContent}`
+      ];
+    }
+
+    function feedbackShieldContext() {
+      const pokemon = selectedShieldPokemon();
+      const choice = selectedShieldMoveChoice();
+      const conditions = feedbackConditionSummary(
+        [
+          ["shieldAttackWeightStacks", "shieldConditionAttackWeight", "もうこうダンベル"],
+          ["shieldSpAtkSpecsStacks", "shieldConditionSpAtkSpecs", "しんげきメガネ"],
+          ["shieldWeaknessPolicyStacks", "shieldConditionWeaknessPolicy", "じゃくてんほけん"],
+          ["shieldAccelBracerStacks", "shieldConditionAccelBracer", "アクセルリスト"],
+          ["shieldDriveLensStacks", "shieldConditionDriveLens", "ドライブレンズ"]
+        ],
+        [],
+        [
+          ["shieldManualAttack", "攻撃補正"],
+          ["shieldManualSpAttack", "特攻補正"],
+          ["shieldManualHp", "HP補正"],
+          ["manualShieldPercent", "シールド%補正"],
+          ["manualShieldFlat", "固定シールド補正"],
+          ["shieldCount", "回数/対象数"]
+        ]
+      );
+
+      return [
+        `- 画面: ${CALCULATOR_VIEWS.shield.title}`,
+        `- シールド側: ${pokemon ? jpPokemonName(pokemon) : "未選択"} Lv${el.shieldLevelRange.value}`,
+        `- 技: ${feedbackMoveText(choice, selectedShieldParts(choice))}`,
+        `- 持ち物: ${feedbackItemsText(selectedShieldItems())}`,
+        `- 条件: ${conditions}`,
+        `- 計算結果: 自分 ${el.shieldSelfAmount.textContent} / 味方 ${el.shieldAllyAmount.textContent}`
+      ];
+    }
+
+    function feedbackHealingContext() {
+      const pokemon = selectedHealingPokemon();
+      const choice = selectedHealingMoveChoice();
+      const conditions = feedbackConditionSummary(
+        [
+          ["healingAttackWeightStacks", "healingConditionAttackWeight", "もうこうダンベル"],
+          ["healingSpAtkSpecsStacks", "healingConditionSpAtkSpecs", "しんげきメガネ"],
+          ["healingWeaknessPolicyStacks", "healingConditionWeaknessPolicy", "じゃくてんほけん"],
+          ["healingAccelBracerStacks", "healingConditionAccelBracer", "アクセルリスト"],
+          ["healingDriveLensStacks", "healingConditionDriveLens", "ドライブレンズ"]
+        ],
+        [],
+        [
+          ["healingManualAttack", "攻撃補正"],
+          ["healingManualSpAttack", "特攻補正"],
+          ["manualHealingPercent", "回復量%補正"],
+          ["manualHealingFlat", "固定回復量補正"],
+          ["healingCount", "回数/対象数"]
+        ]
+      );
+
+      return [
+        `- 画面: ${CALCULATOR_VIEWS.healing.title}`,
+        `- 回復側: ${pokemon ? jpPokemonName(pokemon) : "未選択"} Lv${el.healingLevelRange.value}`,
+        `- 技: ${feedbackMoveText(choice, selectedHealingParts(choice))}`,
+        `- 持ち物: ${feedbackItemsText(selectedHealingItems())}`,
+        `- 条件: ${conditions}`,
+        `- 計算結果: 自分 ${el.healingSelfAmount.textContent} / 味方 ${el.healingAllyAmount.textContent}`
+      ];
+    }
+
+    function feedbackRankingContext() {
+      return [
+        `- 画面: ${CALCULATOR_VIEWS.ranking.title}`,
+        `- 攻撃側レベル: Lv${el.rankingLevelRange.value}`,
+        `- 相手: ${selectedOptionLabel(el.rankingTargetSelect)} Lv${el.rankingTargetLevelRange.value}`,
+        `- 技枠: ${selectedOptionLabel(el.rankingSlotFilter)}`,
+        `- 表示件数: ${selectedOptionLabel(el.rankingLimitSelect)}`,
+        `- 集計: ${el.rankingSingleHit.checked ? "単発ダメージ" : "合計ダメージ"}`,
+        `- 表示状況: ${el.rankingSummary.textContent.trim()}`
+      ];
+    }
+
+    function feedbackBalanceContext() {
+      const filters = [...el.balanceFilterOptions.querySelectorAll('input[type="checkbox"]:checked')]
+        .map((input) => input.closest("label")?.querySelector(".balance-filter-name")?.textContent.trim())
+        .filter(Boolean);
+      return [
+        `- 画面: ${CALCULATOR_VIEWS.balance.title}`,
+        `- ポケモン: ${selectedOptionLabel(el.balancePokemonSelect)}`,
+        `- 調整対象フィルター: ${filters.length ? filters.join(" / ") : "すべて"}`,
+        `- 表示状況: ${el.balanceSummary.textContent.trim()}`
+      ];
+    }
+
+    function feedbackCalculationContext() {
+      if (!state.pokemon.length || !el.calculator || el.calculator.hidden) {
+        return "- 計算データの読み込み前、または読み込みエラー中に投稿";
+      }
+
+      const contextBuilders = {
+        damage: feedbackDamageContext,
+        ranking: feedbackRankingContext,
+        shield: feedbackShieldContext,
+        healing: feedbackHealingContext,
+        balance: feedbackBalanceContext
+      };
+      return (contextBuilders[state.activeTab] || feedbackDamageContext)().join("\n");
+    }
+
+    function buildFeedbackIssue() {
+      const type = FEEDBACK_TYPES[el.feedbackType.value] || FEEDBACK_TYPES.other;
+      const summary = el.feedbackSummary.value.trim();
+      const details = el.feedbackDetails.value.trim();
+      const expected = el.feedbackExpected.value.trim() || "特になし";
+      const nickname = el.feedbackNickname.value.trim() || "未記入";
+      const pageUrl = new URL(window.location.href);
+      pageUrl.hash = "";
+      pageUrl.searchParams.delete("feedback");
+
+      const sections = [
+        `## 種別\n${type.label}`,
+        `## 内容\n${details}`,
+        `## 期待する状態\n${expected}`
+      ];
+
+      if (el.feedbackIncludeContext.checked) {
+        sections.push(`## 現在の画面・計算条件\n${feedbackCalculationContext()}`);
+      }
+
+      sections.push(
+        `## 投稿者\nLINEオープンチャット表示名: ${nickname}`,
+        `<details>\n<summary>閲覧環境</summary>\n\n- ページ: ${pageUrl.toString()}\n- 画面サイズ: ${window.innerWidth} × ${window.innerHeight}\n- ブラウザ: ${navigator.userAgent}\n\n</details>`,
+        "---\nこのIssueはサイト内の要望・不具合フォームから作成されました。"
+      );
+
+      return {
+        title: `${type.prefix} ${summary}`,
+        body: sections.join("\n\n")
+      };
+    }
+
+    function setFeedbackStatus(message, isError = false) {
+      el.feedbackStatus.textContent = message;
+      el.feedbackStatus.classList.toggle("is-error", isError);
+    }
+
+    function prepareFeedbackIssue() {
+      const issue = buildFeedbackIssue();
+      el.feedbackIssueTitle.value = issue.title;
+      el.feedbackIssueBody.value = issue.body;
+      return issue;
+    }
+
+    async function copyFeedbackIssue() {
+      if (!el.feedbackForm.reportValidity()) return;
+      const issue = prepareFeedbackIssue();
+      const text = `${issue.title}\n\n${issue.body}`;
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const copyArea = document.createElement("textarea");
+          copyArea.value = text;
+          copyArea.setAttribute("readonly", "");
+          copyArea.style.position = "fixed";
+          copyArea.style.opacity = "0";
+          document.body.appendChild(copyArea);
+          copyArea.select();
+          const copied = document.execCommand("copy");
+          copyArea.remove();
+          if (!copied) throw new Error("コピーに失敗しました");
+        }
+        setFeedbackStatus("件名と内容をコピーしました。");
+      } catch (error) {
+        setFeedbackStatus("自動コピーできませんでした。GitHubのIssue作成ボタンをお使いください。", true);
+      }
+    }
+
+    function feedbackRelativeUrl(open) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("feedback");
+      url.hash = open ? "feedback" : "";
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+
+    function openFeedbackDialog() {
+      if (!el.feedbackDialog.open) el.feedbackDialog.showModal();
+      setFeedbackStatus("");
+      window.setTimeout(() => el.feedbackType.focus(), 0);
+    }
+
+    function closeFeedbackDialog(updateUrl = true) {
+      if (el.feedbackDialog.open) el.feedbackDialog.close();
+      if (updateUrl && (window.location.hash === "#feedback" || new URLSearchParams(window.location.search).has("feedback"))) {
+        history.replaceState(null, "", feedbackRelativeUrl(false));
+      }
+    }
+
     function wireEvents() {
       document.addEventListener("click", (event) => {
         if (!(event.target instanceof Element) || (!event.target.closest("#navigationMenuButton") && !event.target.closest("#navigationMenu"))) {
@@ -8549,8 +9127,10 @@
           el.navigationMenuButton.focus();
         });
       });
-      el.lightModeButton.addEventListener("click", () => applyMode("light"));
-      el.darkModeButton.addEventListener("click", () => applyMode("dark"));
+      el.modeToggleButton.addEventListener("click", () => {
+        const nextMode = document.documentElement.dataset.mode === "light" ? "dark" : "light";
+        applyMode(nextMode);
+      });
       el.themeSelect.addEventListener("change", () => applyTheme(el.themeSelect.value));
       wireRankingColumnResizers();
 
@@ -8691,6 +9271,32 @@
       el.retryLoadButton.addEventListener("click", () => {
         window.location.reload();
       });
+
+      el.openFeedbackButton.addEventListener("click", () => {
+        if (window.location.hash !== "#feedback") {
+          history.pushState(null, "", feedbackRelativeUrl(true));
+        }
+        openFeedbackDialog();
+      });
+      el.closeFeedbackButton.addEventListener("click", () => closeFeedbackDialog());
+      el.copyFeedbackButton.addEventListener("click", copyFeedbackIssue);
+      el.feedbackForm.addEventListener("input", () => setFeedbackStatus(""));
+      el.feedbackForm.addEventListener("submit", () => {
+        prepareFeedbackIssue();
+        setFeedbackStatus("GitHubの新規Issue画面を開きます。");
+      });
+      el.feedbackDialog.addEventListener("click", (event) => {
+        if (event.target === el.feedbackDialog) closeFeedbackDialog();
+      });
+      el.feedbackDialog.addEventListener("close", () => closeFeedbackDialog());
+      window.addEventListener("hashchange", () => {
+        if (window.location.hash === "#feedback") openFeedbackDialog();
+        else closeFeedbackDialog(false);
+      });
+
+      if (window.location.hash === "#feedback" || new URLSearchParams(window.location.search).get("feedback") === "1") {
+        openFeedbackDialog();
+      }
     }
 
     function fetchWithTimeout(url, timeoutMs) {
@@ -8752,7 +9358,7 @@
       try {
         bindElements();
         applyMode(document.documentElement.dataset.mode || "dark", false);
-        applyTheme(document.documentElement.dataset.theme || "standard", false);
+        applyTheme(document.documentElement.dataset.theme || "charmander", false);
         wireEvents();
         await loadData();
         populateControls();
