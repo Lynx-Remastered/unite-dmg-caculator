@@ -124,6 +124,10 @@ function extractPatch(post, resolvePokemon) {
   };
 }
 
+function patchKey(patch) {
+  return patch.slug || `${patch.date}|${patch.version}`;
+}
+
 async function main() {
   const pageResponse = await fetch(SOURCE_URL);
   if (!pageResponse.ok) throw new Error(`Patch notes page returned HTTP ${pageResponse.status}`);
@@ -141,8 +145,15 @@ async function main() {
   if (!posts.length) throw new Error("No patch note posts were found");
   const pokemonRows = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "pokemon.json"), "utf8"));
   const resolvePokemon = createPokemonResolver(pokemonRows);
-  const patches = posts.map((post) => extractPatch(post, resolvePokemon))
-    .filter((patch) => patch.pokemon.length).sort((a, b) => b.date.localeCompare(a.date));
+  const fetchedPatches = posts.map((post) => extractPatch(post, resolvePokemon))
+    .filter((patch) => patch.pokemon.length);
+  const previousPatches = fs.existsSync(OUTPUT_PATH)
+    ? JSON.parse(fs.readFileSync(OUTPUT_PATH, "utf8")).patches || []
+    : [];
+  const fetchedKeys = new Set(fetchedPatches.map(patchKey));
+  const patches = fetchedPatches
+    .concat(previousPatches.filter((patch) => !fetchedKeys.has(patchKey(patch))))
+    .sort((a, b) => b.date.localeCompare(a.date));
   const output = { source: SOURCE_URL, fetchedAt: new Date().toISOString().slice(0, 10), patchCount: posts.length, patches };
   fs.writeFileSync(OUTPUT_PATH, `${JSON.stringify(output, null, 2)}\n`);
   const pokemonCount = new Set(patches.flatMap((patch) => patch.pokemon.map((entry) => entry.name))).size;

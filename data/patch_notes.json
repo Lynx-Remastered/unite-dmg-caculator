@@ -1,8 +1,286 @@
 {
   "source": "https://unite-db.com/patch-notes",
-  "fetchedAt": "2026-07-16",
+  "fetchedAt": "2026-07-17",
   "patchCount": 100,
   "patches": [
+    {
+      "version": "1.23.3.9",
+      "date": "2026-07-16",
+      "slug": "patch-1-23-3-9-enduring-formation-part-2",
+      "pokemon": [
+        {
+          "name": "Aegislash",
+          "changes": [
+            {
+              "move": "Wide Guard",
+              "status": "buff",
+              "details": [
+                "Cooldown:",
+                "8.5s -> 8s",
+                "Shield:",
+                "Ratio: 170% Atk -> 187% Atk",
+                "Slider: 0 -> 0",
+                "Base: 340 -> 374",
+                "Extra: 8.5% Max HP -> 9.35% Max HP"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Clefable",
+          "changes": [
+            {
+              "move": "Gravity",
+              "status": "buff",
+              "details": [
+                "Cast time and recovery time:",
+                "37 Frames until movement -> 28 Frames until movement (60 FPS, 24% Faster)"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Feraligatr",
+          "changes": [
+            {
+              "move": "Unite Move: Big Jaw Bite",
+              "status": "nerf",
+              "details": [
+                "Unite Charge:",
+                "80,000 / 89s -> 90,000 / 100s",
+                "Damage - 0 Fangs:",
+                "Ratio: 300% Atk -> 240% Atk",
+                "Slider: 0 -> 0",
+                "Base: 900 -> 720"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Gyarados",
+          "changes": [
+            {
+              "move": "Bounce",
+              "status": "buff",
+              "details": [
+                "Damage:",
+                "Ratio: 178% Atk -> 204.7% Atk",
+                "Slider: 14 -> 16",
+                "Base: 350 -> 402",
+                "Shield:",
+                "Ratio: 234% Atk -> 257.4% Atk",
+                "Slider: 0 -> 0",
+                "Base: 520 -> 572",
+                "Throw Duration:",
+                "0.5s -> 0.7s"
+              ]
+            },
+            {
+              "move": "Bounce+",
+              "status": "buff",
+              "details": [
+                "Shield:",
+                "Ratio: 304.2% Atk -> 334.62% Atk",
+                "Slider: 0 -> 0",
+                "Base: 676 -> 743"
+              ]
+            },
+            {
+              "move": "Aqua Tail",
+              "status": "buff",
+              "details": [
+                "Damage:",
+                "Ratio: 200% Atk -> 220% Atk",
+                "Slider: 16 -> 17",
+                "Base: 405 -> 445",
+                "Damage - Boosted:",
+                "Ratio: 338% Atk -> 371.8% Atk",
+                "Slider: 28 -> 30",
+                "Base: 680 -> 748",
+                "Damage - Boosted (Charged):",
+                "Ratio: 388.7% Atk -> 427.57% Atk",
+                "Slider: 32 -> 35",
+                "Base: 782 -> 860"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Quaquaval",
+          "changes": [
+            {
+              "move": "Spinning Edge",
+              "status": "buff",
+              "details": [
+                "Damage:",
+                "Ratio: 50% Atk -> 55% Atk",
+                "Slider: 0 -> 0",
+                "Base: 150 -> 165",
+                "Damage - Low Sweep:",
+                "Ratio: 57% Atk -> 62.7% Atk",
+                "Base: 172 -> 189",
+                "Damage - Low Sweep+:",
+                "Ratio: 66% Atk -> 72.6% Atk",
+                "Base: 200 -> 220"
+              ]
+            },
+            {
+              "move": "Low Sweep",
+              "status": "buff",
+              "details": [
+                "Cast time and recovery time:",
+                "64 Frames until movement -> 57 Frames until movement (60 FPS, 11% Faster)"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sirfetchd",
+          "changes": [
+            {
+              "move": "Detect",
+              "status": "nerf",
+              "details": [
+                "Mechanic Change:",
+                "(Previously undocumented): If detect was used without blocking any damage, the dash distance was longer. This is no longer the case."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Skeledirge",
+          "changes": [
+            {
+              "move": "Hyper Voice",
+              "status": "buff",
+              "details": [
+                "Range:",
+                "9m -> 10m"
+              ]
+            },
+            {
+              "move": "Snarl",
+              "status": "buff",
+              "details": [
+                "Cast time and recovery time:",
+                "33 Frames until movement -> 29 Frames until movement (60 FPS, 12% Faster)",
+                "Mechanic Change:",
+                "Fear in the direction Skeledirge was aiming -> Fear away from Skeledirge's position."
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Suicune",
+          "changes": [
+            {
+              "move": "Whirlpool",
+              "status": "nerf",
+              "details": [
+                "Cooldown:",
+                "7.5s -> 8s"
+              ]
+            },
+            {
+              "move": "Ice Beam",
+              "status": "nerf",
+              "details": [
+                "Cooldown:",
+                "7.5s -> 8s"
+              ]
+            },
+            {
+              "move": "Unite Move: Endless Ice Spikes",
+              "status": "nerf",
+              "details": [
+                "Unite Charge:",
+                "90,000 / 100s -> 100,000 / 112s"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sylveon",
+          "changes": [
+            {
+              "move": "Hyper Voice",
+              "status": "nerf",
+              "details": [
+                "Damage - Far:",
+                "Ratio: 48% SpAtk -> 44.16% SpAtk",
+                "Slider: 12 -> 11",
+                "Base: 201 -> 185"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Typhlosion",
+          "changes": [
+            {
+              "move": "Flame Wheel",
+              "status": "nerf",
+              "details": [
+                "Cooldown:",
+                "7.5s -> 8.5s",
+                "Shield:",
+                "Ratio: 100% SpAtk -> 90% SpAtk",
+                "Slider: 0 -> 0",
+                "Base: 350 -> 315"
+              ]
+            },
+            {
+              "move": "Flame Wheel+",
+              "status": "nerf",
+              "details": [
+                "Shield:",
+                "Ratio: 130% SpAtk -> 117% SpAtk",
+                "Slider: 0 -> 0",
+                "Base: 455 -> 409"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Umbreon",
+          "changes": [
+            {
+              "move": "Wish",
+              "status": "buff",
+              "details": [
+                "Damage Resistance:",
+                "15% -> 20%"
+              ]
+            },
+            {
+              "move": "Wish+",
+              "status": "buff",
+              "details": [
+                "Damage Resistance:",
+                "20% -> 30%"
+              ]
+            },
+            {
+              "move": "Snarl",
+              "status": "buff",
+              "details": [
+                "Shield and duration:",
+                "15% max HP -> 20% max HP",
+                "2s -> 3s"
+              ]
+            },
+            {
+              "move": "Unite Move: Moonlight Prance",
+              "status": "buff",
+              "details": [
+                "Unite Charge:",
+                "100,000 / 112s -> 90,000 / 100s"
+              ]
+            }
+          ]
+        }
+      ]
+    },
     {
       "version": "1.23.2.6",
       "date": "2026-06-24",
