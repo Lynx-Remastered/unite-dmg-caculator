@@ -265,15 +265,55 @@
       font-weight: 700;
     }
 
-    .source-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 4px 24px;
-      margin: 4px 0 0;
-      padding-left: 20px;
+    .source-table-wrap {
+      margin-top: 4px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
     }
 
-    .source-disclosure:not([open]) > .source-list {
+    .source-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .source-table th,
+    .source-table td {
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .source-table th {
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 900;
+      background: var(--surface-2);
+    }
+
+    .source-table th:last-child,
+    .source-table td:last-child {
+      width: 140px;
+      white-space: nowrap;
+    }
+
+    .source-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .source-table tbody tr:hover {
+      background: var(--hover-bg);
+    }
+
+    .source-table a {
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .source-disclosure:not([open]) > .source-table-wrap {
       display: none;
     }
 
@@ -3280,19 +3320,29 @@
           <span>取得元情報</span>
           <span class="source-count">11件</span>
         </summary>
-        <ul class="source-list">
-        <li><a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a>（2026年7月6日取得）</li>
-        <li><a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - テイア蒼空遺跡</a>（2026年6月24日取得）</li>
-        <li><a href="https://wikiwiki.jp/poke-unite/%E3%82%82%E3%81%A1%E3%82%82%E3%81%AE" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - もちもの</a>（2026年7月7日取得）</li>
-        <li><a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - ビルド</a>（2026年6月24日取得）</li>
-        <li><a href="https://gamewith.jp/pokemon-unite/article/show/565725" target="_blank" rel="noreferrer">GameWith - イベルタルのおすすめビルド</a>（2026年7月6日取得）</li>
-        <li><a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB - サポートメダル</a>（2026年6月24日取得）</li>
-        <li><a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - サポートメダル</a>（2026年6月24日取得）</li>
-        <li><a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a>（2026年7月6日取得）</li>
-        <li><a href="https://gamewith.jp/pokemon-unite/article/show/284186" target="_blank" rel="noreferrer">GameWith - ポケモン一覧</a>（2026年7月6日取得）</li>
-        <li><a href="https://wikiwiki.jp/poke-unite/%E3%83%90%E3%83%88%E3%83%AB%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E4%BB%95%E6%A7%98" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - バトルに関する仕様</a>（2026年7月7日取得）</li>
-        <li><a href="https://unite-db.com/patch-notes" target="_blank" rel="noreferrer">UniteDB - パッチノート</a>（2026年7月16日取得）</li>
-        </ul>
+        <div class="source-table-wrap">
+          <table class="source-table">
+            <thead>
+              <tr>
+                <th scope="col">取得元</th>
+                <th scope="col">取得日</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a></td><td>2026年7月6日</td></tr>
+              <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - テイア蒼空遺跡</a></td><td>2026年6月24日</td></tr>
+              <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%82%82%E3%81%A1%E3%82%82%E3%81%AE" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - もちもの</a></td><td>2026年7月7日</td></tr>
+              <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - ビルド</a></td><td>2026年6月24日</td></tr>
+              <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/565725" target="_blank" rel="noreferrer">GameWith - イベルタルのおすすめビルド</a></td><td>2026年7月6日</td></tr>
+              <tr><td><a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB - サポートメダル</a></td><td>2026年6月24日</td></tr>
+              <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - サポートメダル</a></td><td>2026年6月24日</td></tr>
+              <tr><td><a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a></td><td>2026年7月6日</td></tr>
+              <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/284186" target="_blank" rel="noreferrer">GameWith - ポケモン一覧</a></td><td>2026年7月6日</td></tr>
+              <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%90%E3%83%88%E3%83%AB%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E4%BB%95%E6%A7%98" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - バトルに関する仕様</a></td><td>2026年7月7日</td></tr>
+              <tr><td><a href="https://unite-db.com/patch-notes" target="_blank" rel="noreferrer">UniteDB - パッチノート</a></td><td>2026年7月16日</td></tr>
+            </tbody>
+          </table>
+        </div>
       </details>
     </footer>
   </main>
