@@ -3325,7 +3325,7 @@
       <details class="source-disclosure">
         <summary class="source-summary">
           <span>取得元情報</span>
-          <span class="source-count">11件</span>
+          <span class="source-count">13件</span>
         </summary>
         <div class="source-table-wrap">
           <table class="source-table">
@@ -3336,12 +3336,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td><a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a></td><td>2026年7月6日</td></tr>
+              <tr><td><a href="https://unite-db.com/" target="_blank" rel="noreferrer">UniteDB</a></td><td>2026年7月21日</td></tr>
               <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%86%E3%82%A4%E3%82%A2%E8%92%BC%E7%A9%BA%E9%81%BA%E8%B7%A1%28%E3%82%B0%E3%83%A9%E3%83%BC%E3%83%89%E3%83%B3%29" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - テイア蒼空遺跡</a></td><td>2026年6月24日</td></tr>
               <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%82%82%E3%81%A1%E3%82%82%E3%81%AE" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - もちもの</a></td><td>2026年7月7日</td></tr>
               <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%93%E3%83%AB%E3%83%89" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - ビルド</a></td><td>2026年6月24日</td></tr>
-              <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/565725" target="_blank" rel="noreferrer">GameWith - イベルタルのおすすめビルド</a></td><td>2026年7月6日</td></tr>
-              <tr><td><a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB - サポートメダル</a></td><td>2026年6月24日</td></tr>
+              <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/563579" target="_blank" rel="noreferrer">GameWith - ウェーニバルのおすすめビルド</a></td><td>2026年7月21日</td></tr>
+              <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/565725" target="_blank" rel="noreferrer">GameWith - イベルタルのおすすめビルド</a></td><td>2026年7月21日</td></tr>
+              <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/567932" target="_blank" rel="noreferrer">GameWith - パルキアのおすすめビルド</a></td><td>2026年7月21日</td></tr>
+              <tr><td><a href="https://unite-db.com/boost-emblems" target="_blank" rel="noreferrer">UniteDB - サポートメダル</a></td><td>2026年7月21日</td></tr>
               <tr><td><a href="https://wikiwiki.jp/poke-unite/%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%82%B5%E3%83%9D%E3%83%BC%E3%83%88%E3%83%A1%E3%83%80%E3%83%AB" target="_blank" rel="noreferrer">ポケモンユナイトWiki* - サポートメダル</a></td><td>2026年6月24日</td></tr>
               <tr><td><a href="https://github.com/PokeAPI/pokeapi" target="_blank" rel="noreferrer">PokeAPI</a></td><td>2026年7月6日</td></tr>
               <tr><td><a href="https://gamewith.jp/pokemon-unite/article/show/284186" target="_blank" rel="noreferrer">GameWith - ポケモン一覧</a></td><td>2026年7月6日</td></tr>
@@ -3820,24 +3822,22 @@
       registeel: { name: "レジスチル", attackPercent: 15, spAttackPercent: 15, description: "攻撃+15%・特攻+15%" }
     };
 
-    const WIKI_EMBLEM_PRESETS = {
+    const FALLBACK_EMBLEM_PRESETS = {
+      Palkia: {
+        name: "緑6・黒7（GameWith）",
+        ids: ["003A", "015A", "041A", "045A", "071A", "088A", "094A", "123A", "198A", "249A"]
+      },
       Quaquaval: {
-        name: "茶6・白6（ポケモンユナイトWiki*）",
-        equippedCount: 10,
-        brownCount: 6,
-        greenCount: 0,
-        attack: 0,
-        spAttack: 0,
-        critRate: 0
+        name: "茶6・白6（GameWith）",
+        ids: ["022A", "057A", "068A", "105A", "115A", "128A", "130A", "141A", "142A", "250A"]
+      },
+      Yveltal: {
+        name: "緑6・黒7（GameWith）",
+        ids: ["003A", "015A", "041A", "045A", "071A", "088A", "094A", "123A", "198A", "249A"]
       },
       Zapdos: {
         name: "緑6・黒7（ポケモンユナイトWiki*）",
-        equippedCount: 10,
-        brownCount: 0,
-        greenCount: 6,
-        attack: 0,
-        spAttack: 0,
-        critRate: 0
+        ids: ["003A", "015A", "041A", "045A", "071A", "088A", "094A", "123A", "198A", "249A"]
       }
     };
 
@@ -7569,10 +7569,24 @@
       return totals;
     }
 
+    function fallbackEmblemPreset(pokemonName) {
+      const definition = FALLBACK_EMBLEM_PRESETS[pokemonName];
+      if (!definition || !Array.isArray(definition.ids)) return null;
+      const emblems = definition.ids
+        .map((id) => state.emblems.find((emblem) => emblem.name === id))
+        .filter(Boolean);
+      if (emblems.length !== definition.ids.length) return null;
+      return {
+        name: definition.name,
+        ids: emblems.map((emblem) => emblem.name),
+        ...summarizeEmblemRows(emblems)
+      };
+    }
+
     function emblemPresetFromBuild(pokemon) {
       if (!pokemon || !Array.isArray(pokemon.builds)) return null;
       const build = pokemon.builds.find((entry) => Array.isArray(entry.emblem_link) && entry.emblem_link[0]);
-      if (!build) return WIKI_EMBLEM_PRESETS[pokemon.name] || null;
+      if (!build) return fallbackEmblemPreset(pokemon.name);
 
       let ids = emblemIdsFromLink(build.emblem_link[0]);
       if (!ids.length && Array.isArray(build.emblem_name) && build.emblem_name[0]) {
@@ -7589,12 +7603,12 @@
           if (ids.length) break;
         }
       }
-      if (!ids.length) return WIKI_EMBLEM_PRESETS[pokemon.name] || null;
+      if (!ids.length) return fallbackEmblemPreset(pokemon.name);
 
       const emblems = ids
         .map((id) => state.emblems.find((emblem) => emblem.name === id))
         .filter(Boolean);
-      if (!emblems.length) return WIKI_EMBLEM_PRESETS[pokemon.name] || null;
+      if (!emblems.length) return fallbackEmblemPreset(pokemon.name);
 
       const totals = summarizeEmblemRows(emblems);
 
