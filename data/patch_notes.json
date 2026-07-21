@@ -1,8 +1,36 @@
 {
   "source": "https://unite-db.com/patch-notes",
-  "fetchedAt": "2026-07-20",
+  "fetchedAt": "2026-07-21",
   "patchCount": 100,
   "patches": [
+    {
+      "version": "1.23.3.10",
+      "date": "2026-07-20",
+      "slug": "1-23-3-10-palkia-buff",
+      "pokemon": [
+        {
+          "name": "Palkia",
+          "changes": [
+            {
+              "move": "Unite Move: Multi Dimensional Rend",
+              "status": "buff",
+              "details": [
+                "Recovery time:",
+                "92 Frames from first hit until movement -> 65 Frames from first hit until movement",
+                "(60 FPS, 29% Faster)",
+                "Damage - Flurry:",
+                "Ratio: 21.6% SpAtk -> 27% SpAtk",
+                "Slider: 0 -> 0",
+                "Base: 65 -> 81",
+                "Damage - Final:",
+                "Ratio: 86.4% SpAtk -> 108% SpAtk",
+                "Base: 260 -> 325"
+              ]
+            }
+          ]
+        }
+      ]
+    },
     {
       "version": "1.23.3.9",
       "date": "2026-07-16",
